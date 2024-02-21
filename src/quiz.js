@@ -4,7 +4,7 @@
  * @param {number} authUserId - the authenticated user ID.
  * @returns {{quizzes: json}} An json object containing the quizzes with their ID and name.
  */
-function adminQuizList( authUserId ){
+function adminQuizList(authUserId) {
   return {
       quizzes: [
           {
@@ -23,7 +23,7 @@ function adminQuizList( authUserId ){
 * @param {string} description - the description of the quiz
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
-function adminQuizCreate( authUserId, name, description ){
+function adminQuizCreate(authUserId, name, description) {
   return {
       quizId: 2
   }
