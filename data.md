@@ -1,56 +1,75 @@
-
+/*
 1531, Crunchie H17B
 Data.md - worth 20% of Iteration 0
+
+*/
+
 
 /**
  * Valid for Register new account and log-in
  * 1. Array of objects for quiz makers
  */
 
-const user = [
-    {
+const users = [
+  {
     userId: 1,
     nameFirst: 'UserFirstName',
     nameLast: 'UserLastName',
     email: 'adminuser@gmail.com',
-    password: "############",
+    password: "##########",
     numSuccessfulLogins: 3,
     numFailedPasswordsSinceLastLogin: 1,
-    quizId:[1, 2],
-    }
-],
+    quizIds: [1, 2], // Array of quiz IDs associated with the user
+  },
+  // ... other users
+];
 
 /**
  * 2. Aray of object of quizzes
  * 
  */  
-const Quiz = {
+const quizzes = [
+  {
     quizId: 1,
-    quizName: 'My Quiz',
+    quizName: 'My Quiz 1',
     timeCreated: 1683125870,
     timeLastEdited: 1683125871,
-    description: 'This is my quiz',  
+    description: 'Mini Quiz COMP1531',
     questions: [
-       {
-            questionid: '1',
-            questionDescription: 'Who is the COMP1531 Lecturer',
-            answerA: 'Hayden',
-            answerB: 'Jake',
-            answerC: 'Yuchao',
-            answerD: 'Robert',            
-            questionAnswer: 'A',
+      {
+        questionId: 1,
+        questionDescription: 'Who is the COMP1531 Lecturer?',
+        answerOptions: {
+            a: 'Hayden',
+            b: 'Jake',
+            c: 'Yuchao',
+            d: 'Robert'
+        },          
+        correctAnswer: 'a',
+      },
+      {
+        questionId: 2,
+        questionDescription: 'What is the capital of France?',
+        answerOptions: {
+            a: 'Berlin',
+            b: 'Madrid',
+            c: 'Paris',
+            d: 'London'
+        },            
+        correctAnswer: 'c',
 
-       },
-       {
-            questionid: '2',
-            questionDescription: 'Question 2',
-            answerA: 'A',
-            answerB: 'B',
-            answerC: 'C',
-            answerD: 'D',            
-            questionAnswer: 'C',
-
-       },             
+      },
     ],
-};
-
+  },
+  {
+    quizId: 2,
+    quizName: 'My Quiz 2',
+    timeCreated: 1683125872,
+    timeLastEdited: 1683125873,
+    description: 'Description of Quiz 2',
+    questions: [
+    // ... questions for Quiz 2
+    ],
+  },
+  // ... other quizzes
+];
