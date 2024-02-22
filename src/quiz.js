@@ -16,7 +16,7 @@ function adminQuizList(authUserId) {
 }
 
 /**
-* Provide a list of all quizzes that are owned by the currently logged in user.
+* Given basic details about a new quiz, create one for the logged in user.
 *
 * @param {number} authUserId - the authenticated user ID.
 * @param {string} name - the name of the quiz
