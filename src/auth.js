@@ -13,13 +13,25 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
         authUserId: 1,
     }
 }
-
+/**
+ * Given a registered user's email and password returns their authUserId value
+ *
+ * @param {string} email - email address of the user
+ * @param {string} password - The password for the user
+ * @returns {{authUserId: number}} An object containing the authenticated user ID.
+ */
 function adminAuthLogin(email, password) {
     return {
       authUserId: 1,
     }
 }
-
+/**
+ * Given an admin user's authUserId, return details about the user.
+ *  "name" is the first and last name concatenated with a single space between them.
+ *
+ * @param {integer} authUserId - the admin's user authenticated user ID
+ * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}} An object containing the properties related to a user.
+ */
 function adminUserDetails(authUserId) {
     return {
         user: {
@@ -47,7 +59,13 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
     return {  }
 }
 
-
+/**
+ * Given details relating to a password change, update the password of a logged in user.
+ *
+ * @param {string} oldPassword - The oldpassword for the user
+ * @param {string} newPassword - The newpassword for the user
+ * @returns { } null
+ */
 function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
     return { }
 
