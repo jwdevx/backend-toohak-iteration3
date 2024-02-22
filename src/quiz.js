@@ -29,6 +29,16 @@ function adminQuizCreate(authUserId, name, description) {
   }
 }
 
+/**
+ * Removes the quiz
+ *
+ * @param {number} authUserId - the authenticated user ID.
+ * @param {number} quizID - the authenticated user ID.
+ * @returns {} nothing
+ */
+function adminQuizRemove(authUserId, quizId) {
+  return {}
+}
 
 /**
 *Update the name of the relevant quiz.
