@@ -28,3 +28,16 @@ function adminQuizCreate(authUserId, name, description) {
       quizId: 2
   }
 }
+
+
+/**
+*Update the name of the relevant quiz.
+*
+* @param {number} authUserId - the authenticated user ID.
+* @param {number} quizId- the authenticated quiz ID.
+* @param {string} name - the name of the quiz
+* @return{{}}empty object
+*/
+function adminQuizNameUpdate(authUserId, quizId, name){
+  return{}
+}
