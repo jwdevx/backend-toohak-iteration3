@@ -41,18 +41,14 @@ function adminQuizRemove(authUserId, quizId) {
 }
 
 /**
- * provides information on the quiz
- *
- * @param {number} authUserId - the authenticated user ID.
- * @param {number} quizID - the authenticated quiz ID.
- * @returns {} empty object
- */
-function adminQuizInfo(authUserId, quizId) {
-  return {
-    quizId: 1,
-    name: 'My Quiz',
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
-    description: 'This is my quiz',
-  }
+*Update the name of the relevant quiz.
+*
+* @param {number} authUserId - the authenticated user ID.
+* @param {number} quizId- the authenticated quiz ID.
+* @param {string} name - the name of the quiz
+* @return{{}}empty object
+*/
+function adminQuizNameUpdate(authUserId, quizId, name){
+  return{}
 }
+
