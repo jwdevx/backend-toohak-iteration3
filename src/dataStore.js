@@ -1,5 +1,14 @@
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
-let data = {};
+
+let data = {
+  users: [
+
+  ],
+  quizzes: [
+
+  ],
+}
+
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY
 
@@ -30,3 +39,4 @@ function setData(newData) {
 }
 
 export { getData, setData };
+
