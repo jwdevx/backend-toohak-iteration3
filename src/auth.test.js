@@ -3,7 +3,7 @@ import {
     adminAuthLogin,
     adminUserDetails,
     adminUserDetailsUpdate,
-    adminUserPasswordUpdate 
+    adminUserPasswordUpdate, 
 } from './auth.js';
 
 import { clear } from './other.js';
@@ -25,11 +25,9 @@ describe('adminAuthRegister', () => {
     // beforeEach(() => {
     //     clear();
     // });
-    
-
 
     // Email address is used by another user return object {error: 'specific error message here'}
-
+    
     // Email does not satisfy this: https://www.npmjs.com/package/validator (validator.isEmail function). return object {error: 'specific error message here'}
 
     // NameFirst contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes. return object {error: 'specific error message here'}
@@ -50,22 +48,12 @@ describe('adminAuthRegister', () => {
       expect(authUserId).toStrictEqual({ authUserId: expect.any(Number),});
   
     });      
+
 });
 
 
 
 
-
- // test.each([
-    //   { name: '', hobby: 'dancing' },
-    //   { name: 'Jade', hobby: '' },
-    // ])("error: ('$name', '$hobby')", ({ name, hobby }) => {
-    //   expect(academicCreate(name, hobby)).toStrictEqual(ERROR);
-    // });
-  
-    // test('correct return type', () => {
-    //   const academic = academicCreate('Magnus', 'chess');
-    //   expect(academic).toStrictEqual({ academicId: expect.any(Number),});
-  
-    // });  
     
+    
+
