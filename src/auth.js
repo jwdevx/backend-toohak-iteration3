@@ -94,11 +94,35 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
  * @param {string} password - The password for the user
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
-function adminAuthLogin(email, password) {
-    return {
-      authUserId: 1,
-    }
+export function adminAuthLogin(email, password) {
+		
+		let found = 0;
+		let match = 0;
+		let dataStore = getData();
+		for (const element in dataStore.quizcreators) {
+			if (element.email === email) {
+				found = 1;
+				if (found === 1) {
+					if (element.password === password) {
+						match = 1;
+						let ID = element.userId;
+					}
+					break;
+				}
+			}
+		}
+		if (!found) {
+			return {error: 'Email address does not exist'};
+		} else if (!match) {
+			return {error: 'Password does not match email'};
+		} else {
+			return {
+				authUserId: ID,
+			}
+		}
+	   
 }
+
 
 
 /**
