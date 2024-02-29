@@ -1,6 +1,10 @@
 import { getData, setData } from './dataStore.js';
-import validator from 'validator';
 
+import {
+	invalidEmail,
+	invalidUserName,
+	invalidNameLength
+} from './helper.js';
 
 let UserIdGenerator = 1;
 
@@ -23,28 +27,28 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 	}
 
 	// Return error if email does not satisfy this: https://www.npmjs.com/package/validator 
-	if (!validator.isEmail(email)){
+	if (invalidEmail(email)) {
 		return { error: 'Invalid email address: email is not a string' };
 	}
 
 	// Return error if NameFirst contains invalid characters
-	const regex = /^[a-zA-Z\s\-']+$/;
-	if (!regex.test(nameFirst)) {
-		return { error: 'First name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' };
+	// const firstNameError = validateName(nameFirst);
+	if (invalidUserName(nameFirst)) {
+    return { error: 'First name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' };
 	}
 
 	// Return error if NameFirst is less than 2 characters or more than 20 characters.
-	if (nameFirst.length < 2 || nameFirst.length > 20) {
+	if (invalidNameLength(nameFirst)) {
 		return { error: 'First name must be between 2 and 20 characters long' };
 	}
 
 	// Return error if NameLast contains invalid characters
-	if (!regex.test(nameLast)) {
+	if (invalidUserName(nameLast)) {
 		return { error: 'Last name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' };
 	}
-
+ 
 	// Return error if  NameLast is less than 2 characters or more than 20 characters
-	if (nameLast.length < 2 || nameLast.length > 20) {
+	if (invalidNameLength(nameLast)) {
 		return { error: 'Last name must be between 2 and 20 characters long' };
 	}
 
@@ -57,14 +61,19 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 	if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(password)) {
 			return { error: 'Password must contain at least one letter and one number' };
 	}
+	// Construct the user's full name by concatenating first and last names
+	const fullUserName = `${nameFirst} ${nameLast}`;
 
 	// If no error, we will register user
 	const newUser = {
 		userId: UserIdGenerator,
 		nameFirst: nameFirst,
 		nameLast: nameLast,
+		name: fullUserName,
 		email: email,
 		password: password,
+		numSuccessfulLogins: 1,
+		numFailedPasswordsSinceLastLogin: 0,
 	};    
 
 	UserIdGenerator += 1;  
