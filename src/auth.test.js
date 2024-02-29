@@ -8,6 +8,36 @@ import {
 
 import { clear } from './other.js';
 
+let ExampleUser;
+
+beforeEach(() => {
+    ExampleUser = adminAuthRegister('samsmith@gmail.com', 'IS1234567', 'Sam', 'Smith');
+});
+
+// Creates an example user for the tests
+
+describe('These are tests for adminAuthLogin', () => {
+    // NON EXISTENT EMAIL
+    test('Error Case: Email address does not exist', () => {
+        expect(adminAuthLogin('notemail@gmail.com', '123456')).toStrictEqual({error: expect.any(String)});
+    });
+
+    // WRONG PWD
+    test('Error Case: Password is not correct for given email', () => {
+        expect(adminAuthLogin('samsmith@gmail.com', '1234567')).toStrictEqual({error: 'Password does not match email'});
+    });
+
+    // NULL CASE
+    test('Error Case: Null argument', () => {
+        expect(adminAuthLogin()).toStrictEqual({ error: expect.any(String)});
+    });
+
+    // SUCCESS CASE
+    test('Success case: Prints user ID', () => {
+        expect(adminAuthLogin('samsmith@gmail.com', 'IS1234567')).toStrictEqual({ authUserId: expect.any(Number) });
+    });
+});
+
 const ERROR = { error: expect.any(String) };
 beforeEach(() => {
   clear();
