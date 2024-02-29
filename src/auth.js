@@ -64,7 +64,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
 	// Return error if Password does not contain at least one number and at least one letter
 	if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(password)) {
-			return { error: 'Password must contain at least one letter and one number' };
+		return { error: 'Password must contain at least one letter and one number' };
 	}
 
 	// If no error, we will register user
@@ -80,7 +80,6 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 	};    
 
 	UserIdGenerator += 1;  
-
 	data.users.push(newUser);
 	setData(data); 
 
@@ -150,7 +149,6 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 	if (!authUserId || !email || !nameFirst || !nameLast ) {
     return { error: 'One or more missing parameters' };
 	}
-
 	let data = getData();	
 
 	// Return error if AuthUserId is not a valid user.
@@ -159,12 +157,12 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 	}
 	// Return error if email is currently used by another user (excluding the current authorised user)
 	if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== authUserId)) {
-			return { error: 'Email is currently used by another user, choose another email!' };
+		return { error: 'Email is currently used by another user, choose another email!' };
 	}
 
 	// Return error if email does not satisfy: https://www.npmjs.com/package/validator 
 	if (invalidEmail(email)) {
-		return { error: 'Invalid email address: email is not a string' };
+    return { error: 'Invalid email address: email is not a string' };
 	}
 	
 	// Return error if NameFirst contains invalid characters
