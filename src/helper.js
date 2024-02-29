@@ -24,7 +24,7 @@ export function invalidAuthUserId(authUserId) {
  * @returns {boolean} - Returns true if the email is invalid, false otherwise.
  */
 export function invalidEmail(email) {
-	return !validator.isEmail(email);
+  return !validator.isEmail(email);
 }
 
 
