@@ -60,18 +60,18 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
 	// If no error, we will register user
 	const newUser = {
-		userId: 1,
+		userId: UserIdGenerator,
 		nameFirst: nameFirst,
 		nameLast: nameLast,
 		email: email,
 		password: password,
 	};    
-	data.users.push(newUser);
-
-	//Saved the updated data
-	setData(data); 
 
 	UserIdGenerator += 1;  
+
+	data.users.push(newUser);
+	setData(data); 
+
 	return {
 		authUserId: newUser.userId,
 	};
