@@ -1,6 +1,7 @@
 import { getData, setData } from './dataStore.js';
 
 import {
+	invalidAuthUserId,
 	invalidEmail,
 	invalidUserName,
 	invalidNameLength
@@ -19,20 +20,24 @@ let UserIdGenerator = 1;
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
 export function adminAuthRegister(email, password, nameFirst, nameLast) {
-	let data = getData();
 
+	// Basic validation for missing or null values
+	if (!email || !password || !nameFirst || !nameLast ) {
+    return { error: 'One or more missing parameters' };
+	}
+
+	let data = getData();
 	// Return error if email address is used by another user
 	if (data.users.some(existingUser => existingUser.email === email)) {
 		return { error: 'Email address is used by another user' };
 	}
 
-	// Return error if email does not satisfy this: https://www.npmjs.com/package/validator 
+	// Return error if email does not satisfy: https://www.npmjs.com/package/validator 
 	if (invalidEmail(email)) {
 		return { error: 'Invalid email address: email is not a string' };
 	}
 
 	// Return error if NameFirst contains invalid characters
-	// const firstNameError = validateName(nameFirst);
 	if (invalidUserName(nameFirst)) {
     return { error: 'First name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' };
 	}
@@ -61,15 +66,13 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 	if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(password)) {
 			return { error: 'Password must contain at least one letter and one number' };
 	}
-	// Construct the user's full name by concatenating first and last names
-	const fullUserName = `${nameFirst} ${nameLast}`;
 
 	// If no error, we will register user
 	const newUser = {
 		userId: UserIdGenerator,
 		nameFirst: nameFirst,
 		nameLast: nameLast,
-		name: fullUserName,
+		name: `${nameFirst} ${nameLast}`,
 		email: email,
 		password: password,
 		numSuccessfulLogins: 1,
@@ -94,12 +97,17 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
  * @param {string} password - The password for the user
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
-function adminAuthLogin(email, password) {
-    return {
-      authUserId: 1,
-    }
-}
+export function adminAuthLogin(email, password) {
 
+	// Basic validation for missing or null values
+	if (!email || !password) {
+    return { error: 'One or more missing parameters' };
+	}	
+
+	return {
+		authUserId: 1,
+	}
+}
 
 /**
  * Given an admin user's authUserId, return details about the user.
@@ -108,18 +116,23 @@ function adminAuthLogin(email, password) {
  * @param {integer} authUserId - the admin's user authenticated user ID
  * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}} An object containing the properties related to a user.
  */
-function adminUserDetails(authUserId) {
-    return {
-        user: {
-            userId: 1,
-            name: 'Hayden Smith',
-            email: 'hayden.smith@unsw.edu.au',
-            numSuccessfulLogins: 3,
-            numFailedPasswordsSinceLastLogin: 1,
-        }
-    };
+export function adminUserDetails(authUserId) {
+    
+	// Basic validation for missing or null values
+	if (!authUserId) {
+    return { error: 'Missing authUserId parameter' };
+	}		
+	
+	return {
+		user: {
+			userId: 1,
+			name: 'Hayden Smith',
+			email: 'hayden.smith@unsw.edu.au',
+			numSuccessfulLogins: 3,
+			numFailedPasswordsSinceLastLogin: 1,
+		}
+	};
 }
-
 
 /**
  * Given an admin user's authUserId and a set of properties, update the 
@@ -131,8 +144,57 @@ function adminUserDetails(authUserId) {
  * @param {string} nameLast - The last name of the admin user.
  * @returns { }  null
  */
-function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-    return {  }
+export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
+
+	// Basic validation for missing or null values
+	if (!authUserId || !email || !nameFirst || !nameLast ) {
+    return { error: 'One or more missing parameters' };
+	}
+
+	let data = getData();	
+
+	// Return error if AuthUserId is not a valid user.
+	if (invalidAuthUserId(authUserId)) {
+		return { error: 'AuthUserId is not a valid user' };
+	}
+	// Return error if email is currently used by another user (excluding the current authorised user)
+	if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== authUserId)) {
+			return { error: 'Email is currently used by another user, choose another email!' };
+	}
+
+	// Return error if email does not satisfy: https://www.npmjs.com/package/validator 
+	if (invalidEmail(email)) {
+		return { error: 'Invalid email address: email is not a string' };
+	}
+	
+	// Return error if NameFirst contains invalid characters
+	if (invalidUserName(nameFirst)) {
+    return { error: 'First name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' };
+	}
+
+	// Return error if NameFirst is less than 2 characters or more than 20 characters.
+	if (invalidNameLength(nameFirst)) {
+		return { error: 'First name must be between 2 and 20 characters long' };
+	}
+
+	// Return error if NameLast contains invalid characters
+	if (invalidUserName(nameLast)) {
+		return { error: 'Last name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' };
+	}
+ 
+	// Return error if  NameLast is less than 2 characters or more than 20 characters
+	if (invalidNameLength(nameLast)) {
+		return { error: 'Last name must be between 2 and 20 characters long' };
+	}
+
+	const authUser = data.users.find(user => user.userId === authUserId);
+	authUser.email = email;
+	authUser.nameFirst = nameFirst;
+	authUser.nameLast = nameLast;
+	setData(data); 
+
+	return {};
+	
 }
 
 
@@ -143,7 +205,13 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
  * @param {string} newPassword - The newpassword for the user
  * @returns { } null
  */
-function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
-    return { }
+export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
+  
+	// Basic validation for missing or null values
+	if (!authUserId || !oldPassword || !newPassword) {
+    return { error: 'One or more missing parameters' };
+	}		
+	
+	return {}
 
 }
