@@ -1,8 +1,17 @@
 import validator from 'validator';
+import { getData } from './dataStore';
 
-
-// TODO Helper Function: AuthUserId is not a valid user.
-    
+/**
+ * Helper Function used in auth.js, quiz.js 
+ * Checks if the provided AuthUserId does not correspond to any existing user.
+ * 
+ * @param {integer} authUserId - The user ID to be validated.
+ * @returns {boolean} Returns true if the AuthUserId does not match any existing user's userId
+ */
+export function invalidAuthUserId(authUserId) {
+	let data = getData(); 
+	return !data.users.some(user => user.userId === authUserId);
+}
 	
 /**
  * Helper Function used in auth.js 
@@ -15,7 +24,7 @@ import validator from 'validator';
  * @returns {boolean} - Returns true if the email is invalid, false otherwise.
  */
 export function invalidEmail(email) {
-	return !validator.isEmail(email);
+  return !validator.isEmail(email);
 }
 
 
