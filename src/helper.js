@@ -1,5 +1,5 @@
 import validator from 'validator';
-import { getData } from './dataStore';
+import { getData } from './dataStore.js';
 
 /**
  * Helper Function used in auth.js, quiz.js 
@@ -8,9 +8,9 @@ import { getData } from './dataStore';
  * @param {integer} authUserId - The user ID to be validated.
  * @returns {boolean} Returns true if the AuthUserId does not match any existing user's userId
  */
-export function invalidAuthUserId(authUserId) {
+export function findUserId(authUserId) {
 	let data = getData(); 
-	return !data.users.some(user => user.userId === authUserId);
+	return data.users.find(user => user.userId === authUserId);
 }
 	
 /**
