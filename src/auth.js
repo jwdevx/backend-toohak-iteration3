@@ -1,11 +1,11 @@
 import { getData, setData } from './dataStore.js';
-
 import {
-	invalidAuthUserId,
+	findUserId,
 	invalidEmail,
 	invalidUserName,
 	invalidNameLength
 } from './helper.js';
+
 let data = getData();
 let UserIdGenerator = 1;
 
@@ -22,45 +22,19 @@ let UserIdGenerator = 1;
 export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
 	// Basic validation for missing or null values
-	if (!email || !password || !nameFirst || !nameLast ) {
-    return { error: 'One or more missing parameters' };
-	}
+	if (!email || !password || !nameFirst || !nameLast ) return { error: 'One or more missing parameters' };
 
 	let data = getData();
-	// Return error if email address is used by another user
 	if (data.users.some(existingUser => existingUser.email === email)) {
 		return { error: 'Email address is used by another user' };
 	}
 
-	// Return error if email does not satisfy: https://www.npmjs.com/package/validator 
-	if (invalidEmail(email)) {
-		return { error: 'Invalid email address: email is not a string' };
-	}
-
-	// Return error if NameFirst contains invalid characters
-	if (invalidUserName(nameFirst)) {
-    return { error: 'First name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' };
-	}
-
-	// Return error if NameFirst is less than 2 characters or more than 20 characters.
-	if (invalidNameLength(nameFirst)) {
-		return { error: 'First name must be between 2 and 20 characters long' };
-	}
-
-	// Return error if NameLast contains invalid characters
-	if (invalidUserName(nameLast)) {
-		return { error: 'Last name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' };
-	}
- 
-	// Return error if  NameLast is less than 2 characters or more than 20 characters
-	if (invalidNameLength(nameLast)) {
-		return { error: 'Last name must be between 2 and 20 characters long' };
-	}
-
-	// Return error if Password is less than 8 characters. 
-	if (password.length < 8) {
-		return { error: 'Password must be at least 8 characters long' };
-	}
+	if (invalidEmail(email)) return { error: 'Invalid email address: email is not a string' };
+	if (invalidUserName(nameFirst)) return { error: 'First name contains invalid characters' };
+	if (invalidNameLength(nameFirst)) return { error: 'First name must be between 2 and 20 characters long' };
+	if (invalidUserName(nameLast)) return { error: 'Last name contains invalid characters' };
+	if (invalidNameLength(nameLast)) return { error: 'Last name must be between 2 and 20 characters long' };
+	if (password.length < 8) return { error: 'Password must be at least 8 characters long' };
 
 	// Return error if Password does not contain at least one number and at least one letter
 	if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(password)) {
@@ -97,6 +71,11 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
 export function adminAuthLogin(email, password) {
+
+	// Basic validation for missing or null values
+	if (!email || !password) return { error: 'One or more missing parameters' };
+
+
   const user = data.users.find(user => user.email === email && user.password === password);
   const userEmail = data.users.find(user => user.email !== email);
   const userPassword = data.users.find(user => user.email === email && user.password !== password);
@@ -115,15 +94,7 @@ export function adminAuthLogin(email, password) {
   }
 }
 
-	// Basic validation for missing or null values
-	if (!email || !password) {
-    return { error: 'One or more missing parameters' };
-	}	
 
-	return {
-		authUserId: 1,
-	}
-}
 
 
 
@@ -132,14 +103,14 @@ export function adminAuthLogin(email, password) {
  *  "name" is the first and last name concatenated with a single space between them.
  *
  * @param {integer} authUserId - the admin's user authenticated user ID
- * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}} An object containing the properties related to a user.
+ * 
+ * An object containing the properties related to a user.
+ * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}} 
  */
 export function adminUserDetails(authUserId) {
     
 	// Basic validation for missing or null values
-	if (!authUserId) {
-    return { error: 'Missing authUserId parameter' };
-	}		
+	if (!authUserId) return { error: 'Missing authUserId parameter' };
 	
 	return {
 		user: {
@@ -165,46 +136,22 @@ export function adminUserDetails(authUserId) {
 export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 
 	// Basic validation for missing or null values
-	if (!authUserId || !email || !nameFirst || !nameLast ) {
-    return { error: 'One or more missing parameters' };
-	}
+	if (!authUserId || !email || !nameFirst || !nameLast ) return { error: 'One or more missing parameters' };
+	
 	let data = getData();	
-
-	// Return error if AuthUserId is not a valid user.
-	if (invalidAuthUserId(authUserId)) {
-		return { error: 'AuthUserId is not a valid user' };
-	}
+	const authUser = findUserId(authUserId);
+	if (!authUser) return { error: 'AuthUserId is not a valid user' };
+	
 	// Return error if email is currently used by another user (excluding the current authorised user)
 	if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== authUserId)) {
 		return { error: 'Email is currently used by another user, choose another email!' };
 	}
+	if (invalidEmail(email)) return { error: 'Invalid email address: email is not a string' };
+	if (invalidUserName(nameFirst)) return { error: 'First name contains invalid characters' };
+	if (invalidNameLength(nameFirst)) return { error: 'First name must be between 2 and 20 characters long' };
+	if (invalidUserName(nameLast)) return { error: 'Last name contains invalid characters' };
+	if (invalidNameLength(nameLast)) return { error: 'Last name must be between 2 and 20 characters long' };
 
-	// Return error if email does not satisfy: https://www.npmjs.com/package/validator 
-	if (invalidEmail(email)) {
-    return { error: 'Invalid email address: email is not a string' };
-	}
-	
-	// Return error if NameFirst contains invalid characters
-	if (invalidUserName(nameFirst)) {
-    return { error: 'First name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' };
-	}
-
-	// Return error if NameFirst is less than 2 characters or more than 20 characters.
-	if (invalidNameLength(nameFirst)) {
-		return { error: 'First name must be between 2 and 20 characters long' };
-	}
-
-	// Return error if NameLast contains invalid characters
-	if (invalidUserName(nameLast)) {
-		return { error: 'Last name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' };
-	}
- 
-	// Return error if  NameLast is less than 2 characters or more than 20 characters
-	if (invalidNameLength(nameLast)) {
-		return { error: 'Last name must be between 2 and 20 characters long' };
-	}
-
-	const authUser = data.users.find(user => user.userId === authUserId);
 	authUser.email = email;
 	authUser.nameFirst = nameFirst;
 	authUser.nameLast = nameLast;
@@ -225,9 +172,8 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   
 	// Basic validation for missing or null values
-	if (!authUserId || !oldPassword || !newPassword) {
-    return { error: 'One or more missing parameters' };
-	}		
+	if (!authUserId || !oldPassword || !newPassword) return { error: 'One or more missing parameters' };
+	
 	
 	return {}
 

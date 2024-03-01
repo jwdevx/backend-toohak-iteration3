@@ -7,21 +7,23 @@ import {
 } from './auth.js';
 
 import { clear } from './other.js';
-import { getData } from './dataStore';
+import { getData } from './dataStore.js';
+const ERROR = { error: expect.any(String) };
+
+
 
 let ExampleUser;
 let ExampleUser2;
 
 beforeEach(() => {
-    ExampleUser = adminAuthRegister('samsmith@gmail.com', 'IS1234567', 'Sam', 'Smith');
+  ExampleUser = adminAuthRegister('samsmith@gmail.com', 'IS1234567', 'Sam', 'Smith');
+  ExampleUser2 = adminAuthRegister('kingjakerulesdaworld1@gmail.com', '1234567', 'jamie', 'cheong');
+});
 
-    ExampleUser2 = adminAuthRegister('kingjakerulesdaworld1@gmail.com', '1234567', 'jamie', 'cheong');
-
-  });
-
-// Creates an example user for the tests
-
+  
 describe('These are tests for adminAuthLogin', () => {
+  
+  
     // NON EXISTENT EMAIL
     test('Error Case: Email address does not exist', () => {
         expect(adminAuthLogin('notemail@gmail.com', '123456')).toStrictEqual({error: expect.any(String)});
@@ -43,7 +45,6 @@ describe('These are tests for adminAuthLogin', () => {
     });
 });
 
-const ERROR = { error: expect.any(String) };
 beforeEach(() => {
   clear();
 });
@@ -90,7 +91,7 @@ describe('adminAuthRegister', () => {
     let NameFirst2 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden7', 'Smith');
     let NameFirst3 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden&Smith', 'Smith');
     let NameFirst4 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'H@yden', 'Smith');
-    expect(NameFirst1).toStrictEqual({ error: 'First name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' });
+    expect(NameFirst1).toStrictEqual({ error: 'First name contains invalid characters' });
     expect(NameFirst2).toStrictEqual(ERROR); 
     expect(NameFirst3).toStrictEqual(ERROR); 
     expect(NameFirst4).toStrictEqual(ERROR); 
@@ -108,7 +109,7 @@ describe('adminAuthRegister', () => {
     let NameLast2 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Sm*ith');
     let NameLast3 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith3');
     let NameLast4 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Sm!th');
-    expect(NameLast1).toStrictEqual({ error: 'Last name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes'});
+    expect(NameLast1).toStrictEqual({ error: 'Last name contains invalid characters' });
     expect(NameLast2).toStrictEqual(ERROR); 
     expect(NameLast3).toStrictEqual(ERROR); 
     expect(NameLast4).toStrictEqual(ERROR); 
@@ -227,7 +228,7 @@ describe('adminUserDetailsUpdate', () => {
     const NameFirst2 = adminUserDetailsUpdate(user1.authUserId, 'hayden@gmail.com', 'Hayden7', 'Smith'); 
     const NameFirst3 = adminUserDetailsUpdate(user1.authUserId, 'hayden@gmail.com', 'Hayden&Smith', 'Smith'); 
     const NameFirst4 = adminUserDetailsUpdate(user1.authUserId, 'hayden@gmail.com', 'H@yden', 'Smith'); 
-    expect(NameFirst1).toStrictEqual({ error: 'First name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes' });
+    expect(NameFirst1).toStrictEqual({ error: 'First name contains invalid characters'});
     expect(NameFirst2).toStrictEqual(ERROR); 
     expect(NameFirst3).toStrictEqual(ERROR); 
     expect(NameFirst4).toStrictEqual(ERROR); 
@@ -247,7 +248,7 @@ describe('adminUserDetailsUpdate', () => {
     const NameLast2 = adminUserDetailsUpdate(user1.authUserId, 'hayden@gmail.com', 'Hayden', 'Sm*ith'); 
     const NameLast3 = adminUserDetailsUpdate(user1.authUserId, 'hayden@gmail.com', 'Hayden', 'Smith3'); 
     const NameLast4 = adminUserDetailsUpdate(user1.authUserId, 'hayden@gmail.com', 'Hayden', 'Sm!th'); 
-    expect(NameLast1).toStrictEqual({ error: 'Last name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes'});
+    expect(NameLast1).toStrictEqual({ error: 'Last name contains invalid characters'});
     expect(NameLast2).toStrictEqual(ERROR); 
     expect(NameLast3).toStrictEqual(ERROR); 
     expect(NameLast4).toStrictEqual(ERROR); 
