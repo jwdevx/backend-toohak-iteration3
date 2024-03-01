@@ -95,22 +95,22 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
 export function adminAuthLogin(email, password) {
-    const user = data.users.find(user => user.email === email && user.password === password);
-    const userEmail = data.users.find(user => user.email !== email);
-    const userPassword = data.users.find(user => user.email === email && user.password !== password);
-    if (user) { 
-        return {
-            authUserId: user.userId,
-        };
-    } else if(userEmail){
-        return {
-            error: 'Email address does not exist',
-        };
-    } else if(userPassword) {
-        return {
-            error: 'Password does not match email',
-        };
-    }
+  const user = data.users.find(user => user.email === email && user.password === password);
+  const userEmail = data.users.find(user => user.email !== email);
+  const userPassword = data.users.find(user => user.email === email && user.password !== password);
+  if (user) {
+    return {
+      authUserId: user.userId,
+    };
+  } else if (userEmail) {
+    return {
+      error: 'Email address does not exist',
+    };
+  } else if (userPassword) {
+    return {
+      error: 'Password does not match email',
+    };
+  }
 }
 
 
