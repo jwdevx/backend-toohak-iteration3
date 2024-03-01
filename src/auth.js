@@ -6,7 +6,7 @@ import {
 	invalidUserName,
 	invalidNameLength
 } from './helper.js';
-
+let data = getData();
 let UserIdGenerator = 1;
 
 /**
@@ -97,6 +97,23 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
 export function adminAuthLogin(email, password) {
+  const user = data.users.find(user => user.email === email && user.password === password);
+  const userEmail = data.users.find(user => user.email !== email);
+  const userPassword = data.users.find(user => user.email === email && user.password !== password);
+  if (user) {
+    return {
+      authUserId: user.userId,
+    };
+  } else if (userEmail) {
+    return {
+      error: 'Email address does not exist',
+    };
+  } else if (userPassword) {
+    return {
+      error: 'Password does not match email',
+    };
+  }
+}
 
 	// Basic validation for missing or null values
 	if (!email || !password) {
@@ -107,6 +124,8 @@ export function adminAuthLogin(email, password) {
 		authUserId: 1,
 	}
 }
+
+
 
 /**
  * Given an admin user's authUserId, return details about the user.
