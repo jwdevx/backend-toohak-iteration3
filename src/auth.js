@@ -63,7 +63,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 	}
 	// Construct the user's full name by concatenating first and last names
 	const fullUserName = `${nameFirst} ${nameLast}`;
-
+  
 	// If no error, we will register user
 	const newUser = {
 		userId: UserIdGenerator,
@@ -98,7 +98,7 @@ export function adminAuthLogin(email, password) {
     const user = data.users.find(user => user.email === email && user.password === password);
     const userEmail = data.users.find(user => user.email !== email);
     const userPassword = data.users.find(user => user.email === email && user.password !== password);
-    if (user) {
+    if (user) { 
         return {
             authUserId: user.userId,
         };
