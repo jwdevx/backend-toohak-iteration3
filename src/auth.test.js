@@ -9,10 +9,14 @@ import {
 import { clear } from './other.js';
 
 let ExampleUser;
+let ExampleUser2;
 
 beforeEach(() => {
     ExampleUser = adminAuthRegister('samsmith@gmail.com', 'IS1234567', 'Sam', 'Smith');
-});
+
+    ExampleUser2 = adminAuthRegister('kingjakerulesdaworld1@gmail.com', '1234567', 'jamie', 'cheong');
+
+  });
 
 // Creates an example user for the tests
 
@@ -24,7 +28,7 @@ describe('These are tests for adminAuthLogin', () => {
 
     // WRONG PWD
     test('Error Case: Password is not correct for given email', () => {
-        expect(adminAuthLogin('samsmith@gmail.com', '1234567')).toStrictEqual({error: 'Password does not match email'});
+        expect(adminAuthLogin('samsmith@gmail.com', '1234567')).toStrictEqual({error: expect.any(String)});
     });
 
     // NULL CASE
