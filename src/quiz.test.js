@@ -1,4 +1,4 @@
-import { adminQuizCreate } from "./quiz";
+import { adminQuizCreate, adminQuizList } from "./quiz";
 import { getData, setData } from "./dataStore";
 import { clear } from "./other";
 import { adminAuthRegister, adminAuthLogin } from "./auth";
@@ -78,11 +78,39 @@ describe('Testing create quizzes return quiz id', () => {
         clear();
         const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
         console.log(authUserId);
-        const authId = adminAuthLogin('tony@gmail.com', 'WOjiaoZC123');
-        console.log(authId);
         const name = 'aaasss';
         const description = '';
         const id = adminQuizCreate(authUserId.authUserId, name, description);
         expect(id).toStrictEqual({error: 'The description is empty.'});
+    })
+})
+describe('Testing print quiz list return quizzes', () => {
+    test('invalid user id', () => {
+        const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+        const name = 'WOjiaoZC';
+        const description = 'test1';
+        adminQuizCreate(authUser.authUserId, name, description);
+        expect(adminQuizList(authUser.authUserId + 1)).toStrictEqual({error: 'The user id is not valid.'});
+    })
+    test('correct input', () => {
+        const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+        let name = 'test1';
+        let description = 'test1';
+        adminQuizCreate(authUser.authUserId, name, description);
+        expect(adminQuizList(authUser.authUserId)).toStrictEqual({
+            quizzes: expect.any(Array),
+        });
+    })
+    test('two quizzes are in the list', () => {
+        const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+        let name = 'test1';
+        let description = 'test1';
+        adminQuizCreate(authUser.authUserId, name, description);
+        name = 'test2';
+        description = 'test2';
+        adminQuizCreate(authUser.authUserId, name, description);
+        expect(adminQuizList(authUser.authUserId)).toStrictEqual({
+            quizzes: expect.any(Array),
+        });
     })
 })
