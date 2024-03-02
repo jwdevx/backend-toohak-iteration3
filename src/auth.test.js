@@ -15,13 +15,14 @@ const ERROR = { error: expect.any(String) };
 let ExampleUser;
 let ExampleUser2;
 
-beforeEach(() => {
-  ExampleUser = adminAuthRegister('samsmith@gmail.com', 'IS1234567', 'Sam', 'Smith');
-  ExampleUser2 = adminAuthRegister('kingjakerulesdaworld1@gmail.com', '1234567', 'jamie', 'cheong');
-});
+
 
   
 describe('These are tests for adminAuthLogin', () => {
+  beforeEach(() => {
+    ExampleUser = adminAuthRegister('samsmith@gmail.com', 'IS1234567', 'Sam', 'Smith');
+    ExampleUser2 = adminAuthRegister('kingjakerulesdaworld1@gmail.com', '1234567', 'jamie', 'cheong');
+  });
   
   
     // NON EXISTENT EMAIL

@@ -6,7 +6,7 @@ import {
 	invalidNameLength
 } from './helper.js';
 
-let data = getData();
+
 let UserIdGenerator = 1;
 
 /**
@@ -71,6 +71,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
 export function adminAuthLogin(email, password) {
+	let data = getData();
 	// Basic validation for missing or null values
 	if (!email || !password) return { error: "One or more missing parameters" };
   
