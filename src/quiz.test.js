@@ -77,9 +77,6 @@ describe('Testing create quizzes return quiz id', () => {
     test('description is empty', () => {
         clear();
         const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-        console.log(authUserId);
-        const authId = adminAuthLogin('tony@gmail.com', 'WOjiaoZC123');
-        console.log(authId);
         const name = 'aaasss';
         const description = '';
         const id = adminQuizCreate(authUserId.authUserId, name, description);
