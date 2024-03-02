@@ -75,7 +75,13 @@ export { adminQuizCreate }
  * @returns {{quizzes: json}} An json object containing the quizzes with their ID and name.
  */
 function adminQuizList(authUserId) {
+  if (!findUserId(authUserId)) {
+    return {
+      error: 'The user id is not valid.'
+    }
+  }
   const data = getData();
+  
   const quizArray = [];
   for (const quiz of data.quizzes) {
     quizArray.push({
@@ -87,7 +93,7 @@ function adminQuizList(authUserId) {
     quizzes: quizArray,
   };
 }
-
+export {adminQuizList}
 /**
  * Removes the quiz
  *
