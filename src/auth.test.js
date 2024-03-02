@@ -152,34 +152,59 @@ describe('adminAuthRegister', () => {
 
 
 /**
- * Test for adminAuthLogin Function working properly
- */
-describe('adminAuthLogin', () => {
-
-  // beforeEach(() => {
-  //   clear();
-  // });
-
-
-
-
-});    
-
-
-/**
  * Test for adminUserDetails Function working properly
  */
-describe('adminUserDetails', () => {
-
-  // beforeEach(() => {
-  //   clear();
-  // });
 
 
-  
 
-});    
-    
+describe('These are tests for adminUserDetails', () => { 
+  beforeEach(() => {
+    clear ();
+  });
+  test('Edge Case: Invalud authUserId', () => {
+      expect(adminUserDetails('256')).toStrictEqual({error: expect.any(String)})
+  })
+
+  test('Edge Case: Empty authUserId', () => {
+      expect(adminUserDetails('')).toStrictEqual({error: expect.any(String)})
+  })
+
+  test('Success Case: Fetch user details', () => {
+      // 1. Use adminAuthRegister to create a user and get the authUserId
+      const registrationResult = adminAuthRegister('test@example.com', 'ValidPassword1', 'Johnny', 'Depp');
+
+      // 2. Check if the registration was successful (no error)
+      expect(registrationResult).not.toHaveProperty('error');
+      const authUserId = registrationResult.authUserId;
+
+      // 3. Use adminUserDetails to fetch user details using the authUserId
+      const userDetails = adminUserDetails(authUserId);
+
+      // 4. Assert that user details are as expected
+      expect(userDetails).toEqual({
+        user: {
+          userId: authUserId,
+          name: 'Johnny Depp',
+          email: 'test@example.com',
+          numSuccessfulLogins: expect.any(Number),
+          numFailedPasswordsSinceLastLogin: expect.any(Number),
+          }
+      });
+  });
+});
+
+
+  // test('Success Case: Prints user details', () => {
+  //     expect(adminUserDetails(authUserId)).toStrictEqual({
+  //     user: {
+  //         userId: expect.any(Number), 
+  //         name: expect.any(String),
+  //         email: expect.any(String), 
+  //         numSuccessfulLogins: expect.any(Number),
+  //         numFailedPasswordsSinceLastLogin: expect.any(Number)
+  //         },
+  //     });
+  // })
 
 /**
  * Test for adminUserDetailsUpdate Function working properly
