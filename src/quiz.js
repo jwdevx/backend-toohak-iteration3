@@ -23,16 +23,6 @@ function adminQuizCreate(authUserId, name, description) {
         error: 'The user id is not valid.'
       }
     }
-    if (name.length === 0) {
-      return {
-        error: 'The name is empty.'
-      }
-    }
-    if (description.length === 0) {
-      return {
-        error: 'The description is empty.'
-      }
-    }
     if (invalidQuizName(name)) {
       return {
         error: 'The name is not valid.'
