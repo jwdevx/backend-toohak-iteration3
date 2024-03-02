@@ -1,20 +1,9 @@
-/**
- * Provide a list of all quizzes that are owned by the currently logged in user.
- *
- * @param {number} authUserId - the authenticated user ID.
- * @returns {{quizzes: json}} An json object containing the quizzes with their ID and name.
- */
-function adminQuizList(authUserId) {
-  return {
-      quizzes: [
-          {
-            quizId: 1,
-            name: 'My Quiz',
-          }
-        ]
-  }
-}
-
+import { setData, getData } from "./dataStore"
+import { format } from "date-fns";
+import { 
+  findUserId, invalidQuizName, invalidQuizNameLength, 
+  UsedQuizName, invalidDescriptionLength, 
+} from "./helper";
 /**
 * Given basic details about a new quiz, create one for the logged in user.
 *
@@ -24,9 +13,61 @@ function adminQuizList(authUserId) {
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
 function adminQuizCreate(authUserId, name, description) {
-  return {
-      quizId: 2
+    const data = getData()
+    const ID = data.quizzes.length + 1;
+    if (!findUserId(authUserId)) return {
+      error: 'The user id is not valid.'
+    }
+    if (invalidQuizName(name)) return {
+      error: 'The name is not valid.'
+    }
+    if (invalidQuizNameLength(name)) {
+      return {
+        error: "The name is either too long or too short."
+      }
+    }
+    if (UsedQuizName(name)) return {
+      error: 'The quiz name is already been used.'
+    }
+    if (invalidDescriptionLength(description)) return {
+      error: 'The description is too long.'
+    }
+    const currentTime = new Date();
+    const createdTime = format(currentTime, "MMMM d, yyyy h:mm a"); // "h:mm a" format includes hours, minutes, and AM/PM
+    const quiz = {
+      quizId: ID,
+      name: name,
+      timeCreated: createdTime,
+      timeLastEdited: createdTime,
+      description: description,
+      numQuestions: 0,
+      owner: authUserId,
+      questions: [],
+    }
+    data.quizzes.push(quiz);
+    return {
+        quizId: ID
+    }
+}
+export { adminQuizCreate }
+/**
+ * Provide a list of all quizzes that are owned by the currently logged in user.
+ *
+ * @param {number} authUserId - the authenticated user ID.
+ * @returns {{quizzes: json}} An json object containing the quizzes with their ID and name.
+ */
+function adminQuizList(authUserId) {
+  const data = getData();
+  const quizArray = [];
+  for (const quiz of data.quizzes) {
+    quizArray.push({
+      quizId: quiz.quizId,
+      name: quiz.name,
+    });
   }
+  return {
+    quizzes: quizArray,
+  };
 }
 
 /**

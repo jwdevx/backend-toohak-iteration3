@@ -53,3 +53,50 @@ export function invalidNameLength(name) {
 	return (name.length < 2 || name.length > 20);
 }
 
+/**
+ * Helper Function used in quiz.js 
+ * Checks if the provided quiz name does not correspond to any existing quiz.
+ * 
+ * @param {string} name - The quiz name to be validated.
+ * @returns {boolean} Returns true if the name does not match any existing quiz's name
+ */
+export function UsedQuizName(name) {
+	let data = getData(); 
+	return data.quizzes.find(quiz => quiz.name === name);
+}
+
+/**
+ * Helper Function used in quiz.js 
+ * Check if name is less than 3 characters or more than 30 characters.
+ *
+ * @param {string} name - The name string to be validated for length.
+ * @returns {boolean} - Returns true if name is invalid (either too short or too long).
+ */
+export function invalidQuizNameLength(name) {
+	return (name.length < 3 || name.length > 30);
+}
+
+/**
+ * Helper Function used in quiz.js 
+ * Check if descriptionis less than 2 characters or more than 100 characters.
+ *
+ * @param {string} name - The description string to be validated for length.
+ * @returns {boolean} - Returns true if description is invalid (either too short or too long).
+ */
+export function invalidDescriptionLength(name) {
+	return (name.length < 2 || name.length > 100);
+}
+
+/**
+ * Helper Function used in quiz.js 
+ * Test if quiz name contains characters other than lowercase letters, 
+ * uppercase letters, spaces or numbers.
+ * 
+ * @param {string} name - The name to be validated.
+ * @returns {boolean} - Returns true if the name contains invalid characters 
+ */
+export function invalidQuizName(name) {
+	const isAlphanumericAndSpaces = validator.isWhitelisted(name, 
+	'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ');
+	return (!isAlphanumericAndSpaces)
+}
