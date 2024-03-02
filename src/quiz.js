@@ -77,16 +77,23 @@ function adminQuizList(authUserId) {
     }
   }
   const data = getData();
-  
-  const quizArray = [];
+  const quizzes = data.quizzes.find(quiz => quiz.owner === authUserId)
+  if (!quizzes) {
+    return {
+      error: 'The user does not own any quizzes.'
+    }
+  }
+  const quizarray = [];
   for (const quiz of data.quizzes) {
-    quizArray.push({
-      quizId: quiz.quizId,
-      name: quiz.name,
-    });
+    if (quiz.owner === authUserId) {
+      quizarray.push({
+        quizid: quiz.quizId,
+        name: quiz.name,
+      })
+    }
   }
   return {
-    quizzes: quizArray,
+    quizzes: quizarray,
   };
 }
 export {adminQuizList}
