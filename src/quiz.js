@@ -13,21 +13,14 @@ import {
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
 function adminQuizCreate(authUserId, name, description) {
+    if  (!authUserId || !name || !description ) {
+      return { error: 'One or more missing parameters' };
+    }
     const data = getData();
     const ID = data.quizzes.length + 1;
     if (!findUserId(authUserId)) {
       return {
         error: 'The user id is not valid.'
-      }
-    }
-    if (name.length === 0) {
-      return {
-        error: 'The name is empty.'
-      }
-    }
-    if (description.length === 0) {
-      return {
-        error: 'The description is empty.'
       }
     }
     if (invalidQuizName(name)) {
@@ -75,6 +68,9 @@ export { adminQuizCreate }
  * @returns {{quizzes: json}} An json object containing the quizzes with their ID and name.
  */
 function adminQuizList(authUserId) {
+  if  (!authUserId) {
+    return { error: 'One or more missing parameters' };
+  }
   if (!findUserId(authUserId)) {
     return {
       error: 'The user id is not valid.'
