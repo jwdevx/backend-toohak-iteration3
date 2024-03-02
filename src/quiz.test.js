@@ -72,16 +72,15 @@ describe('Testing create quizzes return quiz id', () => {
         const name = '';
         const description = 'test1';
         const id = adminQuizCreate(authUserId.authUserId, name, description);
-        expect(id).toStrictEqual({error: 'The name is empty.'})
+        expect(id).toStrictEqual({error: 'One or more missing parameters'})
     })
     test('description is empty', () => {
         clear();
         const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-        console.log(authUserId);
         const name = 'aaasss';
         const description = '';
         const id = adminQuizCreate(authUserId.authUserId, name, description);
-        expect(id).toStrictEqual({error: 'The description is empty.'});
+        expect(id).toStrictEqual({error: 'One or more missing parameters'});
     })
 })
 describe('Testing print quiz list return quizzes', () => {
@@ -91,6 +90,13 @@ describe('Testing print quiz list return quizzes', () => {
         const description = 'test1';
         adminQuizCreate(authUser.authUserId, name, description);
         expect(adminQuizList(authUser.authUserId + 1)).toStrictEqual({error: 'The user id is not valid.'});
+    })
+    test('invalid user id', () => {
+        const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+        const name = 'WOjiaoZC';
+        const description = 'test1';
+        adminQuizCreate(authUser.authUserId, name, description);
+        expect(adminQuizList()).toStrictEqual({error: 'One or more missing parameters'});
     })
     test('correct input', () => {
         const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
