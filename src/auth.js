@@ -71,28 +71,25 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
 export function adminAuthLogin(email, password) {
-
 	// Basic validation for missing or null values
-	if (!email || !password) return { error: 'One or more missing parameters' };
-
-
-  const user = data.users.find(user => user.email === email && user.password === password);
-  const userEmail = data.users.find(user => user.email !== email);
-  const userPassword = data.users.find(user => user.email === email && user.password !== password);
-  if (user) {
-    return {
-      authUserId: user.userId,
-    };
-  } else if (userEmail) {
-    return {
-      error: 'Email address does not exist',
-    };
-  } else if (userPassword) {
-    return {
-      error: 'Password does not match email',
-    };
+	if (!email || !password) return { error: "One or more missing parameters" };
+  
+	const user = data.users.find((user) => user.email === email);
+  
+	if (!user) {
+	return {
+		error: "Email address does not exist",
+	  };
+	} else if (user.password !== password) {
+	  return {
+		error: "Password does not match email",
+	  };
+	}
+	return {
+	  authUserId: user.userId,
+	};
   }
-}
+  
 
 
 
