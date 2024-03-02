@@ -104,21 +104,29 @@ export function adminAuthLogin(email, password) {
  * An object containing the properties related to a user.
  * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}} 
  */
+//helper functions for adminUserDetails
 export function adminUserDetails(authUserId) {
-    
-	// Basic validation for missing or null values
-	if (!authUserId) return { error: 'Missing authUserId parameter' };
-	
+	let dataStore = getData();
+	const user = dataStore.users.find(
+	  (user) => user.userId === authUserId,
+	);
+  
+	if (!user) {
+	  return { error: "UserId is invalid" };
+	}
+  
+	const full_name = `${user.nameFirst} ${user.nameLast}`;
+  
 	return {
-		user: {
-			userId: 1,
-			name: 'Hayden Smith',
-			email: 'hayden.smith@unsw.edu.au',
-			numSuccessfulLogins: 3,
-			numFailedPasswordsSinceLastLogin: 1,
-		}
+	  user: {
+		userId: authUserId,
+		name: full_name,
+		email: user.email,
+		numSuccessfulLogins: user.numSuccessfulLogins,
+		numFailedPasswordsSinceLastLogin: user.numFailedPasswordsSinceLastLogin,
+	  },
 	};
-}
+  }
 
 /**
  * Given an admin user's authUserId and a set of properties, update the 
