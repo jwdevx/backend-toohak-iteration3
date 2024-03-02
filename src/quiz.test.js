@@ -19,18 +19,18 @@ describe('Testing create quizzes return quiz id', () => {
     test('invalid user id', () => {
         clear();
         const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-        const name = 'WOjiaoZC!@# ';
+        const name = 'WOjiaoZC';
         const description = 'test1';
-        const id = adminQuizCreate(authUser.authUserId, name, description);
-        expect(id).toStrictEqual(ERROR)
+        const id = adminQuizCreate(authUser.authUserId + 1, name, description);
+        expect(id).toStrictEqual({error: 'The user id is not valid.'})
     })
     test('invalid name', () => {
         clear();
         const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-        const name = 'WOjiaoZC!@# ';
+        const name = 'WOjiaoZC!@#?/aas1< ';
         const description = 'test1';
         const id = adminQuizCreate(authUser.authUserId, name, description);
-        expect(id).toStrictEqual(ERROR)
+        expect(id).toStrictEqual({error: 'The name is not valid.'})
     })
     test('short name', () => {
         clear();
@@ -38,7 +38,7 @@ describe('Testing create quizzes return quiz id', () => {
         const name = 'to';
         const description = 'test1';
         const id = adminQuizCreate(authUserId.authUserId, name, description);
-        expect(id).toStrictEqual(ERROR)
+        expect(id).toStrictEqual({error: "The name is either too long or too short."})
     })
     test('long name', () => {
         clear();
@@ -56,7 +56,7 @@ describe('Testing create quizzes return quiz id', () => {
         const description = 'test1';
         const id1 = adminQuizCreate(authUserId.authUserId, name, description);
         const id2 = adminQuizCreate(authUserId.authUserId, name, description);
-        expect(id2).toStrictEqual(ERROR)
+        expect(id2).toStrictEqual({error: 'The quiz name is already been used.'})
     })
     test('long description', () => {
         clear();
@@ -64,6 +64,25 @@ describe('Testing create quizzes return quiz id', () => {
         const name = 'tony';
         const description = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz';
         const id = adminQuizCreate(authUserId.authUserId, name, description);
-        expect(id).toStrictEqual(ERROR)
+        expect(id).toStrictEqual({error: 'The description is too long.'})
+    })
+    test('name is empty', () => {
+        clear();
+        const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+        const name = '';
+        const description = 'test1';
+        const id = adminQuizCreate(authUserId.authUserId, name, description);
+        expect(id).toStrictEqual({error: 'The name is empty.'})
+    })
+    test('description is empty', () => {
+        clear();
+        const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+        console.log(authUserId);
+        const authId = adminAuthLogin('tony@gmail.com', 'WOjiaoZC123');
+        console.log(authId);
+        const name = 'aaasss';
+        const description = '';
+        const id = adminQuizCreate(authUserId.authUserId, name, description);
+        expect(id).toStrictEqual({error: 'The description is empty.'});
     })
 })

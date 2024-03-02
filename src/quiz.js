@@ -13,24 +13,42 @@ import {
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
 function adminQuizCreate(authUserId, name, description) {
-    const data = getData()
+    const data = getData();
     const ID = data.quizzes.length + 1;
-    if (!findUserId(authUserId)) return {
-      error: 'The user id is not valid.'
+    if (!findUserId(authUserId)) {
+      return {
+        error: 'The user id is not valid.'
+      }
     }
-    if (invalidQuizName(name)) return {
-      error: 'The name is not valid.'
+    if (name.length === 0) {
+      return {
+        error: 'The name is empty.'
+      }
+    }
+    if (description.length === 0) {
+      return {
+        error: 'The description is empty.'
+      }
+    }
+    if (invalidQuizName(name)) {
+      return {
+        error: 'The name is not valid.'
+      }
     }
     if (invalidQuizNameLength(name)) {
       return {
         error: "The name is either too long or too short."
       }
     }
-    if (UsedQuizName(name)) return {
-      error: 'The quiz name is already been used.'
+    if (UsedQuizName(name)) {
+      return {
+        error: 'The quiz name is already been used.'
+      }
     }
-    if (invalidDescriptionLength(description)) return {
-      error: 'The description is too long.'
+    if (invalidDescriptionLength(description)) {
+      return {
+        error: 'The description is too long.'
+      }
     }
     const currentTime = new Date();
     const createdTime = format(currentTime, "MMMM d, yyyy h:mm a"); // "h:mm a" format includes hours, minutes, and AM/PM
