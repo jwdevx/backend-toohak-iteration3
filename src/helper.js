@@ -9,10 +9,10 @@ import { getData } from './dataStore.js';
  * @returns {boolean} Returns true if the AuthUserId does not match any existing user's userId
  */
 export function findUserId(authUserId) {
-	let data = getData(); 
-	return data.users.find(user => user.userId === authUserId);
+  let data = getData(); 
+  return data.users.find(user => user.userId === authUserId);
 }
-	
+
 /**
  * Helper Function used in auth.js 
  * Validates an email address to check if email does not satisfy 
@@ -27,7 +27,6 @@ export function invalidEmail(email) {
   return !validator.isEmail(email);
 }
 
-
 /**
  * Helper Function used in auth.js 
  * Test if nameFirst or nameLast contains characters other than lowercase letters, 
@@ -37,10 +36,9 @@ export function invalidEmail(email) {
  * @returns {boolean} - Returns true if the name contains invalid characters 
  */
 export function invalidUserName(name) {
-	const regex = /^[a-zA-Z\s\-']+$/;
-	return !(regex.test(name));
+  const regex = /^[a-zA-Z\s\-']+$/;
+  return !(regex.test(name));
 }
-
 
 /**
  * Helper Function used in auth.js 
@@ -50,7 +48,7 @@ export function invalidUserName(name) {
  * @returns {boolean} - Returns true if name is invalid (either too short or too long).
  */
 export function invalidNameLength(name) {
-	return (name.length < 2 || name.length > 20);
+  return (name.length < 2 || name.length > 20);
 }
 
 /**
@@ -61,8 +59,8 @@ export function invalidNameLength(name) {
  * @returns {boolean} Returns true if the name does not match any existing quiz's name
  */
 export function UsedQuizName(name) {
-	let data = getData(); 
-	return data.quizzes.find(quiz => quiz.name === name);
+  let data = getData(); 
+  return data.quizzes.find(quiz => quiz.name === name);
 }
 
 /**
@@ -73,7 +71,7 @@ export function UsedQuizName(name) {
  * @returns {boolean} - Returns true if name is invalid (either too short or too long).
  */
 export function invalidQuizNameLength(name) {
-	return (name.length < 3 || name.length > 30);
+  return (name.length < 3 || name.length > 30);
 }
 
 /**
@@ -84,7 +82,7 @@ export function invalidQuizNameLength(name) {
  * @returns {boolean} - Returns true if description is invalid (either too short or too long).
  */
 export function invalidDescriptionLength(name) {
-	return (name.length < 2 || name.length > 100);
+  return (name.length < 2 || name.length > 100);
 }
 
 /**
@@ -96,7 +94,7 @@ export function invalidDescriptionLength(name) {
  * @returns {boolean} - Returns true if the name contains invalid characters 
  */
 export function invalidQuizName(name) {
-	const isAlphanumericAndSpaces = validator.isWhitelisted(name, 
-	'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ');
-	return (!isAlphanumericAndSpaces)
+  const isAlphanumericAndSpaces = validator.isWhitelisted(name, 
+  'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ');
+  return (!isAlphanumericAndSpaces)
 }
