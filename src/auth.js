@@ -115,12 +115,11 @@ export function adminUserDetails(authUserId) {
 	  return { error: "UserId is invalid" };
 	}
   
-	const full_name = `${user.nameFirst} ${user.nameLast}`;
   
 	return {
 	  user: {
 		userId: authUserId,
-		name: full_name,
+		name: user.name,
 		email: user.email,
 		numSuccessfulLogins: user.numSuccessfulLogins,
 		numFailedPasswordsSinceLastLogin: user.numFailedPasswordsSinceLastLogin,
