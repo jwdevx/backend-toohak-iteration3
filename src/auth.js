@@ -49,10 +49,11 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 		name: `${nameFirst} ${nameLast}`,
 		email: email,
 		password: password,
+		oldPassword: [],
 		numSuccessfulLogins: 1,
 		numFailedPasswordsSinceLastLogin: 0,
 	};    
-
+	newUser.oldPassword.push(password)
 	UserIdGenerator += 1;  
 	data.users.push(newUser);
 	setData(data); 
@@ -178,7 +179,27 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   
 	// Basic validation for missing or null values
 	if (!authUserId || !oldPassword || !newPassword) return { error: 'One or more missing parameters' };
-	
+	const auth = findUserId(authUserId);
+	if (!auth) {
+		return {
+			error: 'AuthUserId is not a valid user'
+		}
+	}
+	const data = getData();
+	for (const user of data.users) {
+		if (user.authUserId === authUserId) {
+			if (user.password !== oldPassword) {
+				return{
+					error: 'The old password is wrong. Please enter the correct password.'
+				}
+			}
+			if (oldPassword === newPassword) {
+				return {
+					error: 'The new password is the same as the old password. Please enter a new password.'
+				}
+			}
+		}
+	}
 	
 	return {}
 
