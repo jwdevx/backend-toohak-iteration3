@@ -306,12 +306,50 @@ describe('adminUserDetailsUpdate', () => {
  */
 describe('adminUserPasswordUpdate', () => {
 
-  // beforeEach(() => {
-  //   clear();
-  // });
-
-
-  
-
-});    
+  beforeEach(() => {
+    clear();
+  });
+  test('the authId does not exist', () => {
+    let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.authUserId + 1, '1234abcd', 'WOjiaoZC1');
+    expect(error).toStrictEqual({error: 'AuthUserId is not a valid user'});
+  });
+  test('the old password is wrong', () => {
+    let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.authUserId, '1234aaaa', 'WOjiaoZC1');
+    expect(error).toStrictEqual({error: 'The old password is wrong. Please enter the correct password.'});
+  })
+  test('the new password is the same as the old one', () => {
+    let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.authUserId, '1234abcd', '1234abcd');
+    expect(error).toStrictEqual({error: 'The new password is the same as the old password. Please enter a new password.'});
+  })
+  test('the new password is used before', () => {
+    let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    adminUserPasswordUpdate(user1.authUserId, '1234abcd', 'WOjiaoZC123');
+    const error = adminUserPasswordUpdate(user1.authUserId, 'WOjiaoZC123', '1234abcd');
+    expect(error).toStrictEqual({error: 'The new password is used before. Please enter a new password.'});
+  })
+  test('short password', () => {
+    let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.authUserId, '1234abcd', '1234a');
+    expect(error).toStrictEqual({error: 'Password must be at least 8 characters long'});
+  })
+  test('missing number password', () => {
+    let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.authUserId, '1234abcd', 'abncdefgh');
+    expect(error).toStrictEqual({error: 'Password must contain at least one letter and one number'});
+  })
+  test('missing letter password', () => {
+    let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.authUserId, '1234abcd', '12345678');
+    expect(error).toStrictEqual({error: 'Password must contain at least one letter and one number'});
+  })
+  test('correct input', () => {
+    let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    let error = adminUserPasswordUpdate(user1.authUserId, '1234abcd', 'WOjiaoZC123');
+    const login = adminAuthLogin('hayden.smith@unsw.edu.au', 'WOjiaoZC123');
+    expect(login).toStrictEqual(user1);
+  })
+})
     
