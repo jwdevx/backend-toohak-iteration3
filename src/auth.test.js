@@ -8,7 +8,6 @@ import {
 
 import { clear } from './other.js';
 import { getData } from './dataStore.js';
-import test from 'node:test';
 const ERROR = { error: expect.any(String) };
 
 
@@ -350,7 +349,7 @@ describe('adminUserPasswordUpdate', () => {
   })
   test('correct input', () => {
     let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
-    const error = adminUserPasswordUpdate(user1.authUserId, '1234abcd', 'WOjiaoZC123');
+    let error = adminUserPasswordUpdate(user1.authUserId, '1234abcd', 'WOjiaoZC123');
     const login = adminAuthLogin('hayden.smith@unsw.edu.au', 'WOjiaoZC123');
     expect(login).toStrictEqual(user1);
   })

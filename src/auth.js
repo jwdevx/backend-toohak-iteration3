@@ -49,11 +49,11 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 		name: `${nameFirst} ${nameLast}`,
 		email: email,
 		password: password,
-		oldPassword: [],
+		oldPasswords: [],
 		numSuccessfulLogins: 1,
 		numFailedPasswordsSinceLastLogin: 0,
 	};    
-	newUser.oldPassword.push(password)
+	newUser.oldPasswords.push(password)
 	UserIdGenerator += 1;  
 	data.users.push(newUser);
 	setData(data); 
@@ -176,7 +176,6 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
  * @returns { } null
  */
 export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
-  
 	// Basic validation for missing or null values
 	if (!authUserId || !oldPassword || !newPassword) return { error: 'One or more missing parameters' };
 	const auth = findUserId(authUserId);
@@ -187,7 +186,7 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
 	}
 	const data = getData();
 	for (const user of data.users) {
-		if (user.authUserId === authUserId) {
+		if (user.userId === authUserId) {
 			if (user.password !== oldPassword) {
 				return{
 					error: 'The old password is wrong. Please enter the correct password.'
@@ -198,9 +197,27 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
 					error: 'The new password is the same as the old password. Please enter a new password.'
 				}
 			}
+			if (user.oldPasswords.includes(newPassword)) {
+				return {
+					error: 'The new password is used before. Please enter a new password.'
+				}
+			}
+			if (newPassword.length < 8) {
+				return { 
+					error: 'Password must be at least 8 characters long' 
+				};
+			}
+			if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(newPassword)) {
+				return {
+					error: 'Password must contain at least one letter and one number' 
+				};
+			}
+			user.oldPasswords.push(oldPassword);
+			user.password = newPassword;
+			console.log(oldPassword, newPassword);
+			console.log(user.oldPasswords);
 		}
 	}
-	
+	setData(data);
 	return {}
-
 }
