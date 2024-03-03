@@ -6,7 +6,7 @@ import {
 	invalidNameLength
 } from './helper.js';
 
-let data = getData();
+
 let UserIdGenerator = 1;
 
 /**
@@ -71,28 +71,26 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
 export function adminAuthLogin(email, password) {
-
+	let data = getData();
 	// Basic validation for missing or null values
-	if (!email || !password) return { error: 'One or more missing parameters' };
-
-
-  const user = data.users.find(user => user.email === email && user.password === password);
-  const userEmail = data.users.find(user => user.email !== email);
-  const userPassword = data.users.find(user => user.email === email && user.password !== password);
-  if (user) {
-    return {
-      authUserId: user.userId,
-    };
-  } else if (userEmail) {
-    return {
-      error: 'Email address does not exist',
-    };
-  } else if (userPassword) {
-    return {
-      error: 'Password does not match email',
-    };
+	if (!email || !password) return { error: "One or more missing parameters" };
+  
+	const user = data.users.find((user) => user.email === email);
+  
+	if (!user) {
+	return {
+		error: "Email address does not exist",
+	  };
+	} else if (user.password !== password) {
+	  return {
+		error: "Password does not match email",
+	  };
+	}
+	return {
+	  authUserId: user.userId,
+	};
   }
-}
+  
 
 
 
@@ -107,21 +105,28 @@ export function adminAuthLogin(email, password) {
  * An object containing the properties related to a user.
  * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}} 
  */
+//helper functions for adminUserDetails
 export function adminUserDetails(authUserId) {
-    
-	// Basic validation for missing or null values
-	if (!authUserId) return { error: 'Missing authUserId parameter' };
-	
+	let dataStore = getData();
+	const user = dataStore.users.find(
+	  (user) => user.userId === authUserId,
+	);
+  
+	if (!user) {
+	  return { error: "UserId is invalid" };
+	}
+  
+  
 	return {
-		user: {
-			userId: 1,
-			name: 'Hayden Smith',
-			email: 'hayden.smith@unsw.edu.au',
-			numSuccessfulLogins: 3,
-			numFailedPasswordsSinceLastLogin: 1,
-		}
+	  user: {
+		userId: authUserId,
+		name: user.name,
+		email: user.email,
+		numSuccessfulLogins: user.numSuccessfulLogins,
+		numFailedPasswordsSinceLastLogin: user.numFailedPasswordsSinceLastLogin,
+	  },
 	};
-}
+  }
 
 /**
  * Given an admin user's authUserId and a set of properties, update the 
