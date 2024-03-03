@@ -1,5 +1,13 @@
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
 
+import {
+  adminAuthRegister,
+  adminAuthLogin,
+  adminUserDetailsUpdate,
+  adminUserPasswordUpdate, 
+} from './auth.js';
+
+
 let data = {
   users: [
 
