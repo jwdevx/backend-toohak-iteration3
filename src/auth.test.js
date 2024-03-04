@@ -290,7 +290,6 @@ describe('adminUserDetailsUpdate', () => {
     let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const retVal = adminUserDetailsUpdate(user1.authUserId, 'smith.hayden@unsw.edu.au', 'Angelina', 'Jolie')
     expect(retVal).toStrictEqual({});
-
     const data = getData();
     const updatedUser = data.users.find(user => user.userId === user1.authUserId);
     expect(updatedUser.email).toEqual('smith.hayden@unsw.edu.au');
@@ -317,18 +316,18 @@ describe('adminUserPasswordUpdate', () => {
   test('the old password is wrong', () => {
     let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const error = adminUserPasswordUpdate(user1.authUserId, '1234aaaa', 'WOjiaoZC1');
-    expect(error).toStrictEqual({error: 'The old password is wrong. Please enter the correct password.'});
+    expect(error).toStrictEqual({error: 'The old password is wrong.'});
   })
   test('the new password is the same as the old one', () => {
     let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const error = adminUserPasswordUpdate(user1.authUserId, '1234abcd', '1234abcd');
-    expect(error).toStrictEqual({error: 'The new password is the same as the old password. Please enter a new password.'});
+    expect(error).toStrictEqual({error: 'The new password is the same as the old password.'});
   })
   test('the new password is used before', () => {
     let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     adminUserPasswordUpdate(user1.authUserId, '1234abcd', 'WOjiaoZC123');
     const error = adminUserPasswordUpdate(user1.authUserId, 'WOjiaoZC123', '1234abcd');
-    expect(error).toStrictEqual({error: 'The new password is used before. Please enter a new password.'});
+    expect(error).toStrictEqual({error: 'The new password is used before.'});
   })
   test('short password', () => {
     let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');

@@ -9,12 +9,8 @@ import {
 
 
 let data = {
-  users: [
-
-  ],
-  quizzes: [
-
-  ],
+  users: [],
+  quizzes: [],
 }
 
 
