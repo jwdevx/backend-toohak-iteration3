@@ -13,7 +13,7 @@ import {
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
 function adminQuizCreate(authUserId, name, description) {
-    if  (!authUserId || !name || !description ) {
+    if  (!authUserId || !name || (description === null || description === undefined)) {
       return { error: 'One or more missing parameters' };
     }
     const data = getData();

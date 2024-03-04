@@ -82,7 +82,7 @@ export function invalidQuizNameLength(name) {
  * @returns {boolean} - Returns true if description is invalid (either too short or too long).
  */
 export function invalidDescriptionLength(name) {
-  return (name.length < 2 || name.length > 100);
+  return (name.length > 100);
 }
 
 /**
