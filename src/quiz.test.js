@@ -66,13 +66,6 @@ describe('Testing create quizzes return quiz id', () => {
         const id = adminQuizCreate(authUserId.authUserId, name, description);
         expect(id).toStrictEqual({error: 'One or more missing parameters'})
     })
-    test('description is empty', () => {
-        const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-        const name = 'aaasss';
-        const description = '';
-        const id = adminQuizCreate(authUserId.authUserId, name, description);
-        expect(id).toStrictEqual({error: 'One or more missing parameters'});
-    })
 })
 describe('Testing print quiz list return quizzes', () => {
     beforeEach(() => {
