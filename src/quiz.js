@@ -109,11 +109,29 @@ export {adminQuizList}
  * @returns {} nothing
  */
 function adminQuizRemove(authUserId, quizId) {
- 
-  
+  if  (!authUserId || !quizId) {
+    return { error: 'One or more missing parameters' };
+  }
+  if (!findUserId(authUserId)) {
+    return {
+      error: 'The user id is not valid.'
+    }
+  }
+  if (!findQuizId(quizId)) {
+    return { error: 'Quiz ID does not refer to a valid quiz.'}
+  }
+  if (!matchQuizIdAndAuthor(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.'}
+  }
+  const data = getData();
+  let quiz_index = data.quizzes.findIndex(quiz => quiz.owner === authUserId && quiz.quizId === quizId);
+  if (quiz_index !== -1) {
+    data.quizzes.splice(quiz_index, 1);
+    setData(data);
+  }
   return {}
 }
-
+export {adminQuizRemove};
 /**
 *Update the name of the relevant quiz.
 *
@@ -175,8 +193,6 @@ function adminQuizInfo(authUserId, quizId) {
       };
     }
   }
-
   return quizInfo;
 }
-
 export{adminQuizInfo};
