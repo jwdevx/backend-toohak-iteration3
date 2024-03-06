@@ -1,4 +1,4 @@
-import { adminQuizCreate, adminQuizList } from "./quiz";
+import { adminQuizCreate, adminQuizList,adminQuizNameUpdate,adminQuizDescriptionUpdate } from "./quiz";
 import { getData, setData } from "./dataStore";
 import { clear } from "./other";
 import { adminAuthRegister, adminAuthLogin } from "./auth";
@@ -127,3 +127,121 @@ describe('Testing print quiz list return quizzes', () => {
         });
     })
 })
+
+
+describe('Testing QuizNameUpdate', () => {
+    beforeEach(() => {
+        clear();
+    });
+
+    //Testing for AuthuserId is not a valid user
+    test('invalid user id', () => {
+        const authUser = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'sami', 'ashfaque');
+        const name = 'BdDhK';
+        const name2 = 'sami';
+        const description = 'test2';
+        const QuizCrt = adminQuizCreate(authUser.authUserId , name, description);
+        const Update=adminQuizNameUpdate(authUser.authUserId +1,QuizCrt.quizId,name2);
+        expect(Update).toStrictEqual({error: 'The user id is not valid.'});
+    })
+
+    //Testing for QuizId validity
+    test('QuizId does not belong to user', () => { 
+        const autherUser = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'sami', 'ashfaque');
+        const name = 'sami';
+        const description = 'test1';
+        const QuizCrt = adminQuizCreate(autherUser.authUserId, name, description);
+        const Update=adminQuizNameUpdate(autherUser.authUserId,QuizCrt.quizId+1, name);
+        expect(Update).toStrictEqual({error: 'The quiz id is not valid.'});
+    })
+
+    //Testing for quiz ownership
+    test('QuizId does not belong to user', () => { 
+        const autherUser = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'sami', 'ashfaque');
+        const autherUser1 = adminAuthRegister('ami@gmail.com', 'BnGBd123', 'ami', 'ishfaque');
+        const name = 'sami';
+        const description = 'test1';
+        const name2 = 'Tumi';
+        const name3 = 'Amra';
+        const description2 = 'test2';
+        const QuizCrt = adminQuizCreate(autherUser.authUserId, name, description);
+        const QuizCrt2 = adminQuizCreate(autherUser1.authUserId, name2, description2);
+        const Update=adminQuizNameUpdate(autherUser.authUserId,QuizCrt2.quizId, name3);
+        expect(Update).toStrictEqual({error: 'Quiz belongs to a different user.'});
+
+
+    })
+
+    //Testing for name is not alphanumeric
+    test('invalid name', () => {
+        const autherUser = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'sami', 'ashfaque');
+        const name = 'sami';
+        const name2 = 'BdDhk!@#?/iter1< ';
+        const description = 'test2';
+        const QuizCrt = adminQuizCreate(autherUser.authUserId, name, description);
+        const Update=adminQuizNameUpdate(autherUser.authUserId,QuizCrt.quizId, name2);
+        expect(Update).toStrictEqual({error: 'The name is not valid.'})
+    })
+
+    //Testing for name is too short
+    test('short name', () => {
+        const autherUser = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'sami', 'ashfaque');
+        const name = 'sami';
+        const name2 = 'hi';
+        const description = 'test2';
+        const QuizCrt = adminQuizCreate(autherUser.authUserId, name, description);
+        const Update=adminQuizNameUpdate(autherUser.authUserId,QuizCrt.quizId, name2);
+        expect(Update).toStrictEqual({error: "The name is either too long or too short."})
+    })
+
+    //Testing for name is too long
+    test('long name', () => {
+        const autherUser = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'sami', 'ashfaque');
+        const name = 'sami';
+        const name2 = 'hhhheeeeeeeeeeelllllllllllllllloooooooooooooooooo';
+        const description = 'test2';
+        const QuizCrt= adminQuizCreate(autherUser.authUserId, name, description);
+        const Update=adminQuizNameUpdate(autherUser.authUserId,QuizCrt.quizId, name2);
+        expect(Update).toStrictEqual({ error: "The name is either too long or too short.",})
+    })
+
+    //Testing for invalid name input
+    test('name is empty', () => {
+        const autherUser = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'sami', 'ashfaque');
+        const name = 'sami';
+        const name2='';
+        const description = 'test1';
+        const QuizCrt = adminQuizCreate(autherUser.authUserId, name, description);
+        const Update=adminQuizNameUpdate(autherUser.authUserId,QuizCrt.quizId, name2);
+        expect(Update).toStrictEqual({error: 'The name is either too long or too short.'})
+    })
+    
+    //Testing for if the name is used by other user
+    test('name is used', () => {
+        const data = getData();
+        const autherUser = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'sami', 'ashfaque');
+        const name = 'sami';
+        const name2='ami';
+        const description = 'test2';
+        const description2='test1';
+        const QuizCrt = adminQuizCreate(autherUser.authUserId, name, description);
+        const QuizCrt2 = adminQuizCreate(autherUser.authUserId, name2, description2);
+        const Update=adminQuizNameUpdate(autherUser.authUserId,QuizCrt.quizId, name2);
+        expect(Update).toStrictEqual({error: 'The quiz name is already been used.'})
+    })
+
+    //Testing for correct input and output
+    test('Correct input', () => { 
+        const autherUser = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'sami', 'ashfaque');
+        const name = 'sami';
+        const name2='ami';
+        const description = 'test2';
+        const QuizCrt = adminQuizCreate(autherUser.authUserId, name, description);
+        const Update=adminQuizNameUpdate(autherUser.authUserId,QuizCrt.quizId, name2);
+        expect(Update).toStrictEqual({});
+
+
+    })
+
+})
+
