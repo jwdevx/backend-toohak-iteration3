@@ -1,7 +1,10 @@
-import { adminQuizCreate, adminQuizList } from "./quiz";
+import { adminQuizCreate, adminQuizInfo, adminQuizList } from "./quiz";
 import { getData, setData } from "./dataStore";
 import { clear } from "./other";
 import { adminAuthRegister, adminAuthLogin } from "./auth";
+import { format } from "date-fns";
+
+/*import {adminQuizInfo} from "./quiz"*/
 const ERROR = { error: expect.any(String) };
 describe('Testing create quizzes return quiz id', () => {
     beforeEach(() => {
@@ -118,5 +121,50 @@ describe('Testing print quiz list return quizzes', () => {
         expect(adminQuizList(authUser2.authUserId)).toStrictEqual({
             error: 'The user does not own any quizzes.',
         });
+    })    
+})
+
+describe('Testing if adminQuizInfo prints the correct information', () => {
+    beforeEach(() => {
+        clear();
+    });
+    test('invalid user id', () => {
+        const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+        const name = 'WOjiaoZC';
+        const description = 'test1';
+        const quizId = adminQuizCreate(authUser.authUserId, name, description);
+        expect(adminQuizInfo(authUser.authUserId + 1, quizId)).toStrictEqual({error: 'The user id is not valid.'});
     })
+    test('invalid quiz id', () => {
+        const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+        const name = 'WOjiaoZC';
+        const description = 'test1';
+        let quizId = adminQuizCreate(authUser.authUserId, name, description);
+        expect(adminQuizInfo(authUser.authUserId, quizId + 1)).toStrictEqual({error: 'Quiz ID does not refer to a valid quiz.'});
+    })
+    
+    test('Quiz ID does not refer to a quiz that this user owns.', () => {
+        const authUser1 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+        const authUser2 = adminAuthRegister('jason@gmail.com', 'WOjiaoZC123', 'jason', 'cheng');
+        let name1 = 'test1';
+        let description1 = 'test1';
+        let quizobj1 = adminQuizCreate(authUser1.authUserId, name1, description1);
+        let name2 = 'test2';
+        let description2 = 'test2';
+        let quizobj2 = adminQuizCreate(authUser2.authUserId, name2, description2);
+        let quizId2 = quizobj2.quizId;
+        let quizId1 = quizobj1.quizId;
+        expect(adminQuizInfo(authUser2.authUserId, quizId1)).toStrictEqual({error: 'Quiz ID does not refer to a quiz that this user owns.'});
+    })
+
+    test('correct input', () => {
+        const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+        let name = 'test1';
+        let description = 'test1';
+        const IDobj = adminQuizCreate(authUser.authUserId, name, description);
+        expect(adminQuizInfo(authUser.authUserId, IDobj.quizId)).toStrictEqual({
+            quizId: expect.any(Number), name: expect.any(String), timeCreated: format(new Date(), "MMMM d, yyyy h:mm a"), timeLastEdited: format(new Date(), "MMMM d, yyyy h:mm a"), description: expect.any(String)
+        });
+    })
+   
 })
