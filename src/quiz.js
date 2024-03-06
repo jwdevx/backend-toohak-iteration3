@@ -2,7 +2,7 @@ import { setData, getData } from "./dataStore"
 import { format } from "date-fns";
 import { 
   findUserId, invalidQuizName, invalidQuizNameLength, 
-  UsedQuizName, invalidDescriptionLength, 
+  UsedQuizName, invalidDescriptionLength, findQuizOwner, findQuizId, 
 } from "./helper";
 /**
 * Given basic details about a new quiz, create one for the logged in user.
@@ -118,9 +118,54 @@ function adminQuizRemove(authUserId, quizId) {
 * @return{{}}empty object
 */
 function adminQuizNameUpdate(authUserId, quizId, name){
-  return{}
-}
+  const data = getData();
+  
+  
+  //checking if the user Id is valid
+  if (!findUserId(authUserId)) {
+    return {
+      error: 'The user id is not valid.'
+    }
+  }
+  //checking if the quiz Id is valid
+  if (!findQuizId(quizId)) {
+    return {
+      error: 'The quiz id is not valid.'
+    }
+  }
+  //checking if the quiz name is valid
+  if (invalidQuizName(name)) {
+    return {
+      error: 'The name is not valid.'
+    }
+  }
 
+  //checking if the quiz name length is valid
+  if (invalidQuizNameLength(name)) {
+    return {
+      error: "The name is either too long or too short."
+    }
+  }
+  //checking  if the quiz name was used before
+  if (UsedQuizName(name)) {
+    return {
+      error: 'The quiz name is already been used.'
+    }
+  }
+    //checking if the quiz is owned by user
+    if (!findQuizOwner(authUserId,quizId)) {
+      return {
+        error: 'Quiz belongs to a different user.'
+      }
+    }
+    //updating the quiz name
+    const quiz = findQuizId(quizId);
+    quiz.name=name;
+    setData(data);
+    return{};
+  
+}
+export {adminQuizNameUpdate}
 /**
 *Update the description of the relevant quiz.
 *
@@ -130,8 +175,11 @@ function adminQuizNameUpdate(authUserId, quizId, name){
 * @return{{}}empty object
 */
 function adminQuizDescriptionUpdate(authUserId, quizId, description){
-  return{}
+  
+  return{};
 }
+
+export {adminQuizDescriptionUpdate}
 
 /**
  * provides information on the quiz
