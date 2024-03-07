@@ -13,30 +13,7 @@ export function findUserId(authUserId) {
   return data.users.find(user => user.userId === authUserId);
 }
 
-/**
- * Helper Function used in auth.js, quiz.js 
- * Checks if the provided AuthUserId does not correspond to any existing user.
- * 
- * @param {integer} quizId - The Quiz ID to be validated.
- * @param {integer} authUserId - The User ID to be validated.
- * @returns {boolean} Returns true if the AuthUserId does not match any existing quiz's ownerId
- */
-export function findQuizOwner(authUserId,quizId) {
-  let data = getData(); 
-  return data.quizzes.find(quiz => quiz.quizId==quizId && quiz.owner=== authUserId);
-}
 
-/**
- * Helper Function used in auth.js, quiz.js 
- * Checks if the provided AuthUserId does not correspond to any existing user.
- * 
- * @param {integer} quizId - The Quiz ID to be validated.
- * @returns {boolean} Returns true if the QuizId does not match any existing QuizId
- */
-export function findQuizId(quizId) {
-  let data = getData(); 
-  return data.quizzes.find(quiz => quiz.quizId === quizId);
-}
 
 /**
  * Helper Function used in auth.js 
