@@ -195,10 +195,40 @@ export {adminQuizNameUpdate}
 * @return{{}}empty object
 */
 function adminQuizDescriptionUpdate(authUserId, quizId, description){
+  const data = getData();
+  const quiz = findQuizId(quizId);
+  //checking if the user Id is valid
+  if (!findUserId(authUserId)) {
+    return {
+      error: 'The user id is not valid.'
+    }
+  }
+  //checking if the quiz Id is valid
+  if (!findQuizId(quizId)) {
+    return {
+      error: 'The quiz id is not valid.'
+    }
+  }
+  //checking if the quiz is owned by user
+  if (!matchQuizIdAndAuthor(authUserId,quizId)) {
+    return {
+      error: 'Quiz belongs to a different user.'
+    }
+  }
+  //checking if thes Description is too long
+  if (invalidDescriptionLength(description)) {
+    return {
+      error: 'The description is too long.'
+    }
+  }
+  quiz.description=description;
+  setData(data);
   
+
   return{};
 }
 
+export {adminQuizDescriptionUpdate}
 
 /**
  * provides information on the quiz
