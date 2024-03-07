@@ -107,7 +107,7 @@ export function invalidQuizNameLength(name) {
  * @returns {boolean} - Returns true if description is invalid (either too short or too long).
  */
 export function invalidDescriptionLength(name) {
-  return (name.length < 2 || name.length > 100);
+  return (name.length > 100);
 }
 
 /**
@@ -122,4 +122,35 @@ export function invalidQuizName(name) {
   const isAlphanumericAndSpaces = validator.isWhitelisted(name, 
   'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ');
   return (!isAlphanumericAndSpaces)
+}
+
+/**
+ * Helper Function used in quiz.js 
+ * Checks if the provided quizId corresponds to any existing quiz.
+ * 
+ * @param {integer} quizId - The quizId to be validated.
+ * @returns {boolean} Returns true if the QuizId does not match any existing quizId.
+ */
+export function findQuizId(quizId) {
+  let data = getData(); 
+  return data.quizzes.find(quiz => quiz.quizId === quizId);
+}
+
+/**
+ * Helper Function used in quiz.js 
+ * Checks if the provided Quiz ID does not refer to a quiz that this user owns.
+ * 
+ * @param {integer} authUserId - A valid User ID.
+ * @param {integer} quizId - A valid Quiz ID.
+ * @returns {boolean} Returns false if the QuizId does not match any existing authUserId.
+ */
+export function matchQuizIdAndAuthor(authUserId, quizId) {
+  let data = getData(); 
+
+  for (const quiz of data.quizzes) {
+    if (quiz.owner === authUserId && quiz.quizId === quizId) {
+      return true;
+    }
+  }
+  return false;
 }
