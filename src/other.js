@@ -1,10 +1,10 @@
 import { setData } from "./dataStore";
 function clear()
 {
-    setData({
-        users: [],
-        quizzes: [],
-    })
+  setData({
+    users: [],
+      quizzes: [],
+  })
 }
 
 export { clear }
