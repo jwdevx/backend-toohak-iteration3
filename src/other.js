@@ -5,6 +5,7 @@ function clear()
         users: [],
         quizzes: [],
     })
+    return {};
 }
 
 export { clear }
