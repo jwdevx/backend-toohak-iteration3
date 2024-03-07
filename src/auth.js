@@ -85,14 +85,14 @@ export function adminAuthLogin(email, password) {
       error: "Email address does not exist",
     };
   } else if (user.password !== password) {
-    user.numFailedPasswordsSinceLastLogin+=1;
+    user.numFailedPasswordsSinceLastLogin += 1;
     return {
       error: "Password does not match email",
     };
   }
 
-  user.numFailedPasswordsSinceLastLogin=0;
-  user.numSuccessfulLogins+=1;
+  user.numFailedPasswordsSinceLastLogin = 0;
+  user.numSuccessfulLogins += 1;
   return {
     authUserId: user.userId,
   };
