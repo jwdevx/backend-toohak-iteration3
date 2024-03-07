@@ -10,55 +10,55 @@ import { findUserId, invalidQuizName, invalidQuizNameLength, UsedQuizName, inval
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
 function adminQuizCreate(authUserId, name, description) {
-    if  (!authUserId || !name || (description === null || description === undefined)) {
-      return { error: 'One or more missing parameters' };
-    }
-    const data = getData();
-    const ID = data.quizzes.length + 1;
-    if (!findUserId(authUserId)) {
-      return {
-        error: 'The user id is not valid.'
-      }
-    }
-
-    if (invalidQuizName(name)) {
-      return {
-        error: 'The name is not valid.'
-      }
-    }
-
-    if (invalidQuizNameLength(name)) {
-      return {
-        error: "The name is either too long or too short."
-      }
-    }
-    if (UsedQuizName(name)) {
-      return {
-        error: 'The quiz name is already been used.'
-      }
-    }
-    if (invalidDescriptionLength(description)) {
-      return {
-        error: 'The description is too long.'
-      }
-    }
-    const currentTime = new Date();
-    const createdTime = format(currentTime, "MMMM d, yyyy h:mm a"); // "h:mm a" format includes hours, minutes, and AM/PM
-    const quiz = {
-      quizId: ID,
-      name: name,
-      timeCreated: createdTime,
-      timeLastEdited: createdTime,
-      description: description,
-      numQuestions: 0,
-      owner: authUserId,
-      questions: [],
-    }
-    data.quizzes.push(quiz);
-    setData(data);
+  if  (!authUserId || !name || (description === null || description === undefined)) {
+    return { error: 'One or more missing parameters' };
+  }
+  const data = getData();
+  const ID = data.quizzes.length + 1;
+  if (!findUserId(authUserId)) {
     return {
-        quizId: ID
+      error: 'The user id is not valid.'
     }
+  }
+
+  if (invalidQuizName(name)) {
+    return {
+      error: 'The name is not valid.'
+    }
+  }
+
+  if (invalidQuizNameLength(name)) {
+    return {
+      error: "The name is either too long or too short."
+    }
+  }
+  if (UsedQuizName(name)) {
+    return {
+      error: 'The quiz name is already been used.'
+    }
+  }
+  if (invalidDescriptionLength(description)) {
+    return {
+      error: 'The description is too long.'
+    }
+  }
+  const currentTime = new Date();
+  const createdTime = format(currentTime, "MMMM d, yyyy h:mm a"); // "h:mm a" format includes hours, minutes, and AM/PM
+  const quiz = {
+    quizId: ID,
+    name: name,
+    timeCreated: createdTime,
+    timeLastEdited: createdTime,
+    description: description,
+    numQuestions: 0,
+    owner: authUserId,
+    questions: [],
+  }
+  data.quizzes.push(quiz);
+  setData(data);
+  return {
+      quizId: ID
+  }
 }
 export { adminQuizCreate }
 /**
@@ -68,7 +68,7 @@ export { adminQuizCreate }
  * @returns {{quizzes: json}} An json object containing the quizzes with their ID and name.
  */
 function adminQuizList(authUserId) {
-  if  (!authUserId) {
+  if (!authUserId) {
     return { error: 'One or more missing parameters' };
   }
   if (!findUserId(authUserId)) {
@@ -106,7 +106,7 @@ export {adminQuizList}
  * @returns {} nothing
  */
 function adminQuizRemove(authUserId, quizId) {
-  if  (!authUserId || !quizId) {
+  if (!authUserId || !quizId) {
     return { error: 'One or more missing parameters' };
   }
   if (!findUserId(authUserId)) {
