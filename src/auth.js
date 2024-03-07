@@ -74,8 +74,9 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 export function adminAuthLogin(email, password) {
   
   // Basic validation for missing or null values
-  if (!email || !password) return { error: "One or more missing parameters" };
-  
+  if (!email || !password){
+    return { error: "One or more missing parameters" };
+  }
   let data = getData();
   const user = data.users.find((user) => user.email === email);
   
@@ -84,13 +85,14 @@ export function adminAuthLogin(email, password) {
       error: "Email address does not exist",
     };
   } else if (user.password !== password) {
+    user.numFailedPasswordsSinceLastLogin += 1;
     return {
       error: "Password does not match email",
     };
   }
 
-  //TODO add counter for update logins succes + fail & setData(data);
-
+  user.numFailedPasswordsSinceLastLogin = 0;
+  user.numSuccessfulLogins += 1;
   return {
     authUserId: user.userId,
   };
