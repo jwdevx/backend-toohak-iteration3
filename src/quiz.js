@@ -1,9 +1,6 @@
 import { setData, getData } from "./dataStore"
 import { format } from "date-fns";
-import { 
-  findUserId, invalidQuizName, invalidQuizNameLength, 
-  UsedQuizName, invalidDescriptionLength, findQuizOwner, findQuizId, 
-} from "./helper";
+import { findUserId, invalidQuizName, invalidQuizNameLength, UsedQuizName, invalidDescriptionLength, findQuizId, matchQuizIdAndAuthor} from "./helper";
 /**
 * Given basic details about a new quiz, create one for the logged in user.
 *
@@ -13,7 +10,7 @@ import {
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
 function adminQuizCreate(authUserId, name, description) {
-    if  (!authUserId || !name || !description ) {
+    if  (!authUserId || !name || (description === null || description === undefined)) {
       return { error: 'One or more missing parameters' };
     }
     const data = getData();
@@ -23,11 +20,13 @@ function adminQuizCreate(authUserId, name, description) {
         error: 'The user id is not valid.'
       }
     }
+
     if (invalidQuizName(name)) {
       return {
         error: 'The name is not valid.'
       }
     }
+
     if (invalidQuizNameLength(name)) {
       return {
         error: "The name is either too long or too short."
@@ -97,6 +96,7 @@ function adminQuizList(authUserId) {
     quizzes: quizarray,
   };
 }
+
 export {adminQuizList}
 /**
  * Removes the quiz
@@ -106,9 +106,29 @@ export {adminQuizList}
  * @returns {} nothing
  */
 function adminQuizRemove(authUserId, quizId) {
+  if  (!authUserId || !quizId) {
+    return { error: 'One or more missing parameters' };
+  }
+  if (!findUserId(authUserId)) {
+    return {
+      error: 'The user id is not valid.'
+    }
+  }
+  if (!findQuizId(quizId)) {
+    return { error: 'Quiz ID does not refer to a valid quiz.'}
+  }
+  if (!matchQuizIdAndAuthor(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.'}
+  }
+  const data = getData();
+  let quiz_index = data.quizzes.findIndex(quiz => quiz.owner === authUserId && quiz.quizId === quizId);
+  if (quiz_index !== -1) {
+    data.quizzes.splice(quiz_index, 1);
+    setData(data);
+  }
   return {}
 }
-
+export {adminQuizRemove};
 /**
 *Update the name of the relevant quiz.
 *
@@ -153,7 +173,7 @@ function adminQuizNameUpdate(authUserId, quizId, name){
     }
   }
     //checking if the quiz is owned by user
-    if (!findQuizOwner(authUserId,quizId)) {
+    if (!matchQuizIdAndAuthor(authUserId,quizId)) {
       return {
         error: 'Quiz belongs to a different user.'
       }
@@ -179,21 +199,43 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description){
   return{};
 }
 
-export {adminQuizDescriptionUpdate}
 
 /**
  * provides information on the quiz
  *
  * @param {number} authUserId - the authenticated user ID.
  * @param {number} quizID - the authenticated quiz ID.
- * @returns {} empty object
+ * @returns {json} A json object containing the quiz info with their quizId,
+ * name, timeCreated, timeLastEdited, description.
  */
 function adminQuizInfo(authUserId, quizId) {
-  return {
-    quizId: 1,
-    name: 'My Quiz',
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
-    description: 'This is my quiz',
+  if  (!authUserId || !quizId) {
+    return { error: 'One or more missing parameters' };
   }
+  if (!findUserId(authUserId)) {
+    return {
+      error: 'The user id is not valid.'
+    }
+  }
+  if (!findQuizId(quizId)) {
+    return { error: 'Quiz ID does not refer to a valid quiz.'}
+  }
+  if (!matchQuizIdAndAuthor(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.'}
+  }
+  const data = getData();
+  let quizInfo = {};
+  for (const quiz of data.quizzes) {
+    if (quiz.owner === authUserId && quiz.quizId === quizId) {
+      quizInfo = {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      };
+    }
+  }
+  return quizInfo;
 }
+export{adminQuizInfo};
