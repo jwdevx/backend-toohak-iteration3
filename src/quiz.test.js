@@ -1,10 +1,7 @@
 import { adminQuizCreate, adminQuizList,adminQuizInfo,adminQuizRemove,adminQuizNameUpdate,adminQuizDescriptionUpdate } from "./quiz";
-
-import { getData, setData } from "./dataStore";
 import { clear } from "./other";
 import { adminAuthRegister, adminAuthLogin } from "./auth";
 import { format } from "date-fns";
-
 
 const ERROR = { error: expect.any(String) };
 describe('Testing create quizzes return quiz id', () => {
@@ -48,7 +45,6 @@ describe('Testing create quizzes return quiz id', () => {
     expect(id).toStrictEqual({ error: "The name is either too long or too short.",})
   })
   test('name is used', () => {
-    const data = getData();
     const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
     const name = 'tony';
     const description = 'test1';
@@ -147,14 +143,15 @@ describe('Testing if adminQuizInfo prints the correct information', () => {
         let quizId2 = quizobj2.quizId;
         let quizId1 = quizobj1.quizId;
         expect(adminQuizInfo(authUser2.authUserId, quizId1)).toStrictEqual({error: 'Quiz ID does not refer to a quiz that this user owns.'});
-    })
-    test('correct input', () => {
+        expect(adminQuizInfo(authUser1.authUserId, quizId2)).toStrictEqual({error: 'Quiz ID does not refer to a quiz that this user owns.'});
+      })
+    test('Matching correct info', () => {
         const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
         let name = 'test1';
-        let description = 'test1';
+        let description = 'testing';
         const IDobj = adminQuizCreate(authUser.authUserId, name, description);
         expect(adminQuizInfo(authUser.authUserId, IDobj.quizId)).toStrictEqual({
-            quizId: expect.any(Number), name: expect.any(String), timeCreated: format(new Date(), "MMMM d, yyyy h:mm a"), timeLastEdited: format(new Date(), "MMMM d, yyyy h:mm a"), description: expect.any(String)
+          quizId: IDobj.quizId, name: 'test1', timeCreated: format(new Date(), "MMMM d, yyyy h:mm a"), timeLastEdited: format(new Date(), "MMMM d, yyyy h:mm a"), description: 'testing'
         });
     })
     
@@ -204,6 +201,32 @@ describe('Testing if adminQuizRemove successfully removes the given quiz', () =>
         adminQuizRemove(authUser2.authUserId, quizId2);
         expect(adminQuizInfo(authUser2.authUserId, quizId2)).toStrictEqual({error: 'Quiz ID does not refer to a valid quiz.'});
     })
+    test('Successfully removed multiple quizzes', () => {
+      const authUser1 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+      let name1 = 'test1';
+      let description1 = 'test1';
+      let quizobj1 = adminQuizCreate(authUser1.authUserId, name1, description1);
+
+      let name2 = 'test2';
+      let description2 = 'test2';
+      let quizobj2 = adminQuizCreate(authUser1.authUserId, name2, description2);
+
+      let name3 = 'test3';
+      let description3 = 'test3';
+      let quizobj3 = adminQuizCreate(authUser1.authUserId, name3, description3);
+
+      let quizId2 = quizobj2.quizId;
+      let quizId1 = quizobj1.quizId;
+      let quizId3 = quizobj3.quizId;
+
+      adminQuizRemove(authUser1.authUserId, quizId1);
+      adminQuizRemove(authUser1.authUserId, quizId2);
+      adminQuizRemove(authUser1.authUserId, quizId3);
+
+      expect(adminQuizList(authUser1.authUserId)).toStrictEqual({
+        error: 'The user does not own any quizzes.',
+      });
+  })
 })
 
 
@@ -296,7 +319,6 @@ describe('Testing QuizNameUpdate', () => {
     
     //Testing for if the name is used by other user
     test('name is used', () => {
-        const data = getData();
         const autherUser = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'sami', 'ashfaque');
         const name = 'sami';
         const name2='ami';
@@ -367,7 +389,6 @@ describe('Testing QuizDescriptionUpdate', () => {
 
 
     })
-
 
     //Testing for too long description
     test('long description', () => {
