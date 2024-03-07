@@ -7,7 +7,6 @@ import {
 } from './auth.js';
 
 import { clear } from './other.js';
-import { getData } from './dataStore.js';
 const ERROR = { error: expect.any(String) };
 
 beforeEach(() => {
@@ -192,18 +191,6 @@ describe('These are tests for adminUserDetails', () => {
 });
 
 
-  // test('Success Case: Prints user details', () => {
-  //     expect(adminUserDetails(authUserId)).toStrictEqual({
-  //     user: {
-  //         userId: expect.any(Number), 
-  //         name: expect.any(String),
-  //         email: expect.any(String), 
-  //         numSuccessfulLogins: expect.any(Number),
-  //         numFailedPasswordsSinceLastLogin: expect.any(Number)
-  //         },
-  //     });
-  // })
-
 /**
  * Test for adminUserDetailsUpdate Function working properly
  */
@@ -290,15 +277,19 @@ describe('adminUserDetailsUpdate', () => {
     let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const retVal = adminUserDetailsUpdate(user1.authUserId, 'smith.hayden@unsw.edu.au', 'Angelina', 'Jolie')
     expect(retVal).toStrictEqual({});
-    const data = getData();
-    const updatedUser = data.users.find(user => user.userId === user1.authUserId);
-    expect(updatedUser.email).toEqual('smith.hayden@unsw.edu.au');
-    expect(updatedUser.nameFirst).toEqual('Angelina');
-    expect(updatedUser.nameLast).toEqual('Jolie');
+    const userDetails = adminUserDetails(user1.authUserId);
+    expect(userDetails).toEqual({
+    user: {
+        userId: user1.authUserId,
+        name: 'Angelina Jolie',
+        email: 'smith.hayden@unsw.edu.au',
+        numSuccessfulLogins: expect.any(Number),
+        numFailedPasswordsSinceLastLogin: expect.any(Number),
+        }
+    });
   });      
 
 });    
-
 
 /**
  * Test for adminUserPasswordUpdate Function working properly
