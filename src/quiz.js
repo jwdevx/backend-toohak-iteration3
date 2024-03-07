@@ -87,7 +87,7 @@ function adminQuizList(authUserId) {
   for (const quiz of data.quizzes) {
     if (quiz.owner === authUserId) {
       quizarray.push({
-        quizid: quiz.quizId,
+        quizId: quiz.quizId,
         name: quiz.name,
       })
     }

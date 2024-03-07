@@ -3,8 +3,9 @@ function clear()
 {
   setData({
     users: [],
-      quizzes: [],
+    quizzes: [],
   })
+  return {};
 }
 
 export { clear }

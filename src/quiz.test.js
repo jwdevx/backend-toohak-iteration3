@@ -93,21 +93,14 @@ describe('Testing print quiz list return quizzes', () => {
     const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
     let name = 'test1';
     let description = 'test1';
-    adminQuizCreate(authUser.authUserId, name, description);
+    const quiz = adminQuizCreate(authUser.authUserId, name, description);
     expect(adminQuizList(authUser.authUserId)).toStrictEqual({
-        quizzes: expect.any(Array),
-    });
-  })
-  test('two quizzes are in the list', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    let name = 'test1';
-    let description = 'test1';
-    adminQuizCreate(authUser.authUserId, name, description);
-    name = 'test2';
-    description = 'test2';
-    adminQuizCreate(authUser.authUserId, name, description);
-    expect(adminQuizList(authUser.authUserId)).toStrictEqual({
-      quizzes: expect.any(Array),
+      quizzes: [
+        {
+          quizId: expect.any(Number),
+          name: expect.any(String),
+        },
+      ]
     });
   })
   test('user does not have any quizzes', () => {
