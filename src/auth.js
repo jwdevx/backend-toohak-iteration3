@@ -81,7 +81,6 @@ export function adminAuthLogin(email, password) {
   const user = data.users.find((user) => user.email === email);
   
   if (!user) {
-    user.numFailedPasswordsSinceLastLogin+=1;
     return {
       error: "Email address does not exist",
     };
