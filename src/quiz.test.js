@@ -9,8 +9,8 @@ import { format } from "date-fns";
 const ERROR = { error: expect.any(String) };
 describe('Testing create quizzes return quiz id', () => {
   beforeEach(() => {
-      clear();
-    });
+    clear();
+  });
   test('add one quiz', () => {
     const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
     const id = adminAuthLogin('tony@gmail.com', 'WOjiaoZC123');

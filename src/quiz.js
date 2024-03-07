@@ -10,7 +10,7 @@ import { findUserId, invalidQuizName, invalidQuizNameLength, UsedQuizName, inval
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
 function adminQuizCreate(authUserId, name, description) {
-  if  (!authUserId || !name || (description === null || description === undefined)) {
+  if (!authUserId || !name || (description === null || description === undefined)) {
     return { error: 'One or more missing parameters' };
   }
   const data = getData();
@@ -57,7 +57,7 @@ function adminQuizCreate(authUserId, name, description) {
   data.quizzes.push(quiz);
   setData(data);
   return {
-      quizId: ID
+    quizId: ID
   }
 }
 export { adminQuizCreate }
