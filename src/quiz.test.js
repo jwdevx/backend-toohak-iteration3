@@ -108,7 +108,6 @@ describe('Testing print quiz list return quizzes', () => {
     name = 'test2';
     description = 'test2';
     adminQuizCreate(authUser1.authUserId, name, description);
-    console.log(adminQuizList(authUser2.authUserId));
     expect(adminQuizList(authUser2.authUserId)).toStrictEqual({
       quizzes: [],
     });
