@@ -57,9 +57,6 @@ function adminQuizList(authUserId) {
   if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
   
   const data = getData();
-  const quizzes = data.quizzes.find(quiz => quiz.owner === authUserId)
-  if (!quizzes) return { error: 'The user does not own any quizzes.' };
-
   const quizarray = [];
   for (const quiz of data.quizzes) {
     if (quiz.owner === authUserId) {
