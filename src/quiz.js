@@ -19,7 +19,7 @@ function adminQuizCreate(authUserId, name, description) {
   if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
   if (invalidQuizName(name)) return { error: 'The name is not valid.' };
   if (invalidQuizNameLength(name)) return { error: "The name is either too long or too short." };
-  if (UsedQuizName(name)) return { error: 'The quiz name is already been used.' };
+  if (UsedQuizName(name, authUserId)) return { error: 'The quiz name is already been used.' };
   if (invalidDescriptionLength(description)) return { error: 'The description is too long.' };
   
   const data = getData();
@@ -124,7 +124,7 @@ function adminQuizNameUpdate(authUserId, quizId, name){
   if (invalidQuizNameLength(name))  return { error: "The name is either too long or too short." };
   
   //checking  if the quiz name was used before
-  if (UsedQuizName(name)) return { error: 'The quiz name is already been used.' };
+  if (UsedQuizName(name, authUserId)) return { error: 'The quiz name is already been used.' };
   
   //checking if the quiz is owned by user
   if (!matchQuizIdAndAuthor(authUserId,quizId)) return { error: 'Quiz belongs to a different user.' };
