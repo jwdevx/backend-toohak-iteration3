@@ -109,7 +109,7 @@ describe('Testing print quiz list return quizzes', () => {
     description = 'test2';
     adminQuizCreate(authUser1.authUserId, name, description);
     expect(adminQuizList(authUser2.authUserId)).toStrictEqual({
-      error: 'The user does not own any quizzes.',
+      quizzes: [],
     });
   })    
 })
@@ -224,7 +224,7 @@ describe('Testing if adminQuizRemove successfully removes the given quiz', () =>
       adminQuizRemove(authUser1.authUserId, quizId3);
 
       expect(adminQuizList(authUser1.authUserId)).toStrictEqual({
-        error: 'The user does not own any quizzes.',
+        quizzes: [],
       });
   })
 })
