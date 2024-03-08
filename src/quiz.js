@@ -132,7 +132,11 @@ function adminQuizNameUpdate(authUserId, quizId, name){
   //updating the quiz name
   const quiz = findQuizId(quizId);
   quiz.name = name;
+  const currentTime = new Date();
+  const updatedTime = format(currentTime, "MMMM d, yyyy h:mm a"); // "h:mm a" format includes hours, minutes, and AM/PM
+  quiz.timeLastEdited=updatedTime;
   setData(data);
+
   return{};
   
 }
@@ -159,8 +163,10 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description){
   
   //checking if thes Description is too long
   if (invalidDescriptionLength(description))  return { error: 'The description is too long.' };
-  
+  const currentTime = new Date();
+  const updatedTime = format(currentTime, "MMMM d, yyyy h:mm a"); // "h:mm a" format includes hours, minutes, and AM/PM
   quiz.description = description;
+  quiz.timeLastEdited=updatedTime;
   setData(data);
   
   return{};
