@@ -82,14 +82,18 @@ export {adminQuizList}
 function adminQuizRemove(authUserId, quizId) {
 
   //checking for valid parameters
-  if (!authUserId || !quizId) return { error: 'One or more missing parameters' };
+  if (!authUserId || !quizId) return { error: 'One or more missing parameters.' };
   if (!findUserId(authUserId)) return { error: 'The user id is not valid.' }
   if (!findQuizId(quizId))  return { error: 'Quiz ID does not refer to a valid quiz.' };
   if (!matchQuizIdAndAuthor(authUserId, quizId)) return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
 
   const data = getData();
+
+  //finds the index in the quiz array which contains the quiz we want to remove
   let quiz_index = data.quizzes.findIndex(quiz => quiz.owner === authUserId && quiz.quizId === quizId);
+  
   if (quiz_index !== -1) {
+    //deletes the subsequent index and updates data
     data.quizzes.splice(quiz_index, 1);
     setData(data);
   }
@@ -175,13 +179,15 @@ export {adminQuizDescriptionUpdate}
 function adminQuizInfo(authUserId, quizId) {
 
   //checking for valid parameters:
-  if  (!authUserId || !quizId)  return { error: 'One or more missing parameters' }; 
+  if  (!authUserId || !quizId)  return { error: 'One or more missing parameters.' }; 
   if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
   if (!findQuizId(quizId)) return { error: 'Quiz ID does not refer to a valid quiz.' };
   if (!matchQuizIdAndAuthor(authUserId, quizId)) return { error: 'Quiz ID does not refer to a quiz that this user owns.'};
   
   const data = getData();
   let quizInfo = {};
+
+  //scanning data to find the quiz in data.quizzes that authUserId owns 
   for (const quiz of data.quizzes) {
     if (quiz.owner === authUserId && quiz.quizId === quizId) {
       quizInfo = {
