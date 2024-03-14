@@ -217,17 +217,16 @@ app.put('/v1/admin/quiz/{quizid}/description', (req: Request, res: Response) => 
   res.status(501).json(response);
 });
 
+//TODO test for clear
 /**
  * Reset the state of the application back to the start.
  * Wipe all details(users, quizzes) back to the beggining as if the data structure is fresh.
  */
-
-// TODO edit and confirm the url is correct
 app.delete('/v1/clear', (req: Request, res: Response) => {
-
-  const response = { message: " TODO: Reset the state of the application back to the start." };
-  res.status(501).json(response);
+  const response = clear();
+  res.json(response);
 });
+
 
 // =============================================================================
 // ============================== ITERATION 2 ==================================
