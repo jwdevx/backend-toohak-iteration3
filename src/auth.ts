@@ -37,53 +37,19 @@ export function adminAuthRegister(
 
   const data = getData();
   if (data.users.some(existingUser => existingUser.email === email)) {
-    return {
-      error: 'Email address is used by another user',
-      status: 400,
-    };
+    return { error: 'Email address is used by another user' };
   }
-  if (invalidEmail(email)) { 
-    return {
-      error: 'Invalid email address: email is not a string',
-      status: 400,
-    };
-  }
- 
-  if (invalidUserName(nameFirst)) {
-    return {
-      error: 'First name contains invalid characters',
-      status: 400,
-    };
-  }  
-  if (invalidNameLength(nameFirst)) { 
-    return {
-      error: 'First name must be between 2 and 20 characters long',
-      status: 400,
-    };
-  }  
-  if (invalidUserName(nameLast)) {
-    return {
-      error: 'Last name contains invalid characters',
-      status: 400,
-    };
-  }
-  if (invalidNameLength(nameLast)) {
-    return {
-      error: 'Last name must be between 2 and 20 characters long',
-      status: 400,
-    };
-  } 
-  if (password.length < 8) { 
-    return {
-      error: 'Password must be at least 8 characters long',
-      status: 400,
-    };
-  } 
+
+  if (invalidEmail(email)) return { error: 'Invalid email address: email is not a string' };
+  if (invalidUserName(nameFirst)) return { error: 'First name contains invalid characters' };
+  if (invalidNameLength(nameFirst)) return { error: 'First name must be between 2 and 20 characters long' };
+  if (invalidUserName(nameLast)) return { error: 'Last name contains invalid characters' };
+  if (invalidNameLength(nameLast)) return { error: 'Last name must be between 2 and 20 characters long' };
+  if (password.length < 8) return { error: 'Password must be at least 8 characters long' };
+
+  // Return error if Password does not contain at least one number and at least one letter
   if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(password)) {
-    return {
-      error: 'Password must contain at least one letter and one number',
-      status: 400,
-    };    
+    return { error: 'Password must contain at least one letter and one number' };
   }
   const sessionId: number = Math.floor(Math.random() * Date.now()),
 
@@ -116,6 +82,7 @@ export function adminAuthRegister(
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
 export function adminAuthLogin(email, password) {
+
   // Basic validation for missing or null values
   if (!email || !password) {
     return { error: 'One or more missing parameters' };
@@ -136,7 +103,15 @@ export function adminAuthLogin(email, password) {
 
   user.numFailedPasswordsSinceLastLogin = 0;
   user.numSuccessfulLogins += 1;
-
+    
+  /* pseudocode from lecture 
+  const sessionId: number = Math.floor(Math.random() * Date.now()),
+  user.sessions.push(sessionId);
+  return {
+    token: encodeURIComponent(sessionId.toString()),
+  };
+  */
+    
   setData(data);
   return {
     authUserId: user.userId,

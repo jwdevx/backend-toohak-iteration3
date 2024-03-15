@@ -101,10 +101,8 @@ app.get('/echo', (req: Request, res: Response) => {
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = adminAuthRegister(email, password, nameFirst, nameLast);
-
-  if ('error' in response) {
-    return res.status(response.status).json({ error: response.error });
-  }
+  
+  if ('error' in response) return res.status(400).json({ error: response.error });
   saveData(); 
   res.status(200).json({ token: response.token });
 });
