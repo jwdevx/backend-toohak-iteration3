@@ -32,11 +32,10 @@ import {
   adminUserDetailsUpdate,
   adminUserPasswordUpdate,
   adminAuthLogout,  
+  clear
 } from './apiRequests';
-import { clear } from './other';
 
 const ERROR = { error: expect.any(String) };
-
 const OK = 200;
 const BAD_REQUEST = 400;
 const UNAUTHORIZED = 401;
