@@ -1,0 +1,37 @@
+import request from 'sync-request-curl';
+import config from './config.json';
+const port = config.port;
+const url = config.url;
+const SERVER_URL = `${url}:${port}`;
+
+// =============================================================================
+// ============================     USERS        ===============================
+// =============================================================================
+
+export const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/auth/register', {
+    json: {
+      email: email,
+      password: password,
+      nameFirst: nameFirst,
+      nameLast: nameLast,
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
+
+// =============================================================================
+// ===========================     QUIZZES        ==============================
+// =============================================================================
+
+// TODO
+
+// =============================================================================
+// ==========================     QUESTIONS        =============================
+// =============================================================================
+
+// TODO
