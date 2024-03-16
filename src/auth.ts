@@ -10,12 +10,19 @@ There is this 11  number of errors in typecheck in this file: 11  src/auth.ts:50
 // Importing intefaces
 import {
   Users,
+  Tokens,
   ErrorObject
 } from './dataStore';
 
 // Importing functions
 import { getData, setData } from './dataStore';
-import { findUserId, invalidEmail, invalidUserName, invalidNameLength} from './helper';
+import {
+  findSessionId,
+  findUserId,
+  invalidEmail,
+  invalidUserName,
+  invalidNameLength,
+} from './helper';
 
 /**
  * Register a user with an email, password, and names, then returns their
@@ -25,33 +32,37 @@ import { findUserId, invalidEmail, invalidUserName, invalidNameLength} from './h
  * @param {string} password - The password for the user
  * @param {string} nameFirst - The first name of the user
  * @param {string} nameLast - The last name of the user
+ * @returns {{token: string} | {error: string}} An object: sessionId or an error msg.
  * 
- * @returns {{authUserId: number}} An object containing the authenticated user ID.
+ * Example body input:
+ * {
+ *    "email": "hayden.smith@unsw.edu.au",
+ *    "password": "haydensmith123",
+ *    "nameFirst": "Hayden",
+ *    "nameLast": "Smith"
+ * }
  */
 export function adminAuthRegister(
     email: string,
     password: string,
     nameFirst: string,
     nameLast: string
-): ErrorObject | { token: string} {
+): { error: string} | { token: string} {
 
   const data = getData();
   if (data.users.some(existingUser => existingUser.email === email)) {
     return { error: 'Email address is used by another user' };
   }
-
   if (invalidEmail(email)) return { error: 'Invalid email address: email is not a string' };
   if (invalidUserName(nameFirst)) return { error: 'First name contains invalid characters' };
   if (invalidNameLength(nameFirst)) return { error: 'First name must be between 2 and 20 characters long' };
   if (invalidUserName(nameLast)) return { error: 'Last name contains invalid characters' };
   if (invalidNameLength(nameLast)) return { error: 'Last name must be between 2 and 20 characters long' };
   if (password.length < 8) return { error: 'Password must be at least 8 characters long' };
-
-  // Return error if Password does not contain at least one number and at least one letter
   if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(password)) {
     return { error: 'Password must contain at least one letter and one number' };
   }
-  const sessionId: number = Math.floor(Math.random() * Date.now()),
+  const sessionId: number = Math.floor(Math.random() * Date.now());
 
   const newUser: Users = {
     userId: data.users.length + 1,
@@ -63,10 +74,13 @@ export function adminAuthRegister(
     oldPasswords: [],
     numSuccessfulLogins: 1,
     numFailedPasswordsSinceLastLogin: 0,
-    sessions:[sessionId],
   };
-
-  data.users.push(newUser);
+  data.users.push(newUser);  
+  const newToken: Tokens = {
+    sessionId: sessionId,
+    userId: newUser.userId,
+  };
+  data.tokens.push(newToken);  
   setData(data);
   return {
     token: encodeURIComponent(sessionId.toString()),
@@ -146,36 +160,100 @@ export function adminUserDetails(authUserId) {
 
 /**
  * Given an admin user's authUserId and a set of properties, update the
- * properties of this logged in admin user.
+ * properties of this logged in admin user (non-password).
  *
- * @param {integer} authUserId - the admin's user authenticated user ID
+ * @param {string} token -  user sessionId
  * @param {string} email - email address of the admin user
  * @param {string} nameFirst - The first name of the admin user
  * @param {string} nameLast - The last name of the admin user.
  * @returns { }  null
+ * 
+ * Example body input:
+ * {
+ *    "token": "23748",
+ *    "email": "hayden.smith@unsw.edu.au",
+ *    "nameFirst": "Hayden",
+ *    "nameLast": "Smith"
+ * }
  */
-export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-  // Basic validation for missing or null values
-  if (!authUserId || !email || !nameFirst || !nameLast) return { error: 'One or more missing parameters' };
-
+export function adminUserDetailsUpdate(
+  token: string,
+  email: string,
+  nameFirst: string,
+  nameLast: string): ErrorObject | Record<string, never> {
+  
   const data = getData();
-  const authUser = findUserId(authUserId);
-  if (!authUser) return { error: 'AuthUserId is not a valid user' };
+  const sessionId = parseInt(decodeURIComponent(token));  
+  if (!token || isNaN(sessionId) ) {
+    return { error: 'Token is empty or not provided', status: 401,};
+  } 
 
-  // Return error if email is currently used by another user (excluding the current authorised user)
-  if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== authUserId)) {
-    return { error: 'Email is currently used by another user, choose another email!' };
+  const validToken = findSessionId(sessionId);  
+  if (!validToken) {
+    return {
+      error: 'Token is invalid (does not refer to valid logged in user session)',
+      status: 401,
+    };
+  }   
+  const user = findUserId(validToken.userId); 
+  
+  //TODO check with tutor about this errors?
+  // if (!authUser) return { error: "User not found", status: 404  }; 
+
+  // if (Valid token is provided, but user is not an owner of this quiz)) {
+  //   return {
+  //     error: 'FORBIDDEN - Valid token is provided, but user is not an owner of this quiz',
+  //     status: 403,
+  //   };
+  // }
+
+  //400 - if email is currently used by another user (excluding the current authorised user)
+  if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== user)) {
+    return {
+        error: 'Email is currently used by another user, choose another email!',
+      status: 400,
+    };
   }
-  if (invalidEmail(email)) return { error: 'Invalid email address: email is not a string' };
-  if (invalidUserName(nameFirst)) return { error: 'First name contains invalid characters' };
-  if (invalidNameLength(nameFirst)) return { error: 'First name must be between 2 and 20 characters long' };
-  if (invalidUserName(nameLast)) return { error: 'Last name contains invalid characters' };
-  if (invalidNameLength(nameLast)) return { error: 'Last name must be between 2 and 20 characters long' };
+  //400 - if email does not satisfy this: https://www.npmjs.com/package/validator (validator.isEmail)
+  if (invalidEmail(email)) {
+    return {
+        error: 'Invalid email address: email is not a string',
+        status: 400,
+    };
+  }
+  //400 - if nameFirst contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+  if (invalidUserName(nameFirst)) {
+    return {
+        error: 'First name contains invalid characters',
+        status: 400,
+    };
+  }
+  // 400 - if NameFirst is less than 2 characters or more than 20 characters
+  if (invalidNameLength(nameFirst)) {
+    return {
+        error: 'First name must be between 2 and 20 characters long',
+        status: 400,
+    };
+  }
+  //400 - NameLast contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+  if (invalidUserName(nameLast)) {
+    return {
+        error: 'Last name contains invalid characters',
+        status: 400,
+    };
+  }
+  //400 - NameLast is less than 2 characters or more than 20 characters
+  if (invalidNameLength(nameLast)) {
+    return {
+        error: 'Last name must be between 2 and 20 characters long',
+        status: 400,
+    };
+  }
 
-  authUser.nameFirst = nameFirst;
-  authUser.nameLast = nameLast;
-  authUser.name = `${nameFirst} ${nameLast}`;
-  authUser.email = email;
+  user.nameFirst = nameFirst;
+  user.nameLast = nameLast;
+  user.name = `${nameFirst} ${nameLast}`;
+  user.email = email;
 
   setData(data);
   return {};

@@ -22,13 +22,25 @@ import validator from 'validator';
 import { getData } from './dataStore';
 
 /**
+ * Helper Function used in auth.js, 
+ * Checks if the provided Token is invalid (does not refer to valid logged in user session)
+ *
+ * @param {number} sessiondId
+ * @returns {boolean} Returns true if token is valid
+ */
+export function findSessionId(sessionId: number) {
+    const data = getData();
+    return data.tokens.find(token => token.sessionId === sessionId);
+}
+
+/**
  * Helper Function used in auth.js, quiz.js
  * Checks if the provided AuthUserId does not correspond to any existing user.
  *
  * @param {integer} authUserId - The user ID to be validated.
  * @returns {boolean} Returns true if the AuthUserId does not match any existing user's userId
  */
-export function findUserId(authUserId) {
+export function findUserId(authUserId: number) {
   const data = getData();
   return data.users.find(user => user.userId === authUserId);
 }
@@ -43,7 +55,7 @@ export function findUserId(authUserId) {
  * @param {string} email - The email address to be validated.
  * @returns {boolean} - Returns true if the email is invalid, false otherwise.
  */
-export function invalidEmail(email) {
+export function invalidEmail(email: string) {
   return !validator.isEmail(email);
 }
 
@@ -55,7 +67,7 @@ export function invalidEmail(email) {
  * @param {string} name - The name to be validated.
  * @returns {boolean} - Returns true if the name contains invalid characters
  */
-export function invalidUserName(name) {
+export function invalidUserName(name: string) {
   const regex = /^[a-zA-Z\s\-']+$/;
   return !(regex.test(name));
 }
@@ -67,7 +79,7 @@ export function invalidUserName(name) {
  * @param {string} name - The name string to be validated for length.
  * @returns {boolean} - Returns true if name is invalid (either too short or too long).
  */
-export function invalidNameLength(name) {
+export function invalidNameLength(name: string) {
   return (name.length < 2 || name.length > 20);
 }
 
@@ -78,7 +90,7 @@ export function invalidNameLength(name) {
  * @param {string} name - The quiz name to be validated.
  * @returns {boolean} Returns true if the name does not match any existing quiz's name
  */
-export function UsedQuizName(name, authId) {
+export function UsedQuizName(name: string, authId: number) {
   const data = getData();
   return data.quizzes.find(quiz => quiz.name === name && quiz.owner === authId);
 }
@@ -90,7 +102,7 @@ export function UsedQuizName(name, authId) {
  * @param {string} name - The name string to be validated for length.
  * @returns {boolean} - Returns true if name is invalid (either too short or too long).
  */
-export function invalidQuizNameLength(name) {
+export function invalidQuizNameLength(name: string) {
   return (name.length < 3 || name.length > 30);
 }
 
@@ -101,7 +113,7 @@ export function invalidQuizNameLength(name) {
  * @param {string} name - The description string to be validated for length.
  * @returns {boolean} - Returns true if description is invalid (either too short or too long).
  */
-export function invalidDescriptionLength(name) {
+export function invalidDescriptionLength(name: string) {
   return (name.length > 100);
 }
 
@@ -113,7 +125,7 @@ export function invalidDescriptionLength(name) {
  * @param {string} name - The name to be validated.
  * @returns {boolean} - Returns true if the name contains invalid characters
  */
-export function invalidQuizName(name) {
+export function invalidQuizName(name: string) {
   const isAlphanumericAndSpaces = validator.isWhitelisted(name,
     'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ');
   return (!isAlphanumericAndSpaces);
@@ -126,7 +138,7 @@ export function invalidQuizName(name) {
  * @param {integer} quizId - The quizId to be validated.
  * @returns {boolean} Returns true if the QuizId does not match any existing quizId.
  */
-export function findQuizId(quizId) {
+export function findQuizId(quizId: number) {
   const data = getData();
   return data.quizzes.find(quiz => quiz.quizId === quizId);
 }
@@ -139,7 +151,7 @@ export function findQuizId(quizId) {
  * @param {integer} quizId - A valid Quiz ID.
  * @returns {boolean} Returns false if the QuizId does not match any existing authUserId.
  */
-export function matchQuizIdAndAuthor(authUserId, quizId) {
+export function matchQuizIdAndAuthor(authUserId: number, quizId: number) {
   const data = getData();
 
   for (const quiz of data.quizzes) {
