@@ -39,8 +39,6 @@ export const adminAuthRegister = (
 
 // TODO adminAuthLogin here ---->>>>
 
-// To Uncomment once venus is finish->
-/*
 export const adminUserDetails = (sessionId: string) => {
   const res = request('GET', SERVER_URL + '/v1/admin/user/details', {
     qs: {
@@ -53,7 +51,27 @@ export const adminUserDetails = (sessionId: string) => {
     statusCode: res.statusCode
   };
 };
-*/
+
+export const adminUserDetailsUpdate = (
+  token: string, email: string, nameFirst: string, nameLast: string) => {
+  const res = request('PUT', SERVER_URL + '/v1/admin/user/details', {
+    json: {
+      token: token,
+      email: email,
+      nameFirst: nameFirst,
+      nameLast: nameLast,
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
+
+// TODO adminUserPasswordUpdate here ---->>>>
+
+// TODO adminAuthLogout here ---->>>>
 
 // =============================================================================
 // ===========================     QUIZZES        ==============================
