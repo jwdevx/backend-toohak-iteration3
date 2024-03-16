@@ -26,17 +26,23 @@ export interface Users {
   oldPasswords: oldPasswords[];
   numSuccessfulLogins: number;
   numFailedPasswordsSinceLastLogin: number;
-  sessions: number[];
+}
+
+export interface Tokens {
+  sessionId: number;
+  userId: number;
 }
 
 export interface DataStore {
   users: Users[];
   quizzes: Quizzes[];
+  tokens: Tokens[];
 }
 
 let data: DataStore = {
   users: [],
   quizzes: [],
+  tokens: [],
 };
 
 // =============================================================================
