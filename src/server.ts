@@ -96,7 +96,7 @@ app.get('/echo', (req: Request, res: Response) => {
 /**
  * Takes in information about a new admin user and registers them in the system.
  * This route is not relevant to guests who want to play a particular quiz,
- * but is used for the creation of accounts of people who manage quizzes.
+ * but is used for the creation of accounts of people who manage quizzes. 
  */
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
@@ -112,7 +112,7 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
  * This route is not relevant to guests who want to play a particular quiz,
  * but is used for the creation of accounts of people who manage quizzes.
  */
-// TODO edit and confirm the url is correct
+// TODO VENUS edit and confirm the url is correct
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 
   const response = { message: "TODO Function is not implemented yet" };
@@ -122,6 +122,7 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 /**
  * For the given admin user that is logged in, return all of the relevant details.
  */
+//TODO VENUS
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
 
   const response = { message: "TODO Function is not implemented yet" };
@@ -130,11 +131,16 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
 
 /**
  * Given a set of properties, update those properties of this logged in admin user.
+ * Update the details of an admin user (non-password). 
  */
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
-
-  const response = { message: "TODO Function is not implemented yet" };
-  res.status(501).json(response);
+  const { token, email, nameFirst, nameLast } = req.body;
+  const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
+  if ('error' in response) {
+    return res.status(response.status).json({ error: response.error });
+  }
+  saveData(); 
+  res.json(response);
 });
 
 /**
