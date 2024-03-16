@@ -1,5 +1,6 @@
 import {
   adminAuthRegister,
+  // TODO uncomment this once implemented
   //   adminUserDetails,
   clear
 } from './apiRequests';
@@ -22,6 +23,7 @@ describe('Testing the clear function', () => {
     expect(clearRes.statusCode).toBe(200);
     expect(clearRes.bodyObj).toStrictEqual({});
 
+    // TODO uncomment once adminUserDetails is implemented
     // Check user is empty
     /*
     const userDetailsRes = adminUserDetails(res.bodyObj.token);
