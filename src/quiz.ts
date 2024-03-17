@@ -27,7 +27,7 @@ Please run:
 
 
 import { setData, getData } from './dataStore';
-import { format } from 'date-fns';
+
 import { findUserId, invalidQuizName, invalidQuizNameLength, UsedQuizName, invalidDescriptionLength, findQuizId, matchQuizIdAndAuthor } from './helper';
 /**
 * Given basic details about a new quiz, create one for the logged in user.
@@ -37,23 +37,36 @@ import { findUserId, invalidQuizName, invalidQuizNameLength, UsedQuizName, inval
 * @param {string} description - the description of the quiz
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
-function adminQuizCreate(authUserId, name, description) {
+function adminQuizCreate(token: string, name: string, description: string): { quizId: number } | { error: string} {
   // Checks for valid parameters:
-  if (!authUserId || !name || (description === null || description === undefined)) {
+  if (!token || !name || (description === null || description === undefined)) {
     return { error: 'One or more missing parameters' };
   }
+  const Token = JSON.parse(decodeURIComponent(token));
+  const result: Tokens = data.tokens.find(token => token.sessionId === Token.sessionId);
+  const UserId = Token.userId;
 
-  if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
-  if (invalidQuizName(name)) return { error: 'The name is not valid.' };
-  if (invalidQuizNameLength(name)) return { error: 'The name is either too long or too short.' };
-  if (UsedQuizName(name, authUserId)) return { error: 'The quiz name is already been used.' };
-  if (invalidDescriptionLength(description)) return { error: 'The description is too long.' };
-
+  if (result === undefined || result.userId !== Token.userId) {
+    throw HTTPError(401, 'Unauthorised session');
+  }
+  if (invalidQuizName(name)) {
+    throw HTTPError(400, 'The name should be less than 30 characters');
+  }
+  if (invalidQuizNameLength(name)) {
+    throw HTTPError(400, 'The name is either too long or too short');
+  }
+  if (UsedQuizName(name, UserId)) {
+    throw HTTPError(400, 'The name has already used for the quiz you created before');
+  }
+  
+  if (invalidDescriptionLength(description)) {
+    throw HTTPError(400, 'The description is too long');
+  }
+  
   const data = getData();
   const ID = data.quizzes.length + 1;
 
-  const currentTime = new Date();
-  const createdTime = format(currentTime, 'MMMM d, yyyy h:mm a'); // "h:mm a" format includes hours, minutes, and AM/PM
+  const createdTime = Math.floor(new Date().getTime() / 1000);
   const quiz = {
     quizId: ID,
     name: name,
@@ -61,8 +74,9 @@ function adminQuizCreate(authUserId, name, description) {
     timeLastEdited: createdTime,
     description: description,
     numQuestions: 0,
-    owner: authUserId,
+    owner: UserId,
     questions: [],
+    intrash: false
   };
   data.quizzes.push(quiz);
   setData(data);
@@ -70,6 +84,7 @@ function adminQuizCreate(authUserId, name, description) {
     quizId: ID
   };
 }
+
 export { adminQuizCreate };
 /**
  * Provide a list of all quizzes that are owned by the currently logged in user.
@@ -187,10 +202,9 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
 
   // checking if thes Description is too long
   if (invalidDescriptionLength(description)) return { error: 'The description is too long.' };
-  const currentTime = new Date();
-  const updatedTime = format(currentTime, 'MMMM d, yyyy h:mm a'); // "h:mm a" format includes hours, minutes, and AM/PM
+
   quiz.description = description;
-  quiz.timeLastEdited = updatedTime;
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
   setData(data);
 
   return {};

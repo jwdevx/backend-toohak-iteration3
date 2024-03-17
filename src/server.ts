@@ -170,10 +170,15 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
  */
 
 // TODO edit and confirm the url is correct
-app.post('/v1/admin/quiz', (req: Request, res: Response) => {
+app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
 
-  const response = { message: "TODO: Create a new quiz " };
-  res.status(501).json(response);
+  const { token, name, description } = req.body;
+  const response = adminQuizCreate(token, name, description);
+  if ('error' in response) {
+    return res.status(response.status).json({ error: response.error });
+  }
+  saveData(); 
+  res.status(200).json({ quizId: response });
 });
 
 /**

@@ -77,7 +77,23 @@ export const adminUserDetailsUpdate = (
 // ===========================     QUIZZES        ==============================
 // =============================================================================
 
-// TODO
+// TODO AdminQuizCreate:
+export const adminQuizCreate = (
+  token: string, name: string, description: string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/quiz/', {
+    json: {
+      token: token,
+      name: name,
+      description: description
+    },
+    timeout: 100
+  });
+  const bodyObj = JSON.parse(res.body as string);
+  return {
+    bodyObj: bodyObj,
+    statusCode: res.statusCode
+  };
+};
 
 // =============================================================================
 // ==========================     QUESTIONS        =============================

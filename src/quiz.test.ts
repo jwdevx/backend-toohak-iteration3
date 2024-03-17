@@ -35,6 +35,7 @@ const FORBIDDEN = 403;
 
 import {
   adminQuizCreate, 
+  adminAuthRegister,
   clear
 } from './apiRequests';
 /*
@@ -49,8 +50,8 @@ describe('Testing create quizzes return quiz id', () => {
     clear();
   });
   test('Check successfully quiz addition', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng').bodyObj.token;
-    
+    const res = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+    const authUser = res.bodyObj.token;
     const name = 'to ny123';
     const description = 'test1';
 
@@ -65,9 +66,9 @@ describe('Testing create quizzes return quiz id', () => {
   });
   test('Check invalid token', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj).token;
-
-    const wrongId = encodeURIComponent(JSON.stringify({ userId: token1Dec.userId + 1, sessionId: token1Dec.sessionId }));
-    const wrongtoken = encodeURIComponent(JSON.stringify({ userId: token1Dec.userId, sessionId: token1Dec.sessionId + 1 }));
+    const token1Decoded = (JSON.parse(decodeURIComponent(token1)));
+    const wrongId = encodeURIComponent(JSON.stringify({ userId: token1Decoded.userId + 1, sessionId: token1Decoded.sessionId }));
+    const wrongtoken = encodeURIComponent(JSON.stringify({ userId: token1Decoded.userId, sessionId: token1Decoded.sessionId + 1 }));
     
     const Quiz1 = adminQuizCreate(wrongId, 'tests', 'autotesting');
     const QuizBody1 = Quiz1.bodyObj;
@@ -125,9 +126,22 @@ describe('Testing create quizzes return quiz id', () => {
     expect(QuizStatus).toStrictEqual(BAD_REQUEST);
   });
     
+  test('Check time format', () => {
+    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng').bodyObj.token;
+    
+    const name = 'to ny123';
+    const description = 'test1';
 
+    const quiz = adminQuizCreate(authUser, name, description);
+
+    expect(quiz.timeCreated.toString()).toMatch(/^\d{10}$/);
+    expect(quiz.timeLastEdited.toString()).toMatch(/^\d{10}$/);
+  });
   
 });
+
+
+
 /*
 describe('Testing print quiz list return quizzes', () => {
   beforeEach(() => {

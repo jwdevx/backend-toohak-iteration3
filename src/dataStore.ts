@@ -63,6 +63,8 @@ export interface Quizzes {
   numQuestions: number;
   owner: number;
   questions: Questions[];
+  intrash: boolean;
+ 
 }
 
 // =============================================================================
