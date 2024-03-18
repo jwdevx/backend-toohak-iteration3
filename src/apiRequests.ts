@@ -1,5 +1,6 @@
 import request from 'sync-request-curl';
 import config from './config.json';
+import exp from 'constants';
 const port = config.port;
 const url = config.url;
 const SERVER_URL = `${url}:${port}`;
@@ -94,6 +95,16 @@ export const adminQuizCreate = (
   };
 };
 
+export const adminQuizList = (token: string) => {
+  const res = request("GET", SERVER_URL + '/v1/admin/quiz/list', {
+    json: {token: token},
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  }
+}
 // =============================================================================
 // ==========================     QUESTIONS        =============================
 // =============================================================================

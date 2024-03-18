@@ -33,9 +33,11 @@ const BAD_REQUEST = 400;
 const UNAUTHORIZED = 401;
 const FORBIDDEN = 403;
 
+import { lstat } from 'fs';
 import {
   adminQuizCreate, 
   adminAuthRegister,
+  adminQuizList,
   clear
 } from './apiRequests';
 /*
@@ -70,7 +72,7 @@ describe('Testing create quizzes return quiz id', () => {
 
   });
     
-  
+
   test('Check invalid token', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
@@ -117,7 +119,8 @@ describe('Testing create quizzes return quiz id', () => {
 
   test('check invalid description length', () => {
     const user1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
-    const Quiz = adminQuizCreate(user1, 'quiz1', 'Hahaha invalid quiz description go BRRRTTTTT HEHEHE, SO LONG SO VERY LONG SO ENDLESS HAHAHA..............');
+    const longdescription = 'a'.repeat(150);
+    const Quiz = adminQuizCreate(user1, 'quiz1', longdescription);
     const QuizBody = Quiz.bodyObj;
     const QuizStatus = Quiz.statusCode;
     expect(QuizBody).toStrictEqual({ error: expect.any(String) });
@@ -132,102 +135,53 @@ describe('Testing create quizzes return quiz id', () => {
 
 
 
-/*
 describe('Testing print quiz list return quizzes', () => {
   beforeEach(() => {
     clear();
   });
-  test('invalid user id', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'WOjiaoZC';
-    const description = 'test1';
-    const id = adminQuizCreate(authUser.authUserId + 1, name, description);
-    expect(id).toStrictEqual({ error: 'The user id is not valid.' });
-  });
-  test('invalid name', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'WOjiaoZC!@#?/aas1< ';
-    const description = 'test1';
-    const id = adminQuizCreate(authUser.authUserId, name, description);
-    expect(id).toStrictEqual({ error: 'The name is not valid.' });
-  });
-  test('short name', () => {
-    const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'to';
-    const description = 'test1';
-    const id = adminQuizCreate(authUserId.authUserId, name, description);
-    expect(id).toStrictEqual({ error: 'The name is either too long or too short.' });
-  });
-  test('long name', () => {
-    const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'qqqqwwwweeeerrrrttttyyyyuuuuuuiiiiiooooppppllll';
-    const description = 'test';
-    const id = adminQuizCreate(authUserId.authUserId, name, description);
-    expect(id).toStrictEqual({ error: 'The name is either too long or too short.' });
-  });
-  test('name is used', () => {
-    const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'tony';
-    const description = 'test1';
-    const id1 = adminQuizCreate(authUserId.authUserId, name, description);
-    const id2 = adminQuizCreate(authUserId.authUserId, name, description);
-    expect(id2).toStrictEqual({ error: 'The quiz name is already been used.' });
-  });
-  test('long description', () => {
-    const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'tony';
-    const description = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz';
-    const id = adminQuizCreate(authUserId.authUserId, name, description);
-    expect(id).toStrictEqual({ error: 'The description is too long.' });
-  });
-  test('name is empty', () => {
-    const authUserId = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = '';
-    const description = 'test1';
-    const id = adminQuizCreate(authUserId.authUserId, name, description);
-    expect(id).toStrictEqual({ error: 'One or more missing parameters' });
-  test('invalid user id', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'WOjiaoZC';
-    const description = 'test1';
-    adminQuizCreate(authUser.authUserId, name, description);
-    expect(adminQuizList(authUser.authUserId + 1)).toStrictEqual({ error: 'The user id is not valid.' });
-  });
-  test('invalid user id', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'WOjiaoZC';
-    const description = 'test1';
-    adminQuizCreate(authUser.authUserId, name, description);
-    expect(adminQuizList()).toStrictEqual({ error: 'One or more missing parameters' });
-  });
-  test('correct input', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'test1';
-    const description = 'test1';
-    const quiz = adminQuizCreate(authUser.authUserId, name, description);
-    expect(adminQuizList(authUser.authUserId)).toStrictEqual({
+
+  test('invalid token', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
+    const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
+    const List = adminQuizList(wrongtoken)
+    expect(List.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(List.statusCode).toStrictEqual(401);
+  })
+
+  test('correct input without trash', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz').bodyObj.quizId;
+    const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz').bodyObj.quizId;
+    const List = adminQuizList(sessionId)
+    expect(List.bodyObj).toStrictEqual({
       quizzes: [
         {
-          quizId: expect.any(Number),
-          name: expect.any(String),
+          quizId: quiz1,
+          name: 'quiz1',
         },
+        {
+          quizId: quiz2,
+          name: 'quiz2',
+        }
       ]
     });
   });
+
   test('user does not have any quizzes', () => {
-    const authUser1 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const authUser2 = adminAuthRegister('jason@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    let name = 'test1';
-    let description = 'test1';
-    adminQuizCreate(authUser1.authUserId, name, description);
-    name = 'test2';
-    description = 'test2';
-    adminQuizCreate(authUser1.authUserId, name, description);
-    expect(adminQuizList(authUser2.authUserId)).toStrictEqual({
-      quizzes: [],
-    });
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const List = adminQuizList(sessionId)
+    expect(List.bodyObj).toStrictEqual({
+      quizzes: []
+    })
   });
 });
+
+/*
 describe('Testing if adminQuizInfo prints the correct information', () => {
   beforeEach(() => {
     clear();
