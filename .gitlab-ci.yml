@@ -31,7 +31,7 @@ lintingcheck:
 typecheck:
   stage: checks
   script:
-      - npm run tsc
+    - npm run tsc
   only:
     - master
     - merge_requests
