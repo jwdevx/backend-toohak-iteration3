@@ -26,8 +26,8 @@ import {
 } from './auth';
 import {
   adminQuizCreate,
-  /* adminQuizList,
-  adminQuizInfo,
+  adminQuizList,
+  /* adminQuizInfo,
   adminQuizRemove,
   adminQuizNameUpdate,
   adminQuizDescriptionUpdate */
@@ -146,8 +146,13 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
-  const response = { message: "TODO: Lists all user's quizzes " };
-  res.status(501).json(response);
+  const {token} = req.body
+  const response = adminQuizList(token);
+  if ('error' in response) {
+    return res.status(response.status).json({ error: response.error });
+  }
+  saveData();
+  res.json(response);
 });
 
 /**
