@@ -1,6 +1,5 @@
 import request from 'sync-request-curl';
 import config from './config.json';
-import exp from 'constants';
 const port = config.port;
 const url = config.url;
 const SERVER_URL = `${url}:${port}`;

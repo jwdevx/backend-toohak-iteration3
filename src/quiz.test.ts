@@ -33,7 +33,6 @@ const BAD_REQUEST = 400;
 const UNAUTHORIZED = 401;
 const FORBIDDEN = 403;
 
-import { lstat } from 'fs';
 import {
   adminQuizCreate, 
   adminAuthRegister,
@@ -148,7 +147,7 @@ describe('Testing print quiz list return quizzes', () => {
     const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
     const List = adminQuizList(wrongtoken)
     expect(List.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
-    expect(List.statusCode).toStrictEqual(401);
+    expect(List.statusCode).toStrictEqual(UNAUTHORIZED);
   })
 
   test('correct input without trash', () => {

@@ -1,7 +1,6 @@
 import validator from 'validator';
 import { getData } from './dataStore';
 import { Users, DataStore, Tokens, Quizzes } from './dataStore';
-import exp from 'constants';
 
 /**
  * Helper Function used in auth.js,
