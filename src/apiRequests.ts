@@ -96,7 +96,7 @@ export const adminQuizCreate = (
 
 export const adminQuizList = (token: string) => {
   const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', {
-    json: { token: token },
+    qs: { token: token },
     timeout: 100
   });
   return {
