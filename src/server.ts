@@ -44,7 +44,7 @@ import {
   adminQuizDescriptionUpdate
 } from './quiz';
 import { clear } from './other';
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 
 // Set up web app
 const app = express();
@@ -168,8 +168,6 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
 /**
  * Given basic details about a new quiz, create one for the logged in user
  */
-
-// TODO edit and confirm the url is correct
 app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
 
   const { token, name, description } = req.body;
@@ -178,7 +176,8 @@ app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
     return res.status(response.status).json({ error: response.error });
   }
   saveData(); 
-  res.status(200).json({ quizId: response });
+    //   res.status(200).json({ quizId: response });
+    res.json(response);
 });
 
 /**

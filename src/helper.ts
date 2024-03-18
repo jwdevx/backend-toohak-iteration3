@@ -83,6 +83,7 @@ export function invalidNameLength(name: string) {
   return (name.length < 2 || name.length > 20);
 }
 
+
 /**
  * Helper Function used in quiz.js
  * Checks if the provided quiz name does not correspond to any existing quiz.
@@ -102,6 +103,8 @@ export function UsedQuizName(name: string, authId: number): boolean {
 
   return Used;
 }
+
+
 
 /**
  * Helper Function used in quiz.js

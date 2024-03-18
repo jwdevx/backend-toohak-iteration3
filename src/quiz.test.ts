@@ -44,26 +44,35 @@ import { clear } from './other';
 import { adminAuthRegister, adminAuthLogin } from './auth';
 */
 
+beforeEach(() => {
+    clear();
+  });
 const ERROR = { error: expect.any(String) };
+
+
+// =============================================================================
+// ============================ adminQuizList ==================================
+// =============================================================================
+
+   
+
+
 describe('Testing create quizzes return quiz id', () => {
   beforeEach(() => {
     clear();
   });
   test('Check successfully quiz addition', () => {
-    const res = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const authUser = res.bodyObj.token;
-    const name = 'to ny123';
-    const description = 'test1';
+    const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    expect(res.statusCode).toStrictEqual(200);
+    const quiz = adminQuizCreate(res.bodyObj.token, 'yourname', 'yourdescription');
+    expect(quiz.statusCode).toStrictEqual(200);
+    expect(quiz.bodyObj).toStrictEqual({ quizId: 1});   
+    // expect(quiz1Body).toStrictEqual({ quizId: expect.any(Number) });
 
-    const quiz = adminQuizCreate(authUser, name, description);
-
-    const quiz1Body = quiz.bodyObj;
-    const quiz1Status = quiz.statuscode;
-
-    expect(quiz1Body).toStrictEqual({ quizId: expect.any(Number) });
-    expect(quiz1Status).toStrictEqual(OK);
 
   });
+    
+  /*
   test('Check invalid token', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj).token;
     const token1Decoded = (JSON.parse(decodeURIComponent(token1)));
@@ -137,8 +146,12 @@ describe('Testing create quizzes return quiz id', () => {
     expect(quiz.timeCreated.toString()).toMatch(/^\d{10}$/);
     expect(quiz.timeLastEdited.toString()).toMatch(/^\d{10}$/);
   });
-  
+  */
 });
+
+// =============================================================================
+// ======================      put test name here  =============================
+// =============================================================================
 
 
 

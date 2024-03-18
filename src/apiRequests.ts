@@ -88,9 +88,8 @@ export const adminQuizCreate = (
     },
     timeout: 100
   });
-  const bodyObj = JSON.parse(res.body as string);
   return {
-    bodyObj: bodyObj,
+    bodyObj: JSON.parse(res.body as string),
     statusCode: res.statusCode
   };
 };
