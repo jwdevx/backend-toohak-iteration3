@@ -99,15 +99,22 @@ export function adminQuizCreate(
  * @param {number} authUserId - the authenticated user ID.
  * @returns {{quizzes: json}} An json object containing the quizzes with their ID and name.
  */
-function adminQuizList(authUserId) {
+function adminQuizList(token: string) : {quizzes:[]} | ErrorObject{
   // checking for valid parameters
-  if (!authUserId) return { error: 'One or more missing parameters' };
-  if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
-
-  const data: DataStore = getData();
+const data: DataStore = getData();
+  const sessionId = parseInt(decodeURIComponent(token));  
+  if (!token || isNaN(sessionId) ) {
+    return { error: 'Token is empty or not provided', status: 401,};
+  } 
+  const validToken = findSessionId(sessionId);  
+  if (!validToken) {
+    return {
+      error: 'Token is invalid (does not refer to valid logged in user session)', status: 401,
+    };
+  }   
   const quizarray = [];
   for (const quiz of data.quizzes) {
-    if (quiz.owner === authUserId) {
+    if (quiz.owner === validToken.userId && quiz.intrash == false) {
       quizarray.push({
         quizId: quiz.quizId,
         name: quiz.name,
