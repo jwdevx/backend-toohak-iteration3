@@ -89,22 +89,13 @@ export function invalidNameLength(name: string) {
  * Checks if the provided quiz name does not correspond to any existing quiz.
  *
  * @param {string} name - The quiz name to be validated.
+ * @param {string} name - The 
  * @returns {boolean} Returns true if the name does not match any existing quiz's name
  */
-export function UsedQuizName(name: string, authId: number): boolean {
-  let Used = false;
-  for (const quiz of data.quizzes) {
-    if (quiz.owner === authId) {
-      if (quiz.name === name && quiz.intrash === false) {
-        Used = true;
-      }
-    }
-  }
-
-  return Used;
+export function UsedQuizName(name: string, validToken: string): boolean {
+  const data = getData();
+  return data.quizzes.some(quiz => quiz.owner === validToken.userId && quiz.name === name);
 }
-
-
 
 /**
  * Helper Function used in quiz.js

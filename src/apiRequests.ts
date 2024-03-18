@@ -90,7 +90,7 @@ export const adminQuizCreate = (
   });
   return {
     bodyObj: JSON.parse(res.body as string),
-    statusCode: res.statusCode
+    statusCode: res.statusCode,
   };
 };
 

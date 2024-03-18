@@ -78,7 +78,7 @@ describe('Testing create quizzes return quiz id', () => {
     
     const Quiz1 = adminQuizCreate(wrongtoken, 'tests', 'autotesting');
 
-    expect(Quiz1.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(Quiz1.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
     expect(Quiz1.statusCode).toStrictEqual(401);
     
   });

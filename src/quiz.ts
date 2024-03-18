@@ -41,7 +41,7 @@ import {
 /**
 * Given basic details about a new quiz, create one for the logged in user.
 *
-* @param {string} token 
+* @param {string} token - the encoded session id of the user
 * @param {string} name - the name of the quiz
 * @param {string} description - the description of the quiz
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
@@ -50,12 +50,7 @@ function adminQuizCreate(
     token: string,
     name: string,
     description: string): { quizId: number } | ErrorObject {
-    
-  
-  // Checks for valid parameters:
-//   if (!token || !name || (description === null || description === undefined)) {
-//     return { error: 'One or more missing parameters' };
-  //   }
+
   const data = getData();
   
   const sessionId = parseInt(decodeURIComponent(token));  
@@ -69,38 +64,30 @@ function adminQuizCreate(
       status: 401,
     };
   }   
-  // const userId = findUserId(validToken.userId);
 
   if (invalidQuizName(name)) {
       return {
-        error: 'The name should be less than 30 characters',
+      error: 'The name is not valid',
       status: 400,
     };
   }
   if (invalidQuizNameLength(name)) {
     return {
       error: 'The name is either too long or too short',
-    status: 400,
+      status: 400,
     };
   }
   if (data.quizzes.some(quiz => quiz.owner === validToken.userId && quiz.name === name)) {
     return {
       error: 'The name has already used for the quiz you created before',
-    status: 400,
+      status: 400,
     };
-  }    
-
-  // if (UsedQuizName(name, validToken.userId)) {
-  //   return {
-  //     error: 'The name has already used for the quiz you created before',
-  //   status: 400,
-  //   };
-  // }    
+  }       
 
   if (invalidDescriptionLength(description)) {
     return {
       error: 'The description is too long',
-    status: 400,
+      status: 400,
     };
   }   
 
@@ -122,11 +109,11 @@ function adminQuizCreate(
  
   return {
     quizId: quiz.quizId,
-    // quizId: 1, 
   };
 }
 
 export { adminQuizCreate };
+
 /**
  * Provide a list of all quizzes that are owned by the currently logged in user.
  *
