@@ -51,7 +51,7 @@ const ERROR = { error: expect.any(String) };
 
 
 // =============================================================================
-// ============================ adminQuizList ==================================
+// ============================ adminQuizCreate ==================================
 // =============================================================================
 
    
@@ -66,62 +66,51 @@ describe('Testing create quizzes return quiz id', () => {
     expect(res.statusCode).toStrictEqual(200);
     const quiz = adminQuizCreate(res.bodyObj.token, 'yourname', 'yourdescription');
     expect(quiz.statusCode).toStrictEqual(200);
-    expect(quiz.bodyObj).toStrictEqual({ quizId: 1});   
-    // expect(quiz1Body).toStrictEqual({ quizId: expect.any(Number) });
-
+    expect(quiz.bodyObj).toStrictEqual({ quizId: expect.any(Number)});  
 
   });
     
-  /*
+  
   test('Check invalid token', () => {
-    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj).token;
-    const token1Decoded = (JSON.parse(decodeURIComponent(token1)));
-    const wrongId = encodeURIComponent(JSON.stringify({ userId: token1Decoded.userId + 1, sessionId: token1Decoded.sessionId }));
-    const wrongtoken = encodeURIComponent(JSON.stringify({ userId: token1Decoded.userId, sessionId: token1Decoded.sessionId + 1 }));
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
     
-    const Quiz1 = adminQuizCreate(wrongId, 'tests', 'autotesting');
-    const QuizBody1 = Quiz1.bodyObj;
-    const QuizStatus1 = Quiz1.statuscode;
+    const Quiz1 = adminQuizCreate(wrongtoken, 'tests', 'autotesting');
 
-    expect(QuizBody1).toStrictEqual({ error: expect.any(String) });
-    expect(QuizStatus1).toStrictEqual(UNAUTHORIZED);
-
-    const Quiz2 = AdminQuizCreate(wrongtoken, 'quiz01', 'This is my first quiz');
-    const QuizBody2 = Quiz2.bodyObj;
-    const QuizStatus2 = Quiz2.statuscode;
-
-    expect(QuizBody2).toStrictEqual({ error: expect.any(String) });
-    expect(QuizStatus2).toStrictEqual(UNAUTHORIZED);
+    expect(Quiz1.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(Quiz1.statusCode).toStrictEqual(401);
     
   });
 
+  
   test('check invalid characters', () => {
     const user1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
     const Quiz1 = adminQuizCreate(user1, 'quiz@/500', 'i love autotests');
     const Quiz1Body = Quiz1.bodyObj;
-    const Quiz1Status = Quiz1.statuscode;
+    const Quiz1Status = Quiz1.statusCode;
     expect(Quiz1Body).toStrictEqual({ error: expect.any(String) });
     expect(Quiz1Status).toStrictEqual(BAD_REQUEST);
     
   });
-
+  
   test('check invalid name length', () => {
     const user1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
     const Quiz1 = adminQuizCreate(user1, 'qq', 'quizzes are so fun');
     const Quiz1Body = Quiz1.bodyObj;
-    const Quiz1Status = Quiz1.statuscode;
+    const Quiz1Status = Quiz1.statusCode;
     expect(Quiz1Body).toStrictEqual({ error: expect.any(String) });
     expect(Quiz1Status).toStrictEqual(BAD_REQUEST);
   });
-
+  
   test('check used quiz names', () => {
     const user1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
     adminQuizCreate(user1, 'quiz1', 'first quiz');
     adminQuizCreate(user1, 'quiz2', 'Second quiz'); 
     const Quiz = adminQuizCreate(user1, 'quiz2', 'hahaha redundant naming');
     const QuizBody = Quiz.bodyObj;
-    const QuizStatus = Quiz.statuscode;
-    expect(QuizBody).toStrictEqual({ error: expect.any(String) });
+    const QuizStatus = Quiz.statusCode;
+    expect(QuizBody).toStrictEqual({ error: 'The name has already used for the quiz you created before' });
     expect(QuizStatus).toStrictEqual(BAD_REQUEST);
     
   });
@@ -130,25 +119,13 @@ describe('Testing create quizzes return quiz id', () => {
     const user1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
     const Quiz = adminQuizCreate(user1, 'quiz1', 'Hahaha invalid quiz description go BRRRTTTTT HEHEHE, SO LONG SO VERY LONG SO ENDLESS HAHAHA..............');
     const QuizBody = Quiz.bodyObj;
-    const QuizStatus = Quiz.statuscode;
+    const QuizStatus = Quiz.statusCode;
     expect(QuizBody).toStrictEqual({ error: expect.any(String) });
     expect(QuizStatus).toStrictEqual(BAD_REQUEST);
   });
-    
-  test('Check time format', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng').bodyObj.token;
-    
-    const name = 'to ny123';
-    const description = 'test1';
-
-    const quiz = adminQuizCreate(authUser, name, description);
-
-    expect(quiz.timeCreated.toString()).toMatch(/^\d{10}$/);
-    expect(quiz.timeLastEdited.toString()).toMatch(/^\d{10}$/);
-  });
-  */
+  
 });
-
+  
 // =============================================================================
 // ======================      put test name here  =============================
 // =============================================================================
