@@ -102,7 +102,8 @@ export function adminQuizCreate(
  */
 function adminQuizList(token: string) : {quizzes:[]} | ErrorObject{
   // checking for valid parameters
-  const data: DataStore = getData()
+  const data: DataStore = getData();
+
   const sessionId = parseInt(decodeURIComponent(token));  
   if (!token || isNaN(sessionId) ) {
     return { error: 'Token is empty or not provided', status: 401,};
