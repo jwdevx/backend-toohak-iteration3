@@ -25,7 +25,6 @@ Please run:
 //TODO REMOVE ALL COMMENTS ABOVE -----------------------------------------------
 
 import { ErrorObject,  Quizzes } from './dataStore';
-
 import { setData, getData } from './dataStore';
 
 import {
@@ -47,12 +46,11 @@ import {
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
 function adminQuizCreate(
-    token: string,
-    name: string,
-    description: string): { quizId: number } | ErrorObject {
+  token: string,
+  name: string,
+  description: string): { quizId: number } | ErrorObject {
 
-  const data = getData();
-  
+  const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));  
   if (!token || isNaN(sessionId) ) {
     return { error: 'Token is empty or not provided', status: 401,};
@@ -77,7 +75,7 @@ function adminQuizCreate(
       status: 400,
     };
   }
-  if (data.quizzes.some(quiz => quiz.owner === validToken.userId && quiz.name === name)) {
+  if (UsedQuizName(validToken.userId, name)) {
     return {
       error: 'The name has already used for the quiz you created before',
       status: 400,
@@ -125,7 +123,7 @@ function adminQuizList(authUserId) {
   if (!authUserId) return { error: 'One or more missing parameters' };
   if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
 
-  const data = getData();
+  const data: DataStore = getData();
   const quizarray = [];
   for (const quiz of data.quizzes) {
     if (quiz.owner === authUserId) {
@@ -155,7 +153,7 @@ function adminQuizRemove(authUserId, quizId) {
   if (!findQuizId(quizId)) return { error: 'Quiz ID does not refer to a valid quiz.' };
   if (!matchQuizIdAndAuthor(authUserId, quizId)) return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
 
-  const data = getData();
+  const data: DataStore = getData();
 
   // finds the index in the quiz array which contains the quiz we want to remove
   const quiz_index = data.quizzes.findIndex(quiz => quiz.owner === authUserId && quiz.quizId === quizId);
@@ -177,24 +175,26 @@ export { adminQuizRemove };
 * @return{{}}empty object
 */
 function adminQuizNameUpdate(authUserId, quizId, name) {
-  const data = getData();
+  const data: DataStore = getData();
 
-  // checking if the user Id is valid
   if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
-
-  // checking if the quiz Id is valid
   if (!findQuizId(quizId)) return { error: 'The quiz id is not valid.' };
-
-  // checking if the quiz name is valid
   if (invalidQuizName(name)) return { error: 'The name is not valid.' };
-
-  // checking if the quiz name length is valid
   if (invalidQuizNameLength(name)) return { error: 'The name is either too long or too short.' };
 
-  // checking  if the quiz name was used before
-  if (UsedQuizName(name, authUserId)) return { error: 'The quiz name is already been used.' };
 
-  // checking if the quiz is owned by user
+  const sessionId = parseInt(decodeURIComponent(token));  
+  if (!token || isNaN(sessionId) ) {
+    return { error: 'Token is empty or not provided', status: 401,};
+  } 
+  const validToken = findSessionId(sessionId);  
+  if (!validToken) {
+    return {
+      error: 'Token is invalid (does not refer to valid logged in user session)',
+      status: 401,
+    };
+  }     
+  if (UsedQuizName(validToken.userId, name)) return { error: 'The quiz name is already been used.' };
   if (!matchQuizIdAndAuthor(authUserId, quizId)) return { error: 'Quiz belongs to a different user.' };
 
   // updating the quiz name
@@ -219,16 +219,10 @@ export { adminQuizNameUpdate };
 function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   const data = getData();
   const quiz = findQuizId(quizId);
-  // checking if the user Id is valid
+
   if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
-
-  // checking if the quiz Id is valid
   if (!findQuizId(quizId)) return { error: 'The quiz id is not valid.' };
-
-  // checking if the quiz is owned by user
   if (!matchQuizIdAndAuthor(authUserId, quizId)) return { error: 'Quiz belongs to a different user.' };
-
-  // checking if thes Description is too long
   if (invalidDescriptionLength(description)) return { error: 'The description is too long.' };
 
   quiz.description = description;

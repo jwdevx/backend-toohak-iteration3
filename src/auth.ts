@@ -33,14 +33,6 @@ import {
  * @param {string} nameFirst - The first name of the user
  * @param {string} nameLast - The last name of the user
  * @returns {{token: string} | {error: string}} An object: sessionId or an error msg.
- * 
- * Example body input:
- * {
- *    "email": "hayden.smith@unsw.edu.au",
- *    "password": "haydensmith123",
- *    "nameFirst": "Hayden",
- *    "nameLast": "Smith"
- * }
  */
 export function adminAuthRegister(
     email: string,
@@ -49,7 +41,7 @@ export function adminAuthRegister(
     nameLast: string
 ): { error: string} | { token: string} {
 
-  const data = getData();
+    const data: DataStore = getData();
   if (data.users.some(existingUser => existingUser.email === email)) {
     return { error: 'Email address is used by another user' };
   }
@@ -63,7 +55,6 @@ export function adminAuthRegister(
     return { error: 'Password must contain at least one letter and one number' };
   }
   const sessionId: number = Math.floor(Math.random() * Date.now());
-
   const newUser: Users = {
     userId: data.users.length + 1,
     nameFirst: nameFirst,
@@ -101,7 +92,7 @@ export function adminAuthLogin(email, password) {
   if (!email || !password) {
     return { error: 'One or more missing parameters' };
   }
-  const data = getData();
+  const data: DataStore = getData();
   const user = data.users.find((user) => user.email === email);
 
   if (!user) {
@@ -142,7 +133,7 @@ export function adminAuthLogin(email, password) {
  */
 // helper functions for adminUserDetails
 export function adminUserDetails(authUserId) {
-  const data = getData();
+  const data: DataStore = getData();
   const user = data.users.find((user) => user.userId === authUserId);
   if (!user) return { error: 'UserId is invalid' };
 
@@ -167,14 +158,6 @@ export function adminUserDetails(authUserId) {
  * @param {string} nameFirst - The first name of the admin user
  * @param {string} nameLast - The last name of the admin user.
  * @returns { }  null
- * 
- * Example body input:
- * {
- *    "token": "23748",
- *    "email": "hayden.smith@unsw.edu.au",
- *    "nameFirst": "Hayden",
- *    "nameLast": "Smith"
- * }
  */
 export function adminUserDetailsUpdate(
   token: string,
@@ -182,7 +165,7 @@ export function adminUserDetailsUpdate(
   nameFirst: string,
   nameLast: string): ErrorObject | Record<string, never> {
   
-  const data = getData();
+  const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));  
   if (!token || isNaN(sessionId) ) {
     return { error: 'Token is empty or not provided', status: 401,};
@@ -207,46 +190,35 @@ export function adminUserDetailsUpdate(
   //   };
   // }
 
-  //400 - if email is currently used by another user (excluding the current authorised user)
+
   if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== user)) {
     return {
-        error: 'Email is currently used by another user, choose another email!',
-      status: 400,
+      error: 'Email is currently used by another user, choose another email!', status: 400,
     };
   }
-  //400 - if email does not satisfy this: https://www.npmjs.com/package/validator (validator.isEmail)
   if (invalidEmail(email)) {
     return {
-        error: 'Invalid email address: email is not a string',
-        status: 400,
+      error: 'Invalid email address: email is not a string', status: 400,
     };
   }
-  //400 - if nameFirst contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
   if (invalidUserName(nameFirst)) {
     return {
-        error: 'First name contains invalid characters',
-        status: 400,
+      error: 'First name contains invalid characters', status: 400,
     };
   }
-  // 400 - if NameFirst is less than 2 characters or more than 20 characters
   if (invalidNameLength(nameFirst)) {
     return {
-        error: 'First name must be between 2 and 20 characters long',
-        status: 400,
+      error: 'First name must be between 2 and 20 characters long',  status: 400,
     };
   }
-  //400 - NameLast contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
   if (invalidUserName(nameLast)) {
     return {
-        error: 'Last name contains invalid characters',
-        status: 400,
+      error: 'Last name contains invalid characters', status: 400,
     };
   }
-  //400 - NameLast is less than 2 characters or more than 20 characters
   if (invalidNameLength(nameLast)) {
     return {
-        error: 'Last name must be between 2 and 20 characters long',
-        status: 400,
+      error: 'Last name must be between 2 and 20 characters long', status: 400,
     };
   }
 
@@ -273,7 +245,7 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   const user = findUserId(authUserId);
   if (!user) return { error: 'AuthUserId is not a valid user' };
 
-  const data = getData();
+  const data: DataStore = getData();
   if (user.password !== oldPassword) return { error: 'The old password is wrong.' };
   if (oldPassword === newPassword) return { error: 'The new password is the same as the old password.' };
   if (user.oldPasswords.includes(newPassword)) return { error: 'The new password is used before.' };

@@ -1,36 +1,17 @@
-/* eslint-disable */
-// @ts-nocheck
-//TODO REMOVE THIS 2 COMMENTS ABOVE when this file is lintsafe and typesafe
-
-/*
-
-
-currently there is this 12  number of errors in typecheck in this file:
-	12  src/helper.ts:16
-
-Please run:
-	npm test
-	npm run lint
-	npm run tsc
-
-*/
-//TODO REMOVE ALL COMMENTS ABOVE -----------------------------------------------
-
-
-
 import validator from 'validator';
 import { getData } from './dataStore';
+import { Users, DataStore, Tokens, Quizzes } from './dataStore';
 
 /**
- * Helper Function used in auth.js, 
+ * Helper Function used in auth.js,
  * Checks if the provided Token is invalid (does not refer to valid logged in user session)
  *
  * @param {number} sessiondId
  * @returns {boolean} Returns true if token is valid
  */
-export function findSessionId(sessionId: number) {
-    const data = getData();
-    return data.tokens.find(token => token.sessionId === sessionId);
+export function findSessionId(sessionId: number): Tokens | undefined {
+  const data: DataStore = getData();
+  return data.tokens.find(token => token.sessionId === sessionId);
 }
 
 /**
@@ -40,8 +21,8 @@ export function findSessionId(sessionId: number) {
  * @param {integer} authUserId - The user ID to be validated.
  * @returns {boolean} Returns true if the AuthUserId does not match any existing user's userId
  */
-export function findUserId(authUserId: number) {
-  const data = getData();
+export function findUserId(authUserId: number): Users | undefined {
+  const data: DataStore = getData();
   return data.users.find(user => user.userId === authUserId);
 }
 
@@ -55,7 +36,7 @@ export function findUserId(authUserId: number) {
  * @param {string} email - The email address to be validated.
  * @returns {boolean} - Returns true if the email is invalid, false otherwise.
  */
-export function invalidEmail(email: string) {
+export function invalidEmail(email: string): boolean {
   return !validator.isEmail(email);
 }
 
@@ -67,7 +48,7 @@ export function invalidEmail(email: string) {
  * @param {string} name - The name to be validated.
  * @returns {boolean} - Returns true if the name contains invalid characters
  */
-export function invalidUserName(name: string) {
+export function invalidUserName(name: string): boolean {
   const regex = /^[a-zA-Z\s\-']+$/;
   return !(regex.test(name));
 }
@@ -79,22 +60,21 @@ export function invalidUserName(name: string) {
  * @param {string} name - The name string to be validated for length.
  * @returns {boolean} - Returns true if name is invalid (either too short or too long).
  */
-export function invalidNameLength(name: string) {
+export function invalidNameLength(name: string): boolean {
   return (name.length < 2 || name.length > 20);
 }
-
 
 /**
  * Helper Function used in quiz.js
  * Checks if the provided quiz name does not correspond to any existing quiz.
  *
- * @param {string} name - The quiz name to be validated.
- * @param {string} name - The 
+ * @param {number} validToken - The quiz name to be validated.
+ * @param {string} name - The
  * @returns {boolean} Returns true if the name does not match any existing quiz's name
  */
-export function UsedQuizName(name: string, validToken: string): boolean {
-  const data = getData();
-  return data.quizzes.some(quiz => quiz.owner === validToken.userId && quiz.name === name);
+export function UsedQuizName(userId: number, name: string): boolean {
+  const data: DataStore = getData();
+  return data.quizzes.some(quiz => quiz.owner === userId && quiz.name === name);
 }
 
 /**
@@ -104,7 +84,7 @@ export function UsedQuizName(name: string, validToken: string): boolean {
  * @param {string} name - The name string to be validated for length.
  * @returns {boolean} - Returns true if name is invalid (either too short or too long).
  */
-export function invalidQuizNameLength(name: string) {
+export function invalidQuizNameLength(name: string): boolean {
   return (name.length < 3 || name.length > 30);
 }
 
@@ -115,7 +95,7 @@ export function invalidQuizNameLength(name: string) {
  * @param {string} name - The description string to be validated for length.
  * @returns {boolean} - Returns true if description is invalid (either too short or too long).
  */
-export function invalidDescriptionLength(name: string) {
+export function invalidDescriptionLength(name: string): boolean {
   return (name.length > 100);
 }
 
@@ -127,7 +107,7 @@ export function invalidDescriptionLength(name: string) {
  * @param {string} name - The name to be validated.
  * @returns {boolean} - Returns true if the name contains invalid characters
  */
-export function invalidQuizName(name: string) {
+export function invalidQuizName(name: string): boolean {
   const isAlphanumericAndSpaces = validator.isWhitelisted(name,
     'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ');
   return (!isAlphanumericAndSpaces);
@@ -140,8 +120,8 @@ export function invalidQuizName(name: string) {
  * @param {integer} quizId - The quizId to be validated.
  * @returns {boolean} Returns true if the QuizId does not match any existing quizId.
  */
-export function findQuizId(quizId: number) {
-  const data = getData();
+export function findQuizId(quizId: number): Quizzes | undefined {
+  const data: DataStore = getData();
   return data.quizzes.find(quiz => quiz.quizId === quizId);
 }
 
@@ -153,8 +133,8 @@ export function findQuizId(quizId: number) {
  * @param {integer} quizId - A valid Quiz ID.
  * @returns {boolean} Returns false if the QuizId does not match any existing authUserId.
  */
-export function matchQuizIdAndAuthor(authUserId: number, quizId: number) {
-  const data = getData();
+export function matchQuizIdAndAuthor(authUserId: number, quizId: number): boolean {
+  const data: DataStore = getData();
 
   for (const quiz of data.quizzes) {
     if (quiz.owner === authUserId && quiz.quizId === quizId) {
