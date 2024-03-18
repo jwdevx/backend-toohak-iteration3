@@ -27,3 +27,11 @@ lintingcheck:
   only:
     - master
     - merge_requests
+
+typecheck:
+  stage: checks
+  script:
+      - npm run tsc
+  only:
+    - master
+    - merge_requests
