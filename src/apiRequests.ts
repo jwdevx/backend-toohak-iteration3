@@ -106,7 +106,7 @@ export const adminQuizList = (token: string) => {
 };
 export const adminQuizRemove = (token: string, quizId: number) => {
   const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}`, {
-    json: { token: token },
+    qs: { token: token },
     timeout: 100
   });
   return {

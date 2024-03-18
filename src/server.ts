@@ -176,9 +176,9 @@ app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
-  const { token } = req.body;
+  const { token } = req.query;
   const quizId = parseInt(req.params.quizid);
-  const response = adminQuizRemove(token, quizId);
+  const response = adminQuizRemove(String(token), quizId);
   if ('error' in response) {
     return res.status(response.status).json({ error: response.error });
   }
