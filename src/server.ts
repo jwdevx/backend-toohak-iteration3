@@ -1,19 +1,7 @@
 
-/* eslint-disable */
-// @ts-nocheck
-//TODO REMOVE THIS 2 COMMENTS ABOVE when this file is lintsafe and typesafe
+// TODO REMOVE THIS 2 COMMENTS ABOVE when this file is lintsafe and typesafe
 
-/*
-There is 44  number of errors in typecheck in this file:
-		44  src / server.ts: 54
-
-Please run:
-	npm test
-	npm run lint
-	npm run tsc
-
-*/
-//TODO REMOVE THIS COMMENTS ABOVE ----------------------------------------------
+// TODO REMOVE THIS COMMENTS ABOVE ----------------------------------------------
 
 import express, { json, Request, Response } from 'express';
 import { echo } from './newecho';
@@ -29,22 +17,23 @@ import process from 'process';
 import { getData, setData } from './dataStore';
 import {
   adminAuthRegister,
-  adminAuthLogin,
+  adminUserDetailsUpdate,
+  /* adminAuthLogin,
   adminUserDetails,
   adminUserDetailsUpdate,
   adminUserPasswordUpdate,
-  adminAuthLogout,
+  adminAuthLogout, */
 } from './auth';
 import {
   adminQuizCreate,
-  adminQuizList,
+  /* adminQuizList,
   adminQuizInfo,
   adminQuizRemove,
   adminQuizNameUpdate,
-  adminQuizDescriptionUpdate
+  adminQuizDescriptionUpdate */
 } from './quiz';
 import { clear } from './other';
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 
 // Set up web app
 const app = express();
@@ -68,14 +57,14 @@ const HOST: string = process.env.IP || 'localhost';
 
 const load = () => {
   if (fs.existsSync('./database.json')) {
-    const file = fs.readFileSync('./database.json', {encoding: 'utf8'});
+    const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
     setData(JSON.parse(file));
   }
-}
+};
 load();
 
 function saveData() {
-  const data = getData(); 
+  const data = getData();
   fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
 }
 
@@ -96,14 +85,14 @@ app.get('/echo', (req: Request, res: Response) => {
 /**
  * Takes in information about a new admin user and registers them in the system.
  * This route is not relevant to guests who want to play a particular quiz,
- * but is used for the creation of accounts of people who manage quizzes. 
+ * but is used for the creation of accounts of people who manage quizzes.
  */
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = adminAuthRegister(email, password, nameFirst, nameLast);
-  
+
   if ('error' in response) return res.status(400).json({ error: response.error });
-  saveData(); 
+  saveData();
   res.status(200).json({ token: response.token });
 });
 
@@ -114,24 +103,22 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
  */
 // TODO VENUS edit and confirm the url is correct
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
-
-  const response = { message: "TODO Function is not implemented yet" };
+  const response = { message: 'TODO Function is not implemented yet' };
   res.status(501).json(response);
 });
 
 /**
  * For the given admin user that is logged in, return all of the relevant details.
  */
-//TODO VENUS
+// TODO VENUS
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
-
-  const response = { message: "TODO Function is not implemented yet" };
+  const response = { message: 'TODO Function is not implemented yet' };
   res.status(501).json(response);
 });
 
 /**
  * Given a set of properties, update those properties of this logged in admin user.
- * Update the details of an admin user (non-password). 
+ * Update the details of an admin user (non-password).
  */
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
@@ -139,7 +126,7 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   if ('error' in response) {
     return res.status(response.status).json({ error: response.error });
   }
-  saveData(); 
+  saveData();
   res.json(response);
 });
 
@@ -149,8 +136,7 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
-
-  const response = { message: "TODO Update the password of this admin user" };
+  const response = { message: 'TODO Update the password of this admin user' };
   res.status(501).json(response);
 });
 
@@ -160,7 +146,6 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
- 
   const response = { message: "TODO: Lists all user's quizzes " };
   res.status(501).json(response);
 });
@@ -168,12 +153,15 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
 /**
  * Given basic details about a new quiz, create one for the logged in user
  */
-
-// TODO edit and confirm the url is correct
-app.post('/v1/admin/quiz', (req: Request, res: Response) => {
-
-  const response = { message: "TODO: Create a new quiz " };
-  res.status(501).json(response);
+app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
+  const { token, name, description } = req.body;
+  const response = adminQuizCreate(token, name, description);
+  if ('error' in response) {
+    return res.status(response.status).json({ error: response.error });
+  }
+  saveData();
+  //   res.status(200).json({ quizId: response });
+  res.json(response);
 });
 
 /**
@@ -183,8 +171,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.delete('/v1/admin/quiz/{quizid}', (req: Request, res: Response) => {
-
-  const response = { message: "TODO: Send a quiz to trash" };
+  const response = { message: 'TODO: Send a quiz to trash' };
   res.status(501).json(response);
 });
 
@@ -194,8 +181,7 @@ app.delete('/v1/admin/quiz/{quizid}', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.get('/v1/admin/quiz/{quizid}', (req: Request, res: Response) => {
-
-  const response = { message: "TODO:Get info about current quiz" };
+  const response = { message: 'TODO:Get info about current quiz' };
   res.status(501).json(response);
 });
 
@@ -205,8 +191,7 @@ app.get('/v1/admin/quiz/{quizid}', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.put('/v1/admin/quiz/{quizid}/name', (req: Request, res: Response) => {
-
-  const response = { message: "TODO: Update Quiz name" };
+  const response = { message: 'TODO: Update Quiz name' };
   res.status(501).json(response);
 });
 
@@ -216,8 +201,7 @@ app.put('/v1/admin/quiz/{quizid}/name', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.put('/v1/admin/quiz/{quizid}/description', (req: Request, res: Response) => {
- 
-  const response = { message: "TODO: Update quiz description " };
+  const response = { message: 'TODO: Update quiz description ' };
   res.status(501).json(response);
 });
 
@@ -227,10 +211,9 @@ app.put('/v1/admin/quiz/{quizid}/description', (req: Request, res: Response) => 
  */
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
-  saveData(); 
+  saveData();
   res.json(response);
 });
-
 
 // =============================================================================
 // ============================== ITERATION 2 ==================================
@@ -241,8 +224,7 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
  */
 // TODO edit and confirm the url is correct
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
-
-  const response = { message: " TODO: Logs out an admin user who has an active quiz session" };
+  const response = { message: ' TODO: Logs out an admin user who has an active quiz session' };
   res.status(501).json(response);
 });
 
@@ -251,8 +233,7 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
  */
 // TODO: View the quizzes in trash
 app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
-
-  const response = { message: " TODO: View the quizzes in trash" };
+  const response = { message: ' TODO: View the quizzes in trash' };
   res.status(501).json(response);
 });
 
@@ -262,8 +243,7 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
  */
 // TODO edit and confirm the url is correct
 app.post('/v1/admin/quiz/{quizid}/restore', (req: Request, res: Response) => {
-
-  const response = { message: " TODO: Restore a quiz from trash" };
+  const response = { message: ' TODO: Restore a quiz from trash' };
   res.status(501).json(response);
 });
 
@@ -272,8 +252,7 @@ app.post('/v1/admin/quiz/{quizid}/restore', (req: Request, res: Response) => {
  */
 
 app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
-
-  const response = { message: " TODO: Empty the trash " };
+  const response = { message: ' TODO: Empty the trash ' };
   res.status(501).json(response);
 });
 
@@ -282,8 +261,7 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
  */
 // TODO edit and confirm the url is correct
 app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
-
-  const response = { message: " TODO: Transfer the quiz to another owner " };
+  const response = { message: ' TODO: Transfer the quiz to another owner ' };
   res.status(501).json(response);
 });
 
@@ -295,7 +273,7 @@ app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
  */
 // TODO: Create quiz question
 app.post('/v1/admin/quiz/{quizid}/question', (req: Request, res: Response) => {
-  const response = { message: " TODO: Create quiz question" };
+  const response = { message: ' TODO: Create quiz question' };
   res.status(501).json(response);
 });
 
@@ -307,8 +285,7 @@ app.post('/v1/admin/quiz/{quizid}/question', (req: Request, res: Response) => {
  */
 // TODO edit and confirm the url is correct
 app.put('/v1/admin/quiz/{quizid}/question/{questionid}', (req: Request, res: Response) => {
- 
-  const response = { message: " TODO: Update quiz question" };
+  const response = { message: ' TODO: Update quiz question' };
   res.status(501).json(response);
 });
 
@@ -317,8 +294,7 @@ app.put('/v1/admin/quiz/{quizid}/question/{questionid}', (req: Request, res: Res
  */
 // TODO edit and confirm the url is correct
 app.delete('/v1/admin/quiz/{quizid}/question/{questionid}', (req: Request, res: Response) => {
-
-  const response = { message: " TODO: Delete a particular question from a quiz " };
+  const response = { message: ' TODO: Delete a particular question from a quiz ' };
   res.status(501).json(response);
 });
 
@@ -328,8 +304,7 @@ app.delete('/v1/admin/quiz/{quizid}/question/{questionid}', (req: Request, res: 
  */
 // TODO edit and confirm the url is correct
 app.put('/v1/admin/quiz/{quizid}/question/{questionid}/move', (req: Request, res: Response) => {
-
-  const response = { message: " TODO: Move a quiz question " };
+  const response = { message: ' TODO: Move a quiz question ' };
   res.status(501).json(response);
 });
 
@@ -339,8 +314,7 @@ app.put('/v1/admin/quiz/{quizid}/question/{questionid}/move', (req: Request, res
  */
 // TODO edit and confirm the url is correct
 app.post('/v1/admin/quiz/{quizid}/question/{questionid}/duplicate', (req: Request, res: Response) => {
-
-  const response = { message: " TODO: Duplicate a quiz question  " };
+  const response = { message: ' TODO: Duplicate a quiz question  ' };
   res.status(501).json(response);
 });
 

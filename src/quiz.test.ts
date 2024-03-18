@@ -28,26 +28,114 @@ Please run:
 
 */
 //TODO REMOVE ALL COMMENTS ABOVE -----------------------------------------------
+const OK = 200;
+const BAD_REQUEST = 400;
+const UNAUTHORIZED = 401;
+const FORBIDDEN = 403;
 
-
-
+import {
+  adminQuizCreate, 
+  adminAuthRegister,
+  clear
+} from './apiRequests';
+/*
 import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizRemove, adminQuizNameUpdate, adminQuizDescriptionUpdate } from './quiz';
 import { clear } from './other';
 import { adminAuthRegister, adminAuthLogin } from './auth';
-import { format } from 'date-fns';
+*/
 
+beforeEach(() => {
+    clear();
+  });
 const ERROR = { error: expect.any(String) };
+
+
+// =============================================================================
+// ============================ adminQuizCreate ==================================
+// =============================================================================
+
+   
+
+
 describe('Testing create quizzes return quiz id', () => {
   beforeEach(() => {
     clear();
   });
-  test('add one quiz', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const id = adminAuthLogin('tony@gmail.com', 'WOjiaoZC123');
-    const name = 'to ny123';
-    const description = 'test1';
-    const quizid = adminQuizCreate(authUser.authUserId, name, description);
-    expect(quizid).toStrictEqual({ quizId: expect.any(Number) });
+  test('Check successfully quiz addition', () => {
+    const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    expect(res.statusCode).toStrictEqual(200);
+    const quiz = adminQuizCreate(res.bodyObj.token, 'yourname', 'yourdescription');
+    expect(quiz.statusCode).toStrictEqual(200);
+    expect(quiz.bodyObj).toStrictEqual({ quizId: expect.any(Number)});  
+
+  });
+    
+  
+  test('Check invalid token', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
+    
+    const Quiz1 = adminQuizCreate(wrongtoken, 'tests', 'autotesting');
+
+    expect(Quiz1.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(Quiz1.statusCode).toStrictEqual(401);
+    
+  });
+
+  
+  test('check invalid characters', () => {
+    const user1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
+    const Quiz1 = adminQuizCreate(user1, 'quiz@/500', 'i love autotests');
+    const Quiz1Body = Quiz1.bodyObj;
+    const Quiz1Status = Quiz1.statusCode;
+    expect(Quiz1Body).toStrictEqual({ error: expect.any(String) });
+    expect(Quiz1Status).toStrictEqual(BAD_REQUEST);
+    
+  });
+  
+  test('check invalid name length', () => {
+    const user1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
+    const Quiz1 = adminQuizCreate(user1, 'qq', 'quizzes are so fun');
+    const Quiz1Body = Quiz1.bodyObj;
+    const Quiz1Status = Quiz1.statusCode;
+    expect(Quiz1Body).toStrictEqual({ error: expect.any(String) });
+    expect(Quiz1Status).toStrictEqual(BAD_REQUEST);
+  });
+  
+  test('check used quiz names', () => {
+    const user1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
+    adminQuizCreate(user1, 'quiz1', 'first quiz');
+    adminQuizCreate(user1, 'quiz2', 'Second quiz'); 
+    const Quiz = adminQuizCreate(user1, 'quiz2', 'hahaha redundant naming');
+    const QuizBody = Quiz.bodyObj;
+    const QuizStatus = Quiz.statusCode;
+    expect(QuizBody).toStrictEqual({ error: 'The name has already used for the quiz you created before' });
+    expect(QuizStatus).toStrictEqual(BAD_REQUEST);
+    
+  });
+
+  test('check invalid description length', () => {
+    const user1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
+    const Quiz = adminQuizCreate(user1, 'quiz1', 'Hahaha invalid quiz description go BRRRTTTTT HEHEHE, SO LONG SO VERY LONG SO ENDLESS HAHAHA..............');
+    const QuizBody = Quiz.bodyObj;
+    const QuizStatus = Quiz.statusCode;
+    expect(QuizBody).toStrictEqual({ error: expect.any(String) });
+    expect(QuizStatus).toStrictEqual(BAD_REQUEST);
+  });
+  
+});
+  
+// =============================================================================
+// ======================      put test name here  =============================
+// =============================================================================
+
+
+
+/*
+describe('Testing print quiz list return quizzes', () => {
+  beforeEach(() => {
+    clear();
   });
   test('invalid user id', () => {
     const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
@@ -98,12 +186,6 @@ describe('Testing create quizzes return quiz id', () => {
     const description = 'test1';
     const id = adminQuizCreate(authUserId.authUserId, name, description);
     expect(id).toStrictEqual({ error: 'One or more missing parameters' });
-  });
-});
-describe('Testing print quiz list return quizzes', () => {
-  beforeEach(() => {
-    clear();
-  });
   test('invalid user id', () => {
     const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
     const name = 'WOjiaoZC';
@@ -461,3 +543,4 @@ describe('Testing QuizDescriptionUpdate', () => {
     expect(Update).toStrictEqual({});
   });
 });
+*/

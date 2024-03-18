@@ -24,53 +24,96 @@ Please run:
 
 //TODO REMOVE ALL COMMENTS ABOVE -----------------------------------------------
 
-
+import { ErrorObject,  Quizzes } from './dataStore';
 
 import { setData, getData } from './dataStore';
-import { format } from 'date-fns';
-import { findUserId, invalidQuizName, invalidQuizNameLength, UsedQuizName, invalidDescriptionLength, findQuizId, matchQuizIdAndAuthor } from './helper';
+
+import {
+  findSessionId,
+  findUserId,
+  invalidQuizName,
+  invalidQuizNameLength,
+  UsedQuizName,
+  invalidDescriptionLength,
+  findQuizId,
+  matchQuizIdAndAuthor
+} from './helper';
 /**
 * Given basic details about a new quiz, create one for the logged in user.
 *
-* @param {number} authUserId - the authenticated user ID.
+* @param {string} token - the encoded session id of the user
 * @param {string} name - the name of the quiz
 * @param {string} description - the description of the quiz
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
-function adminQuizCreate(authUserId, name, description) {
-  // Checks for valid parameters:
-  if (!authUserId || !name || (description === null || description === undefined)) {
-    return { error: 'One or more missing parameters' };
-  }
-
-  if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
-  if (invalidQuizName(name)) return { error: 'The name is not valid.' };
-  if (invalidQuizNameLength(name)) return { error: 'The name is either too long or too short.' };
-  if (UsedQuizName(name, authUserId)) return { error: 'The quiz name is already been used.' };
-  if (invalidDescriptionLength(description)) return { error: 'The description is too long.' };
+function adminQuizCreate(
+    token: string,
+    name: string,
+    description: string): { quizId: number } | ErrorObject {
 
   const data = getData();
-  const ID = data.quizzes.length + 1;
+  
+  const sessionId = parseInt(decodeURIComponent(token));  
+  if (!token || isNaN(sessionId) ) {
+    return { error: 'Token is empty or not provided', status: 401,};
+  } 
+  const validToken = findSessionId(sessionId);  
+  if (!validToken) {
+    return {
+      error: 'Token is invalid (does not refer to valid logged in user session)',
+      status: 401,
+    };
+  }   
 
-  const currentTime = new Date();
-  const createdTime = format(currentTime, 'MMMM d, yyyy h:mm a'); // "h:mm a" format includes hours, minutes, and AM/PM
-  const quiz = {
-    quizId: ID,
+  if (invalidQuizName(name)) {
+      return {
+      error: 'The name is not valid',
+      status: 400,
+    };
+  }
+  if (invalidQuizNameLength(name)) {
+    return {
+      error: 'The name is either too long or too short',
+      status: 400,
+    };
+  }
+  if (data.quizzes.some(quiz => quiz.owner === validToken.userId && quiz.name === name)) {
+    return {
+      error: 'The name has already used for the quiz you created before',
+      status: 400,
+    };
+  }       
+
+  if (invalidDescriptionLength(description)) {
+    return {
+      error: 'The description is too long',
+      status: 400,
+    };
+  }   
+
+  const createdTime = Math.floor(new Date().getTime() / 1000);
+  const quiz:  Quizzes = {
+    quizId: data.quizzes.length + 1,
     name: name,
     timeCreated: createdTime,
     timeLastEdited: createdTime,
     description: description,
     numQuestions: 0,
-    owner: authUserId,
+    owner: validToken.userId,
     questions: [],
+    intrash: false
   };
+  
   data.quizzes.push(quiz);
   setData(data);
+ 
   return {
-    quizId: ID
+    quizId: quiz.quizId,
   };
 }
+
 export { adminQuizCreate };
+
 /**
  * Provide a list of all quizzes that are owned by the currently logged in user.
  *
@@ -187,10 +230,9 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
 
   // checking if thes Description is too long
   if (invalidDescriptionLength(description)) return { error: 'The description is too long.' };
-  const currentTime = new Date();
-  const updatedTime = format(currentTime, 'MMMM d, yyyy h:mm a'); // "h:mm a" format includes hours, minutes, and AM/PM
+
   quiz.description = description;
-  quiz.timeLastEdited = updatedTime;
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
   setData(data);
 
   return {};
