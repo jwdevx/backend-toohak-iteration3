@@ -26,7 +26,6 @@ Please run:
 
 import { ErrorObject,  Quizzes } from './dataStore';
 import { setData, getData } from './dataStore';
-
 import {
   findSessionId,
   findUserId,
@@ -37,6 +36,7 @@ import {
   findQuizId,
   matchQuizIdAndAuthor
 } from './helper';
+
 /**
 * Given basic details about a new quiz, create one for the logged in user.
 *
@@ -45,7 +45,7 @@ import {
 * @param {string} description - the description of the quiz
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
-function adminQuizCreate(
+export function adminQuizCreate(
   token: string,
   name: string,
   description: string): { quizId: number } | ErrorObject {
@@ -58,37 +58,21 @@ function adminQuizCreate(
   const validToken = findSessionId(sessionId);  
   if (!validToken) {
     return {
-      error: 'Token is invalid (does not refer to valid logged in user session)',
-      status: 401,
+      error: 'Token is invalid (does not refer to valid logged in user session)', status: 401,
     };
   }   
-
   if (invalidQuizName(name)) {
-      return {
-      error: 'The name is not valid',
-      status: 400,
-    };
+    return { error: 'The name is not valid', status: 400 };
   }
   if (invalidQuizNameLength(name)) {
-    return {
-      error: 'The name is either too long or too short',
-      status: 400,
-    };
+    return { error: 'The name is either too long or too short', status: 400 };
   }
   if (UsedQuizName(validToken.userId, name)) {
-    return {
-      error: 'The name has already used for the quiz you created before',
-      status: 400,
-    };
+    return { error: 'The name has already used for the quiz you created before', status: 400 };
   }       
-
   if (invalidDescriptionLength(description)) {
-    return {
-      error: 'The description is too long',
-      status: 400,
-    };
+    return { error: 'The description is too long', status: 400 };
   }   
-
   const createdTime = Math.floor(new Date().getTime() / 1000);
   const quiz:  Quizzes = {
     quizId: data.quizzes.length + 1,
@@ -104,13 +88,10 @@ function adminQuizCreate(
   
   data.quizzes.push(quiz);
   setData(data);
- 
   return {
     quizId: quiz.quizId,
   };
 }
-
-export { adminQuizCreate };
 
 /**
  * Provide a list of all quizzes that are owned by the currently logged in user.
