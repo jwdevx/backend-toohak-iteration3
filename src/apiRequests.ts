@@ -95,13 +95,13 @@ export const adminQuizCreate = (
 };
 
 export const adminQuizList = (token: string) => {
-  const res = request("GET", SERVER_URL + '/v1/admin/quiz/list', {
-    json: {token: token},
+  const res = request("GET", SERVER_URL + '/v1/admin/quiz/list', { 
+    json: { token: token },
     timeout: 100
   });
   return {
-    bodyObj: JSON.parse(res.body as string),
-    statusCode: res.statusCode
+    bodyObj: JSON.parse( res.body as string ),
+    statusCode: res.statusCode,
   }
 }
 // =============================================================================

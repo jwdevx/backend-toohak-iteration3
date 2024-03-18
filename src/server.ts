@@ -146,7 +146,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
-  const {token} = req.body
+  const { token } = req.body
   const response = adminQuizList(token);
   if ('error' in response) {
     return res.status(response.status).json({ error: response.error });
