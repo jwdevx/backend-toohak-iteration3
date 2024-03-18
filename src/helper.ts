@@ -1,6 +1,7 @@
 import validator from 'validator';
 import { getData } from './dataStore';
 import { Users, DataStore, Tokens, Quizzes } from './dataStore';
+import exp from 'constants';
 
 /**
  * Helper Function used in auth.js,
@@ -142,4 +143,17 @@ export function matchQuizIdAndAuthor(authUserId: number, quizId: number): boolea
     }
   }
   return false;
+}
+
+/**
+ * Helper Function used in quiz.js
+ * Checks if the provided Quiz ID is in the trashbin.
+ *
+ * @param {integer} quizId - A valid Quiz ID.
+ * @returns {boolean} Returns false if the provided Quiz ID is in the trashbin.
+ */
+export function checkQuizInTrash(quizId: number): boolean | undefined {
+  const quiz: Quizzes | undefined = findQuizId(quizId)
+  if (!quiz) return undefined
+  return quiz.intrash
 }
