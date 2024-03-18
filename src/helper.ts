@@ -152,7 +152,7 @@ export function matchQuizIdAndAuthor(authUserId: number, quizId: number): boolea
  * @returns {boolean} Returns false if the provided Quiz ID is in the trashbin.
  */
 export function checkQuizInTrash(quizId: number): boolean | undefined {
-  const quiz: Quizzes | undefined = findQuizId(quizId)
-  if (!quiz) return undefined
-  return quiz.intrash
+  const quiz: Quizzes | undefined = findQuizId(quizId);
+  if (!quiz) return undefined;
+  return quiz.intrash;
 }
