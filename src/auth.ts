@@ -1,6 +1,5 @@
 
 /* eslint-disable */
-// @ts-nocheck
 //TODO REMOVE THIS 2 COMMENTS ABOVE when this file is lintsafe and typesafe
 /*
 There is this 11  number of errors in typecheck in this file: 11  src/auth.ts:50
@@ -22,6 +21,7 @@ import {
   invalidEmail,
   invalidUserName,
   invalidNameLength,
+  findUserFromToken,
 } from './helper';
 
 /**
@@ -91,7 +91,7 @@ export function adminAuthLogin(email: string, password: string): { token: string
     return { error: 'One or more missing parameters' };
   }
 
-  const data: DataStore = getData();
+  const data = getData();
   const user = data.users.find((user) => user.email === email);
 
   if (!user) {
@@ -121,16 +121,18 @@ export function adminAuthLogin(email: string, password: string): { token: string
  * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}}
  */
 // helper functions for adminUserDetails
-export function adminUserDetails (token: String) {
-  const sessionId = parseInt(decodeURIComponent(token));  
-  if(sessionId === '') {
+export function adminUserDetails (token: string) {
+  if(token === '') {
     return { error: 'Invalid token' };
   }
-  const user = findUserFromToken(pareInt(sessionId));
+  console.log(token);
+  const sessionId = parseInt(decodeURIComponent(token));  
+  const user = findUserFromToken(sessionId);
+  console.log(sessionId);
   if (!user) {
     return { error: 'could not find user' };
   }
-  const fullName = `${user.firstName} ${user.lastName}`;
+  const fullName = `${user.nameFirst} ${user.nameLast}`;
   return {
     user: {
       userId: user.userId,

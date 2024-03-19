@@ -189,7 +189,46 @@ let ExampleUser2;
 // =============================================================================
 // ============================ adminUserDetails ===============================
 // =============================================================================
+describe('Test for adminUserDetails', () => {
+  // Previous test cases...
+  beforeEach(() => {
+    clear();
+  });  
+  test('Success case', () => {
+    // Perform a successful login
 
+    const register = adminAuthRegister('hayden2@gmail.com', '1234abcd', 'Hayden', 'Smith');
+    console.log(register.bodyObj.token);
+    const result = adminUserDetails(register.bodyObj.token);
+    console.log(result.statusCode);
+    console.log(result.bodyObj);
+    expect(result.statusCode).toBe(OK);
+    expect(result.bodyObj).toEqual({
+        user: {
+          userId: 1,
+          name: 'Hayden Smith',
+          email: 'hayden2@gmail.com',
+          numSuccessfulLogins: 1,
+          numFailedPasswordsSinceLastLogin: 0
+        }
+    });
+  });
+
+  test('Error case: Empty token', () => {
+    const register = adminAuthRegister('hayden2@gmail.com', '1234abcd', 'Hayden', 'Smith');
+    const result = adminUserDetails('');
+    expect(result.statusCode).toBe(BAD_REQUEST);
+    expect(result.bodyObj).toEqual({ error: expect.any(String) });
+
+  });
+  test('Error case: Empty email', () => {
+    // Perform a login with an empty email
+    const register = adminAuthRegister('hayden2@gmail.com', '1234abcd', 'Hayden', 'Smith');
+    const result = adminUserDetails(9999999999);
+    expect(result.statusCode).toBe(BAD_REQUEST);
+    expect(result.bodyObj).toEqual({ error: expect.any(String) });
+  });
+});
 /*
 describe('These are tests for adminUserDetails', () => {
   beforeEach(() => {
