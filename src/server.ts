@@ -19,8 +19,8 @@ import {
   adminAuthRegister,
   adminUserDetailsUpdate,
   adminUserDetails,
-  /* adminAuthLogin,
-  adminUserDetailsUpdate,
+  adminAuthLogin,
+  /* adminUserDetailsUpdate,
   adminUserPasswordUpdate,
   adminAuthLogout, */
 } from './auth';
@@ -103,8 +103,12 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
  */
 // TODO VENUS edit and confirm the url is correct
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
-  const response = { message: 'TODO Function is not implemented yet' };
-  res.status(501).json(response);
+  const { email, password } = req.body;
+  const response = adminAuthLogin(email, password);
+
+  if ('error' in response) return res.status(400).json({ error: response.error });
+  saveData();
+  res.status(200).json({ token: response.token });
 });
 
 /**

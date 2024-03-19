@@ -1,5 +1,5 @@
 /* eslint-disable */
-// @ts-nocheck
+//@ts-nocheck
 //TODO REMOVE THIS 2 COMMENTS ABOVE when this file is lintsafe and typesafe
 
 /*
@@ -152,7 +152,51 @@ describe('Test for adminAuthRegister', () => {
 // =============================================================================
 // ============================= adminAuthLogin ================================
 // =============================================================================
+describe('Test for adminAuthLogin', () => {
+  beforeEach(() => {
+    clear();
+  });
 
+  test('200 check successful registration', () => {
+    const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    expect(res.statusCode).toStrictEqual(OK);
+    expect(res.bodyObj).toStrictEqual({ token: expect.any(String)});    
+    const loginRes = adminAuthLogin('hayden.smith@unsw.edu.au', '1234abcd')
+    expect(loginRes.statusCode).toStrictEqual(OK);
+    expect(loginRes.bodyObj).toStrictEqual({ token: expect.any(String)}); 
+    const sessionId = Number(decodeURIComponent(loginRes.bodyObj.token));
+    expect(sessionId).not.toBeNaN();
+  });
+
+  test(' 400 check for missing email', () => {
+    const res = adminAuthLogin('', '1234abcd')
+    expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(BAD_REQUEST);
+  });
+  test(' 400 check for missing password', () => {
+    const res = adminAuthLogin('email@gmail.com', '')
+    expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(BAD_REQUEST);
+  });
+  test(' 400 email does not exist ', () => {
+    const res = adminAuthLogin('nonexistentemail@gmail.com', 'non_existent_Account')
+    expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(BAD_REQUEST);
+  });
+  test(' 400 wrong password right email', () => {
+    const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    expect(res.statusCode).toStrictEqual(OK);
+    expect(res.bodyObj).toStrictEqual({ token: expect.any(String)});
+    const loginRes = adminAuthLogin('hayden.smith@unsw.edu.au', 'wrongpassword')
+    expect(loginRes.statusCode).toStrictEqual(BAD_REQUEST);
+    expect(loginRes.bodyObj).toStrictEqual({ error: expect.any(String) });
+  });
+  test('400 Null argument', () => {
+    const loginRes = adminAuthLogin();
+    expect(loginRes.statusCode).toStrictEqual(BAD_REQUEST);
+    expect(loginRes.bodyObj).toStrictEqual({ error: expect.any(String) });
+  });
+});
 /*
 
 describe('These are tests for adminAuthLogin', () => {
