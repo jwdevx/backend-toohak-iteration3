@@ -132,22 +132,23 @@ export function adminAuthLogin(email, password) {
  * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}}
  */
 // helper functions for adminUserDetails
-export function adminUserDetails(authUserId) {
-  const data: DataStore = getData();
-  const user = data.users.find((user) => user.userId === authUserId);
-  if (!user) return { error: 'UserId is invalid' };
-
-  setData(data);
+export function adminUserDetails (token: number) {
+  const user = findUserFromToken(token);
+  if (!user) {
+    return { error: 'could not find user' };
+  }
+  const fullName = `${user.firstName} ${user.lastName}`;
   return {
     user: {
-      userId: authUserId,
-      name: user.name,
+      userId: user.userId,
+      name: fullName,
       email: user.email,
       numSuccessfulLogins: user.numSuccessfulLogins,
       numFailedPasswordsSinceLastLogin: user.numFailedPasswordsSinceLastLogin,
-    },
+    }
   };
-}
+ }
+ 
 
 /**
  * Given an admin user's authUserId and a set of properties, update the
