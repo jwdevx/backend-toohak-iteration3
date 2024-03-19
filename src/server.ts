@@ -112,8 +112,8 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
  */
 // TODO VENUS
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
-  const { token } = req.body;
-  const response = adminUserDetails(token);
+  const token = req.query.token;
+  const response = adminUserDetails(token as string);
   if ('error' in response) return res.status(400).json({ error: response.error });
   res.status(200).json({ response });
 });
