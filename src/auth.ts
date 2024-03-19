@@ -1,20 +1,9 @@
-
-/* eslint-disable */
-// @ts-nocheck
-//TODO REMOVE THIS 2 COMMENTS ABOVE when this file is lintsafe and typesafe
-/*
-There is this 11  number of errors in typecheck in this file: 11  src/auth.ts:50
-*/
-//TODO REMOVE THIS COMMENTS ABOVE ----------------------------------------------
-
-// Importing intefaces
 import {
   Users,
   Tokens,
-  ErrorObject
+  ErrorObject,
+  DataStore
 } from './dataStore';
-
-// Importing functions
 import { getData, setData } from './dataStore';
 import {
   findSessionId,
@@ -22,8 +11,20 @@ import {
   invalidEmail,
   invalidUserName,
   invalidNameLength,
-  findUserFromToken,
+//   findUserFromToken,
 } from './helper';
+
+interface UserDetails {
+  userId: number;
+  name: string;
+  email: string;
+  numSuccessfulLogins: number;
+  numFailedPasswordsSinceLastLogin: number;
+}
+
+interface UserDetailsReturn {
+  user: UserDetails;
+}
 
 /**
  * Register a user with an email, password, and names, then returns their
@@ -36,13 +37,12 @@ import {
  * @returns {{token: string} | {error: string}} An object: sessionId or an error msg.
  */
 export function adminAuthRegister(
-    email: string,
-    password: string,
-    nameFirst: string,
-    nameLast: string
+  email: string,
+  password: string,
+  nameFirst: string,
+  nameLast: string
 ): { error: string} | { token: string} {
-
-    const data: DataStore = getData();
+  const data: DataStore = getData();
   if (data.users.some(existingUser => existingUser.email === email)) {
     return { error: 'Email address is used by another user' };
   }
@@ -67,17 +67,16 @@ export function adminAuthRegister(
     numSuccessfulLogins: 1,
     numFailedPasswordsSinceLastLogin: 0,
   };
-  data.users.push(newUser);  
+  data.users.push(newUser);
   const newToken: Tokens = {
     sessionId: sessionId,
     userId: newUser.userId,
   };
-  data.tokens.push(newToken);  
+  data.tokens.push(newToken);
   setData(data);
   return {
     token: encodeURIComponent(sessionId.toString()),
   };
-  
 }
 
 /**
@@ -88,10 +87,7 @@ export function adminAuthRegister(
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
 export function adminAuthLogin(email: string, password: string): { token: string } | { error: string } {
-  if (!email || !password) {
-    return { error: 'One or more missing parameters' };
-  }
-
+  if (!email || !password) return { error: 'One or more missing parameters' };
   const data = getData();
   const user = data.users.find((user) => user.email === email);
 
@@ -100,7 +96,6 @@ export function adminAuthLogin(email: string, password: string): { token: string
   } else if (user.password !== password) {
     return { error: 'Password does not match email' };
   }
-
   const sessionId: number = Math.floor(Math.random() * Date.now());
   const newToken: Tokens = {
     sessionId: sessionId,
@@ -113,38 +108,35 @@ export function adminAuthLogin(email: string, password: string): { token: string
     token: encodeURIComponent(sessionId.toString()),
   };
 }
+
 /**
  * Given an admin user's authUserId, return details about the user.
  *  "name" is the first and last name concatenated with a single space between them.
  *
- * @param {integer} authUserId - the admin's user authenticated user ID
- * An object containing the properties related to a user.
+ * @param {string} token  -  user sessionId
  * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}}
  */
 // helper functions for adminUserDetails
-export function adminUserDetails (token: string) {
-  if(token === '') {
-    return { error: 'Invalid token' };
-  }
-  console.log(token);
-  const sessionId = parseInt(decodeURIComponent(token));  
-  const user = findUserFromToken(sessionId);
-  console.log(sessionId);
-  if (!user) {
-    return { error: 'could not find user' };
-  }
-  const fullName = `${user.nameFirst} ${user.nameLast}`;
+export function adminUserDetails(token: string): UserDetailsReturn | { error: string } {
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token.trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided' };
+
+  const validToken: Tokens = findSessionId(sessionId);
+  if (!validToken) return { error: 'Token is invalid (does not refer to valid logged in user session)' };
+
+  const user: Users = findUserId(validToken.userId);
+  if (!user) return { error: 'User not found' };
+
   return {
     user: {
       userId: user.userId,
-      name: fullName,
+      name: user.name,
       email: user.email,
       numSuccessfulLogins: user.numSuccessfulLogins,
       numFailedPasswordsSinceLastLogin: user.numFailedPasswordsSinceLastLogin,
     }
   };
- }
- 
+}
 
 /**
  * Given an admin user's authUserId and a set of properties, update the
@@ -161,25 +153,17 @@ export function adminUserDetailsUpdate(
   email: string,
   nameFirst: string,
   nameLast: string): ErrorObject | Record<string, never> {
-  
   const data: DataStore = getData();
-  const sessionId = parseInt(decodeURIComponent(token));  
-  if (!token || isNaN(sessionId) ) {
-    return { error: 'Token is empty or not provided', status: 401,};
-  } 
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token.trim() || isNaN(sessionId)) { return { error: 'Token is empty or not provided', status: 401 }; }
 
-  const validToken = findSessionId(sessionId);  
-  if (!validToken) {
-    return {
-      error: 'Token is invalid (does not refer to valid logged in user session)',
-      status: 401,
-    };
-  }   
-  const user = findUserId(validToken.userId); 
-  
-  //TODO check with tutor about this errors?
-  // if (!authUser) return { error: "User not found", status: 404  }; 
+  const validToken: Tokens = findSessionId(sessionId);
+  if (!validToken) { return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 }; }
 
+  const user: Users = findUserId(validToken.userId);
+  if (!user) return { error: 'User not found', status: 401 };
+
+  // TODO check with tutor about this errors?
   // if (Valid token is provided, but user is not an owner of this quiz)) {
   //   return {
   //     error: 'FORBIDDEN - Valid token is provided, but user is not an owner of this quiz',
@@ -187,38 +171,26 @@ export function adminUserDetailsUpdate(
   //   };
   // }
 
-
-  if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== user)) {
+  if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== user.userId)) {
     return {
-      error: 'Email is currently used by another user, choose another email!', status: 400,
+      error: 'Email is currently used by another user, choose another email!', status: 400
     };
   }
   if (invalidEmail(email)) {
-    return {
-      error: 'Invalid email address: email is not a string', status: 400,
-    };
+    return { error: 'Invalid email address: email is not a string', status: 400 };
   }
   if (invalidUserName(nameFirst)) {
-    return {
-      error: 'First name contains invalid characters', status: 400,
-    };
+    return { error: 'First name contains invalid characters', status: 400 };
   }
   if (invalidNameLength(nameFirst)) {
-    return {
-      error: 'First name must be between 2 and 20 characters long',  status: 400,
-    };
+    return { error: 'First name must be between 2 and 20 characters long', status: 400 };
   }
   if (invalidUserName(nameLast)) {
-    return {
-      error: 'Last name contains invalid characters', status: 400,
-    };
+    return { error: 'Last name contains invalid characters', status: 400 };
   }
   if (invalidNameLength(nameLast)) {
-    return {
-      error: 'Last name must be between 2 and 20 characters long', status: 400,
-    };
+    return { error: 'Last name must be between 2 and 20 characters long', status: 400 };
   }
-
   user.nameFirst = nameFirst;
   user.nameLast = nameLast;
   user.name = `${nameFirst} ${nameLast}`;
@@ -235,6 +207,7 @@ export function adminUserDetailsUpdate(
  * @param {string} newPassword - The newpassword for the user
  * @returns { } null
  */
+/*
 export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   // Basic validation for missing or null values
   if (!authUserId || !oldPassword || !newPassword) return { error: 'One or more missing parameters' };
@@ -257,6 +230,24 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   setData(data);
   return {};
 }
+*/
 
-//TODO  - adminAuthLogout
-export function adminAuthLogout() { }
+/**
+ * Logs out an admin user who has an active quiz session.
+ * Should be called with a token that is returned after either a login or register has been made.
+ *
+ * @param {string} token - the sessionId of the user in the Token array
+ * @returns {Object} empty objects indicating success of an object with an error: string message
+ */
+export function adminAuthLogout(token: string): { error: string } | Record<string, never> {
+  const data: DataStore = getData();
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token.trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided' };
+
+  const validToken = data.tokens.findIndex(tokens => tokens.sessionId === sessionId);
+  if (validToken === -1) return { error: 'Token is invalid (does not refer to valid logged in user session)' };
+
+  data.tokens.splice(validToken, 1);
+  setData(data);
+  return {};
+}

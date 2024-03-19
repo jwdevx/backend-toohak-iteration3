@@ -1,7 +1,6 @@
 import {
   adminAuthRegister,
-  // TODO uncomment this once implemented
-  //   adminUserDetails,
+  adminUserDetails,
   clear
 } from './apiRequests';
 
@@ -23,12 +22,9 @@ describe('Testing the clear function', () => {
     expect(clearRes.statusCode).toBe(200);
     expect(clearRes.bodyObj).toStrictEqual({});
 
-    // TODO uncomment once adminUserDetails is implemented
     // Check user is empty
-    /*
     const userDetailsRes = adminUserDetails(res.bodyObj.token);
-    expect(userDetailsRes.statusCode).toBe(200);
-    expect(userDetailsRes.BodyObj).toStrictEqual({ user: null })
-    */
+    expect(userDetailsRes.statusCode).toBe(401);
+    expect(userDetailsRes.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
   });
 });
