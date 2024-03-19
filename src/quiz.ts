@@ -74,9 +74,10 @@ export function adminQuizCreate(
   if (invalidDescriptionLength(description)) {
     return { error: 'The description is too long', status: 400 };
   }   
+  data.counterId += 1;  
   const createdTime = Math.floor(new Date().getTime() / 1000);
   const quiz:  Quizzes = {
-    quizId: data.quizzes.length + 1,
+    quizId: data.counterId,
     name: name,
     timeCreated: createdTime,
     timeLastEdited: createdTime,
@@ -86,7 +87,6 @@ export function adminQuizCreate(
     questions: [],
     intrash: false
   };
-  
   data.quizzes.push(quiz);
   setData(data);
   return {

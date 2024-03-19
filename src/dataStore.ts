@@ -35,6 +35,7 @@ export interface Tokens {
 
 export interface DataStore {
   users: Users[];
+  counterId: number;
   quizzes: Quizzes[];
   tokens: Tokens[];
 }

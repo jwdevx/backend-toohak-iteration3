@@ -1,8 +1,3 @@
-
-// TODO REMOVE THIS 2 COMMENTS ABOVE when this file is lintsafe and typesafe
-
-// TODO REMOVE THIS COMMENTS ABOVE ----------------------------------------------
-
 import express, { json, Request, Response } from 'express';
 import { echo } from './newecho';
 import morgan from 'morgan';
@@ -19,21 +14,20 @@ import {
   adminAuthRegister,
   adminUserDetailsUpdate,
   adminUserDetails,
-  /* adminAuthLogin,
+  adminAuthLogin,
   adminUserDetailsUpdate,
   adminUserPasswordUpdate,
-  adminAuthLogout, */
+  adminAuthLogout,
 } from './auth';
 import {
   adminQuizCreate,
   adminQuizList,
   adminQuizRemove,
   adminQuizInfo,
-  /* adminQuizNameUpdate,
-  adminQuizDescriptionUpdate */
+//   adminQuizNameUpdate,
+//   adminQuizDescriptionUpdate
 } from './quiz';
 import { clear } from './other';
-// import { format } from 'date-fns';
 
 // Set up web app
 const app = express();
@@ -90,7 +84,6 @@ app.get('/echo', (req: Request, res: Response) => {
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = adminAuthRegister(email, password, nameFirst, nameLast);
-
   if ('error' in response) return res.status(400).json({ error: response.error });
   saveData();
   res.status(200).json({ token: response.token });
@@ -101,20 +94,21 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
  * This route is not relevant to guests who want to play a particular quiz,
  * but is used for the creation of accounts of people who manage quizzes.
  */
-// TODO VENUS edit and confirm the url is correct
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
-  const response = { message: 'TODO Function is not implemented yet' };
-  res.status(501).json(response);
+  const { email, password} = req.body;  
+  const response = adminAuthLogin(email, password);
+  if ('error' in response) return res.status(400).json({ error: response.error });
+  saveData();
+  res.status(200).json({ token: response.token });
 });
 
 /**
  * For the given admin user that is logged in, return all of the relevant details.
  */
-// TODO VENUS
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const token = req.query.token;
   const response = adminUserDetails(token as string);
-  if ('error' in response) return res.status(400).json({ error: response.error });
+  if ('error' in response) return res.status(401).json({ error: response.error });
   res.status(200).json({ response });
 });
 
