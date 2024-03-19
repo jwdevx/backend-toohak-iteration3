@@ -38,7 +38,20 @@ export const adminAuthRegister = (
 };
 
 // TODO adminAuthLogin here ---->>>>
-
+export const adminAuthLogin = (
+  email: string, password: string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/auth/login', {
+    json: {
+      email: email,
+      password: password,
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
 export const adminUserDetails = (sessionId: string) => {
   const res = request('GET', SERVER_URL + '/v1/admin/user/details', {
     qs: {
