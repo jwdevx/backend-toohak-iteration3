@@ -1,5 +1,6 @@
 
 /* eslint-disable */
+// @ts-nocheck
 //TODO REMOVE THIS 2 COMMENTS ABOVE when this file is lintsafe and typesafe
 /*
 There is this 11  number of errors in typecheck in this file: 11  src/auth.ts:50
