@@ -34,7 +34,8 @@ import {
   UsedQuizName,
   invalidDescriptionLength,
   findQuizId,
-  matchQuizIdAndAuthor
+  matchQuizIdAndAuthor,
+  checkQuizInTrash
 } from './helper';
 
 /**
@@ -101,7 +102,8 @@ export function adminQuizCreate(
  */
 function adminQuizList(token: string) : {quizzes:[]} | ErrorObject{
   // checking for valid parameters
-const data: DataStore = getData();
+  const data: DataStore = getData();
+
   const sessionId = parseInt(decodeURIComponent(token));  
   if (!token || isNaN(sessionId) ) {
     return { error: 'Token is empty or not provided', status: 401,};
@@ -134,23 +136,31 @@ export { adminQuizList };
  * @param {number} quizID - the authenticated user ID.
  * @returns {} nothing
  */
-function adminQuizRemove(authUserId, quizId) {
+function adminQuizRemove(token: string, quizId: number) : {} | ErrorObject {
   // checking for valid parameters
-  if (!authUserId || !quizId) return { error: 'One or more missing parameters.' };
-  if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
-  if (!findQuizId(quizId)) return { error: 'Quiz ID does not refer to a valid quiz.' };
-  if (!matchQuizIdAndAuthor(authUserId, quizId)) return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
-
-  const data: DataStore = getData();
-
-  // finds the index in the quiz array which contains the quiz we want to remove
-  const quiz_index = data.quizzes.findIndex(quiz => quiz.owner === authUserId && quiz.quizId === quizId);
-
-  if (quiz_index !== -1) {
-    // deletes the subsequent index and updates data
-    data.quizzes.splice(quiz_index, 1);
-    setData(data);
+  const sessionId = parseInt(decodeURIComponent(token));  
+  if (!token || isNaN(sessionId) ) {
+    return { error: 'Token is empty or not provided', status: 401 };
+  } 
+  const validToken = findSessionId(sessionId);
+  if (!validToken) {
+    return {
+      error: 'Token is invalid (does not refer to valid logged in user session)', status: 401,
+    };
+  }  
+  const authUserId = validToken.userId
+  if (!findQuizId(quizId)) {
+    return { error: 'Quiz ID does not refer to a valid quiz.', status: 401};
   }
+  if (!matchQuizIdAndAuthor(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' , status: 403};
+  }
+  const data: DataStore = getData();
+  const quiz = data.quizzes.find(quiz => quiz.owner === authUserId && quiz.quizId === quizId);
+  if (quiz.intrash) {
+    return { error: 'Quiz is already been removed.', status: 403}
+  }
+  quiz.intrash = true
   return {};
 }
 export { adminQuizRemove };

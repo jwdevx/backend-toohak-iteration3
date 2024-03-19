@@ -37,6 +37,7 @@ import {
   adminQuizCreate, 
   adminAuthRegister,
   adminQuizList,
+  adminQuizRemove,
   clear
 } from './apiRequests';
 /*
@@ -180,6 +181,84 @@ describe('Testing print quiz list return quizzes', () => {
   });
 });
 
+describe('Testing if adminQuizRemove successfully removes the given quiz', () => {
+  beforeEach(() => {
+    clear();
+  });
+  test('invalid token', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
+    console.log(quiz1.bodyObj.quizId)
+    const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
+    const remove = adminQuizRemove(wrongtoken, quiz1.bodyObj.quizId)
+    expect(remove.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(remove.statusCode).toStrictEqual(UNAUTHORIZED);
+  })
+  test('invalid quiz id', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
+    const invalidQuizId = quiz1.bodyObj.quizId
+    const remove = adminQuizRemove(sessionId, quiz1.bodyObj.quizId + 9999)
+    expect(remove.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
+    expect(remove.statusCode).toStrictEqual(UNAUTHORIZED);  
+  });
+  test('Quiz ID does not refer to a quiz that this user owns.', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const token2 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'jason', 'wong');
+    const sessionId1 = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const sessionId2 = (parseInt(decodeURIComponent(token2.bodyObj.token)));
+    const quiz1 = adminQuizCreate(sessionId1, 'quiz1', 'first quiz');
+    const quiz2 = adminQuizCreate(sessionId2, 'quiz2', 'Second quiz');
+    const remove = adminQuizRemove(sessionId2, quiz1.bodyObj.quizId);
+    expect(remove.bodyObj).toStrictEqual({error: 'Quiz ID does not refer to a quiz that this user owns.'})
+    expect(remove.statusCode).toStrictEqual(FORBIDDEN);
+  });
+  test('Successfully removed a quiz', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
+    adminQuizRemove(sessionId, quiz1.bodyObj.quizId);
+    const list = adminQuizList(sessionId);
+    expect(list.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz2.bodyObj.quizId,
+          name: 'quiz2',
+        }
+      ]
+    })
+  });
+  test('Successfully removed multiple quizzes', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
+    const quiz3 = adminQuizCreate(sessionId, 'quiz3', 'third quiz')
+    adminQuizRemove(sessionId, quiz1.bodyObj.quizId);
+    adminQuizRemove(sessionId, quiz2.bodyObj.quizId);
+    const list = adminQuizList(sessionId);
+    expect(list.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz3.bodyObj.quizId,
+          name: 'quiz3',
+        }
+      ]
+    })
+  });
+  test('testing the return type of adminQuizRemove', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const remove = adminQuizRemove(sessionId, quiz1.bodyObj.quizId)
+    expect(remove.bodyObj).toStrictEqual({})
+  });
+});
 /*
 describe('Testing if adminQuizInfo prints the correct information', () => {
   beforeEach(() => {
@@ -230,96 +309,6 @@ describe('Testing if adminQuizInfo prints the correct information', () => {
     expect(adminQuizInfo(authUser.authUserId, IDobj.quizId)).toStrictEqual({
       quizId: IDobj.quizId, name: 'test1', timeCreated: format(new Date(), 'MMMM d, yyyy h:mm a'), timeLastEdited: format(new Date(), 'MMMM d, yyyy h:mm a'), description: 'testing'
     });
-  });
-});
-describe('Testing if adminQuizRemove successfully removes the given quiz', () => {
-  beforeEach(() => {
-    clear();
-  });
-  test('missing parameters', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'WOjiaoZC';
-    const description = 'test1';
-    const quizId = adminQuizCreate(authUser.authUserId, name, description);
-    expect(adminQuizRemove(quizId)).toStrictEqual({ error: 'One or more missing parameters.' });
-    expect(adminQuizRemove(authUser.authUserId)).toStrictEqual({ error: 'One or more missing parameters.' });
-    expect(adminQuizRemove()).toStrictEqual({ error: 'One or more missing parameters.' });
-  });
-  test('invalid user id', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'WOjiaoZC';
-    const description = 'test1';
-    const quizId = adminQuizCreate(authUser.authUserId, name, description);
-    expect(adminQuizRemove(authUser.authUserId + 1, quizId.quizId)).toStrictEqual({ error: 'The user id is not valid.' });
-  });
-  test('invalid quiz id', () => {
-    const authUser = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name = 'WOjiaoZC';
-    const description = 'test1';
-    const quizId = adminQuizCreate(authUser.authUserId, name, description);
-    expect(adminQuizRemove(authUser.authUserId, quizId.quizId + 1)).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
-  });
-  test('Quiz ID does not refer to a quiz that this user owns.', () => {
-    const authUser1 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const authUser2 = adminAuthRegister('jason@gmail.com', 'WOjiaoZC123', 'jason', 'cheng');
-    const name1 = 'test1';
-    const description1 = 'test1';
-    const quizobj1 = adminQuizCreate(authUser1.authUserId, name1, description1);
-    const name2 = 'test2';
-    const description2 = 'test2';
-    const quizobj2 = adminQuizCreate(authUser2.authUserId, name2, description2);
-    const quizId2 = quizobj2.quizId;
-    const quizId1 = quizobj1.quizId;
-    expect(adminQuizRemove(authUser2.authUserId, quizId1)).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
-  });
-  test('Successfully removed a quiz', () => {
-    const authUser1 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name1 = 'test1';
-    const description1 = 'test1';
-    const quizobj1 = adminQuizCreate(authUser1.authUserId, name1, description1);
-    const name2 = 'test2';
-    const description2 = 'test2';
-    const quizobj2 = adminQuizCreate(authUser1.authUserId, name2, description2);
-    const quizId2 = quizobj2.quizId;
-    const quizId1 = quizobj1.quizId;
-    adminQuizRemove(authUser1.authUserId, quizId2);
-    expect(adminQuizInfo(authUser1.authUserId, quizId2)).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
-  });
-  test('Successfully removed multiple quizzes', () => {
-    const authUser1 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name1 = 'test1';
-    const description1 = 'test1';
-    const quizobj1 = adminQuizCreate(authUser1.authUserId, name1, description1);
-
-    const name2 = 'test2';
-    const description2 = 'test2';
-    const quizobj2 = adminQuizCreate(authUser1.authUserId, name2, description2);
-
-    const name3 = 'test3';
-    const description3 = 'test3';
-    const quizobj3 = adminQuizCreate(authUser1.authUserId, name3, description3);
-
-    const quizId2 = quizobj2.quizId;
-    const quizId1 = quizobj1.quizId;
-    const quizId3 = quizobj3.quizId;
-
-    adminQuizRemove(authUser1.authUserId, quizId1);
-    adminQuizRemove(authUser1.authUserId, quizId2);
-    adminQuizRemove(authUser1.authUserId, quizId3);
-
-    expect(adminQuizList(authUser1.authUserId)).toStrictEqual({
-      quizzes: [],
-    });
-  });
-  test('testing the return type of adminQuizRemove', () => {
-    const authUser1 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
-    const name1 = 'test1';
-    const description1 = 'test1';
-    const quizobj1 = adminQuizCreate(authUser1.authUserId, name1, description1);
-
-    const quizId1 = quizobj1.quizId;
-
-    expect(adminQuizRemove(authUser1.authUserId, quizId1)).toStrictEqual({ });
   });
 });
 

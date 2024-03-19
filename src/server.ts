@@ -27,8 +27,8 @@ import {
 import {
   adminQuizCreate,
   adminQuizList,
-  /* adminQuizInfo,
   adminQuizRemove,
+  /* adminQuizInfo,
   adminQuizNameUpdate,
   adminQuizDescriptionUpdate */
 } from './quiz';
@@ -146,8 +146,8 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
-  const { token } = req.body;
-  const response = adminQuizList(token);
+  const { token } = req.query;
+  const response = adminQuizList(String(token));
   if ('error' in response) {
     return res.status(response.status).json({ error: response.error });
   }
@@ -175,9 +175,15 @@ app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
  */
 
 // TODO edit and confirm the url is correct
-app.delete('/v1/admin/quiz/{quizid}', (req: Request, res: Response) => {
-  const response = { message: 'TODO: Send a quiz to trash' };
-  res.status(501).json(response);
+app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const { token } = req.query;
+  const quizId = parseInt(req.params.quizid);
+  const response = adminQuizRemove(String(token), quizId);
+  if ('error' in response) {
+    return res.status(response.status).json({ error: response.error });
+  }
+  saveData();
+  res.json(response);
 });
 
 /**
