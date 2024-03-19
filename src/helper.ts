@@ -135,19 +135,13 @@ export function findQuizId(quizId: number): Quizzes | undefined {
  * Helper Function used in quiz.js
  * Checks if the provided Quiz ID does not refer to a quiz that this user owns.
  *
- * @param {integer} authUserId - A valid User ID.
+ * @param {integer} UserId - A valid User ID.
  * @param {integer} quizId - A valid Quiz ID.
  * @returns {boolean} Returns false if the QuizId does not match any existing authUserId.
  */
-export function matchQuizIdAndAuthor(authUserId: number, quizId: number): boolean {
+export function matchQuizIdAndAuthor(UserId: number, quizId: number): Quizzes | undefined {
   const data: DataStore = getData();
-
-  for (const quiz of data.quizzes) {
-    if (quiz.owner === authUserId && quiz.quizId === quizId) {
-      return true;
-    }
-  }
-  return false;
+  return data.quizzes.find(quiz => quiz.quizId === quizId && quiz.owner === UserId);
 }
 
 /**

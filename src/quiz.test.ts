@@ -38,6 +38,7 @@ import {
   adminAuthRegister,
   adminQuizList,
   adminQuizRemove,
+  adminQuizInfo,
   clear
 } from './apiRequests';
 /*
@@ -130,10 +131,8 @@ describe('Testing create quizzes return quiz id', () => {
 });
   
 // =============================================================================
-// ======================      put test name here  =============================
+// ======================      AdminQuizList  =============================
 // =============================================================================
-
-
 
 describe('Testing print quiz list return quizzes', () => {
   beforeEach(() => {
@@ -180,7 +179,9 @@ describe('Testing print quiz list return quizzes', () => {
     })
   });
 });
-
+// =============================================================================
+// ======================      AdminQuizRemove  =============================
+// =============================================================================
 describe('Testing if adminQuizRemove successfully removes the given quiz', () => {
   beforeEach(() => {
     clear();
@@ -190,7 +191,6 @@ describe('Testing if adminQuizRemove successfully removes the given quiz', () =>
     const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
     const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
     const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
-    console.log(quiz1.bodyObj.quizId)
     const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
     const remove = adminQuizRemove(wrongtoken, quiz1.bodyObj.quizId)
     expect(remove.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
@@ -259,6 +259,60 @@ describe('Testing if adminQuizRemove successfully removes the given quiz', () =>
     expect(remove.bodyObj).toStrictEqual({})
   });
 });
+// =============================================================================
+// ======================      AdminQuizInfo  =============================
+// =============================================================================
+describe('Testing get quiz info', () => {
+  beforeEach(() => {
+    clear();
+  });
+  test('Checks correct info and format ', () => { 
+	
+	const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+	const quizId = adminQuizCreate(token1.bodyObj.token, 'quiz1', 'first quiz').bodyObj.quizId;
+	expect(adminQuizInfo(token1.bodyObj.token, quizId).bodyObj).toStrictEqual({
+    quizId: quizId, name: 'quiz1', timeCreated: expect.any(Number), timeLastEdited: expect.any(Number), description: 'first quiz', questions: []
+  });
+  })
+  test('Check invalid token', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const quiz1 = adminQuizCreate(token1.bodyObj.token, 'quiz1', 'first quiz');
+    const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
+    const info = adminQuizInfo(wrongtoken, quiz1.bodyObj.quizId)
+    expect(info.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(info.statusCode).toStrictEqual(UNAUTHORIZED);
+  });
+  test('quizId doesnt refer to valid quiz', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+	  const quizId = adminQuizCreate(token1.bodyObj.token, 'quiz1', 'first quiz').bodyObj.quizId;
+    const info = adminQuizInfo(token1.bodyObj.token, quizId + 1);
+    expect(info.bodyObj).toStrictEqual({error: 'Quiz ID does not refer to a valid quiz.'});
+    expect(info.statusCode).toStrictEqual(UNAUTHORIZED);
+  });
+  test('Quiz ID does not refer to a quiz that this user owns.', () => {
+    const token1 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'zeng', 'cheng');
+    const token2 = adminAuthRegister('jason@gmail.com', 'WOjiaoZC123', 'jason', 'cheng');
+    const name1 = 'test1';
+    const description1 = 'test1';
+    const quizobj1 = adminQuizCreate(token1.bodyObj.token, name1, description1);
+    const name2 = 'test2';
+    const description2 = 'test2';
+    const quizobj2 = adminQuizCreate(token2.bodyObj.token, name2, description2);
+    const quizId2 = quizobj2.bodyObj.quizId;
+    const quizId1 = quizobj1.bodyObj.quizId;
+    expect(adminQuizInfo(token2.bodyObj.token, quizId1).bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(adminQuizInfo(token1.bodyObj.token, quizId2).bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+  });
+  test('testing time format', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+	  const quizId = adminQuizCreate(token1.bodyObj.token, 'quiz1', 'first quiz').bodyObj.quizId;
+    const quizInfo = adminQuizInfo(token1.bodyObj.token, quizId).bodyObj;
+    expect(quizInfo.timeCreated.toString()).toMatch(/^\d{10}$/);
+    expect(quizInfo.timeLastEdited.toString()).toMatch(/^\d{10}$/);
+  });
+})
+
 /*
 describe('Testing if adminQuizInfo prints the correct information', () => {
   beforeEach(() => {

@@ -28,8 +28,8 @@ import {
   adminQuizCreate,
   adminQuizList,
   adminQuizRemove,
-  /* adminQuizInfo,
-  adminQuizNameUpdate,
+  adminQuizInfo,
+  /* adminQuizNameUpdate,
   adminQuizDescriptionUpdate */
 } from './quiz';
 import { clear } from './other';
@@ -194,8 +194,13 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.get('/v1/admin/quiz/{quizid}', (req: Request, res: Response) => {
-  const response = { message: 'TODO:Get info about current quiz' };
-  res.status(501).json(response);
+  const { token, quizId } = req.body;
+  const response = adminQuizInfo(token, quizId);
+  if ('error' in response) {
+    return res.status(response.status).json({ error: response.error });
+  }
+  saveData();
+  res.json(response);
 });
 
 /**

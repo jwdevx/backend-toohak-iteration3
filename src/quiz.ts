@@ -235,33 +235,44 @@ export { adminQuizDescriptionUpdate };
 /**
  * provides information on the quiz
  *
- * @param {number} authUserId - the authenticated user ID.
- * @param {number} quizID - the authenticated quiz ID.
+ * @param {number} token - an encoded session ID of the user
+ * @param {number} quizId - the authenticated quiz ID.
  * @returns {json} A json object containing the quiz info with their quizId,
- * name, timeCreated, timeLastEdited, description.
+ * name, timeCreated, timeLastEdited, description, and questions.
  */
-function adminQuizInfo(authUserId, quizId) {
+function adminQuizInfo(token: string, quizId: number): { 
+  quizId: number,
+  name: string
+  timeCreated: number,
+  timeLastEdited: number,
+  description: string,
+  questions: Questions[]
+  } | ErrorObject {
+  const sessionId = parseInt(decodeURIComponent(token));  
   // checking for valid parameters:
-  if (!authUserId || !quizId) return { error: 'One or more missing parameters.' };
-  if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
-  if (!findQuizId(quizId)) return { error: 'Quiz ID does not refer to a valid quiz.' };
-  if (!matchQuizIdAndAuthor(authUserId, quizId)) return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
-
-  const data = getData();
-  let quizInfo = {};
-
-  // scanning data to find the quiz in data.quizzes that authUserId owns
-  for (const quiz of data.quizzes) {
-    if (quiz.owner === authUserId && quiz.quizId === quizId) {
-      quizInfo = {
-        quizId: quiz.quizId,
-        name: quiz.name,
-        timeCreated: quiz.timeCreated,
-        timeLastEdited: quiz.timeLastEdited,
-        description: quiz.description,
-      };
-    }
-  }
+  if (!token || isNaN(sessionId) ) {
+    return { error: 'Token is empty or not provided', status: 401,};
+  } 
+  const validToken = findSessionId(sessionId);  
+  if (!validToken) {
+    return {
+      error: 'Token is invalid (does not refer to valid logged in user session)', status: 401,
+    };
+  }   
+  
+  if (!findQuizId(quizId)) return { error: 'Quiz ID does not refer to a valid quiz.', status: 401 };
+  
+  const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
+  if (!quiz) return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 401 };
+  
+  const quizInfo = {
+    quizId: quiz.quizId,
+    name: quiz.name,
+    timeCreated: quiz.timeCreated,
+    timeLastEdited: quiz.timeLastEdited,
+    description: quiz.description,
+    questions: quiz.questions
+  };
   return quizInfo;
 }
 export { adminQuizInfo };

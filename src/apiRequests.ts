@@ -114,6 +114,16 @@ export const adminQuizRemove = (token: string, quizId: number) => {
     statusCode: res.statusCode,
   };
 };
+export const adminQuizInfo = (token: string, quizId: number) => {
+  const res = request('GET', SERVER_URL + '/v1/admin/quiz/{quizid}', {
+    json: { token: token, quizId: quizId },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 // =============================================================================
 // ==========================     QUESTIONS        =============================
 // =============================================================================
