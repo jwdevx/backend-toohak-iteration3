@@ -35,13 +35,14 @@ export interface Tokens {
 
 export interface DataStore {
   users: Users[];
-  counterId: number;
+//   counterId: number;
   quizzes: Quizzes[];
   tokens: Tokens[];
 }
 
 let data: DataStore = {
   users: [],
+  //   counterId: 1,
   quizzes: [],
   tokens: [],
 };
