@@ -14,6 +14,12 @@ export function findSessionId(sessionId: number): Tokens | undefined {
   return data.tokens.find(token => token.sessionId === sessionId);
 }
 
+export function findUserFromToken(sessionId: number) {
+  const data: DataStore = getData();
+  const tokenData: Tokens | undefined = findSessionId(sessionId);
+  return data.users.find(user => user.userId === tokenData?.userId);
+}
+
 /**
  * Helper Function used in auth.js, quiz.js
  * Checks if the provided AuthUserId does not correspond to any existing user.

@@ -18,8 +18,8 @@ import { getData, setData } from './dataStore';
 import {
   adminAuthRegister,
   adminUserDetailsUpdate,
-  /* adminAuthLogin,
   adminUserDetails,
+  /* adminAuthLogin,
   adminUserDetailsUpdate,
   adminUserPasswordUpdate,
   adminAuthLogout, */
@@ -112,8 +112,10 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
  */
 // TODO VENUS
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
-  const response = { message: 'TODO Function is not implemented yet' };
-  res.status(501).json(response);
+  const { token } = req.body;
+  const response = adminUserDetails(token);
+  if ('error' in response) return res.status(400).json({ error: response.error });
+  res.status(200).json({ response });
 });
 
 /**
