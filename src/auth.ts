@@ -119,7 +119,7 @@ export function adminAuthLogin(email: string, password: string): { token: string
 // helper functions for adminUserDetails
 export function adminUserDetails(token: string): UserDetailsReturn | { error: string } {
   const sessionId = parseInt(decodeURIComponent(token));
-  if (!token.trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided' };
+  if (!token || !String(token).trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided' };
 
   const validToken: Tokens = findSessionId(sessionId);
   if (!validToken) return { error: 'Token is invalid (does not refer to valid logged in user session)' };
@@ -155,21 +155,15 @@ export function adminUserDetailsUpdate(
   nameLast: string): ErrorObject | Record<string, never> {
   const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));
-  if (!token.trim() || isNaN(sessionId)) { return { error: 'Token is empty or not provided', status: 401 }; }
-
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    return { error: 'Token is empty or not provided', status: 401 };
+  }
   const validToken: Tokens = findSessionId(sessionId);
-  if (!validToken) { return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 }; }
-
+  if (!validToken) {
+    return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
+  }
   const user: Users = findUserId(validToken.userId);
   if (!user) return { error: 'User not found', status: 401 };
-
-  // TODO check with tutor about this errors?
-  // if (Valid token is provided, but user is not an owner of this quiz)) {
-  //   return {
-  //     error: 'FORBIDDEN - Valid token is provided, but user is not an owner of this quiz',
-  //     status: 403,
-  //   };
-  // }
 
   if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== user.userId)) {
     return {
@@ -242,7 +236,7 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
 export function adminAuthLogout(token: string): { error: string } | Record<string, never> {
   const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));
-  if (!token.trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided' };
+  if (!token || !String(token).trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided' };
 
   const validToken = data.tokens.findIndex(tokens => tokens.sessionId === sessionId);
   if (validToken === -1) return { error: 'Token is invalid (does not refer to valid logged in user session)' };
