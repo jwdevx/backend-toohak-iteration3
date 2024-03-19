@@ -223,7 +223,7 @@ describe('Test for adminUserDetails', () => {
   test('Error case: Empty email', () => {
     // Perform a login with an empty email
     const register = adminAuthRegister('hayden2@gmail.com', '1234abcd', 'Hayden', 'Smith');
-    const result = adminUserDetails(9999999999);
+    const result = adminUserDetails('9999999999');
     expect(result.statusCode).toBe(BAD_REQUEST);
     expect(result.bodyObj).toEqual({ error: expect.any(String) });
   });
@@ -287,19 +287,20 @@ describe('Test for adminUserDetailsUpdate', () => {
     expect(retVal.bodyObj).toStrictEqual({});
 
     //TODO uncomment once adminUserDetails is implemented  
-    // const userDetailsRes = adminUserDetails(res.bodyObj.token);
-    // expect(userDetailsRes.statusCode).toBe(200);
-    // expect(userDetailsRes.BodyObj).toStrictEqual({
-    //   user: {
-    //     userId: res.authUserId,
-    //     name: 'Angelina Jolie',
-    //     email: 'smith.hayden@unsw.edu.au',
-    //     numSuccessfulLogins: expect.any(Number),
-    //     numFailedPasswordsSinceLastLogin: expect.any(Number),
-    //   }
-    // });
+    const userDetailsRes = adminUserDetails(res.bodyObj.token);
+    expect(userDetailsRes.statusCode).toBe(200);
+    expect(userDetailsRes.bodyObj).toStrictEqual({
+      response: {
+        user: {
+          userId: expect.any(Number),
+          name: 'Angelina Jolie',
+          email: 'smith.hayden@unsw.edu.au',
+          numSuccessfulLogins: expect.any(Number),
+          numFailedPasswordsSinceLastLogin: expect.any(Number),
+        },
+      }
   });
-   
+});
   test('Token is empty or not provided', () => {
     const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     expect(res.statusCode).toStrictEqual(OK);
