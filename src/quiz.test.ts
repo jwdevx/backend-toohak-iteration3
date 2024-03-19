@@ -271,7 +271,7 @@ describe('Testing get quiz info', () => {
 	const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
 	const quizId = adminQuizCreate(token1.bodyObj.token, 'quiz1', 'first quiz').bodyObj.quizId;
 	expect(adminQuizInfo(token1.bodyObj.token, quizId).bodyObj).toStrictEqual({
-    quizId: quizId, name: 'quiz1', timeCreated: expect.any(Number), timeLastEdited: expect.any(Number), description: 'first quiz'
+    quizId: quizId, name: 'quiz1', timeCreated: expect.any(Number), timeLastEdited: expect.any(Number), description: 'first quiz', questions: []
   });
   })
   test('Check invalid token', () => {
