@@ -86,43 +86,32 @@ export function adminAuthRegister(
  * @param {string} password - The password for the user
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
-export function adminAuthLogin(email, password) {
-
-  // Basic validation for missing or null values
+export function adminAuthLogin(email: string, password: string): { token: string } | { error: string } {
   if (!email || !password) {
     return { error: 'One or more missing parameters' };
   }
+
   const data: DataStore = getData();
   const user = data.users.find((user) => user.email === email);
 
   if (!user) {
-    return {
-      error: 'Email address does not exist',
-    };
+    return { error: 'Email address does not exist' };
   } else if (user.password !== password) {
-    user.numFailedPasswordsSinceLastLogin += 1;
-    return {
-      error: 'Password does not match email',
-    };
+    return { error: 'Password does not match email' };
   }
 
-  user.numFailedPasswordsSinceLastLogin = 0;
-  user.numSuccessfulLogins += 1;
-    
-  /* pseudocode from lecture 
-  const sessionId: number = Math.floor(Math.random() * Date.now()),
-  user.sessions.push(sessionId);
+  const sessionId: number = Math.floor(Math.random() * Date.now());
+  const newToken: Tokens = {
+    sessionId: sessionId,
+    userId: user.userId,
+  };
+  data.tokens.push(newToken);
+  setData(data);
+
   return {
     token: encodeURIComponent(sessionId.toString()),
   };
-  */
-    
-  setData(data);
-  return {
-    authUserId: user.userId,
-  };
 }
-
 /**
  * Given an admin user's authUserId, return details about the user.
  *  "name" is the first and last name concatenated with a single space between them.
@@ -132,8 +121,12 @@ export function adminAuthLogin(email, password) {
  * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}}
  */
 // helper functions for adminUserDetails
-export function adminUserDetails (token: number) {
-  const user = findUserFromToken(token);
+export function adminUserDetails (token: String) {
+  const sessionId = parseInt(decodeURIComponent(token));  
+  if(sessionId === '') {
+    return { error: 'Invalid token' };
+  }
+  const user = findUserFromToken(pareInt(sessionId));
   if (!user) {
     return { error: 'could not find user' };
   }
