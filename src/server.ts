@@ -103,7 +103,7 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
  */
 // TODO VENUS edit and confirm the url is correct
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
-  const { email, password} = req.body;
+  const { email, password } = req.body;
   const response = adminAuthLogin(email, password);
 
   if ('error' in response) return res.status(400).json({ error: response.error });
