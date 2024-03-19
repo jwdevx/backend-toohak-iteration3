@@ -28,37 +28,32 @@ Please run:
 
 */
 //TODO REMOVE ALL COMMENTS ABOVE -----------------------------------------------
+
+import {
+  adminAuthRegister,
+  //adminAuthLogin    
+  adminQuizCreate, 
+  adminQuizList,
+  adminQuizRemove,
+  adminQuizInfo,
+  //adminQuizNameUpdate,
+  //adminQuizDescriptionUpdate
+  clear
+} from './apiRequests';
+
+const ERROR = { error: expect.any(String) };
 const OK = 200;
 const BAD_REQUEST = 400;
 const UNAUTHORIZED = 401;
 const FORBIDDEN = 403;
 
-import {
-  adminQuizCreate, 
-  adminAuthRegister,
-  adminQuizList,
-  adminQuizRemove,
-  adminQuizInfo,
-  clear
-} from './apiRequests';
-/*
-import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizRemove, adminQuizNameUpdate, adminQuizDescriptionUpdate } from './quiz';
-import { clear } from './other';
-import { adminAuthRegister, adminAuthLogin } from './auth';
-*/
-
 beforeEach(() => {
-    clear();
-  });
-const ERROR = { error: expect.any(String) };
-
+  clear();
+});
 
 // =============================================================================
-// ============================ adminQuizCreate ==================================
+// ============================ adminQuizCreate ================================
 // =============================================================================
-
-   
-
 
 describe('Testing create quizzes return quiz id', () => {
   beforeEach(() => {

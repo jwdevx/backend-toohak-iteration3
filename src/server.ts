@@ -1,8 +1,3 @@
-
-// TODO REMOVE THIS 2 COMMENTS ABOVE when this file is lintsafe and typesafe
-
-// TODO REMOVE THIS COMMENTS ABOVE ----------------------------------------------
-
 import express, { json, Request, Response } from 'express';
 import { echo } from './newecho';
 import morgan from 'morgan';
@@ -17,32 +12,26 @@ import process from 'process';
 import { getData, setData } from './dataStore';
 import {
   adminAuthRegister,
-  adminUserDetailsUpdate,
-  adminUserDetails,
   adminAuthLogin,
-  /* adminUserDetailsUpdate,
-  adminUserPasswordUpdate,
-  adminAuthLogout, */
+  adminUserDetails,
+  adminUserDetailsUpdate,
+  //   adminUserPasswordUpdate,
+  adminAuthLogout,
 } from './auth';
 import {
   adminQuizCreate,
   adminQuizList,
   adminQuizRemove,
   adminQuizInfo,
-  /* adminQuizNameUpdate,
-  adminQuizDescriptionUpdate */
+//   adminQuizNameUpdate,
+//   adminQuizDescriptionUpdate
 } from './quiz';
 import { clear } from './other';
-// import { format } from 'date-fns';
 
-// Set up web app
-const app = express();
-// Use middleware that allows us to access the JSON body of requests
-app.use(json());
-// Use middleware that allows for access from other domains
-app.use(cors());
-// for logging errors (print to terminal)
-app.use(morgan('dev'));
+const app = express(); // Set up web app
+app.use(json()); // Use middleware that allows us to access the JSON body of requests
+app.use(cors()); // Use middleware that allows for access from other domains
+app.use(morgan('dev')); // for logging errors (print to terminal)
 // for producing the docs that define the API
 const file = fs.readFileSync(path.join(process.cwd(), 'swagger.yaml'), 'utf8');
 app.get('/', (req: Request, res: Response) => res.redirect('/docs'));
@@ -79,72 +68,77 @@ app.get('/echo', (req: Request, res: Response) => {
 });
 
 // =============================================================================
-// ====================== WORK IS DONE ABOVE THIS LINE =========================
+// ==============================  AUTH.TS  ====================================
 // =============================================================================
 
-/**
- * Takes in information about a new admin user and registers them in the system.
- * This route is not relevant to guests who want to play a particular quiz,
- * but is used for the creation of accounts of people who manage quizzes.
- */
+// Register a new admin user
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = adminAuthRegister(email, password, nameFirst, nameLast);
-
   if ('error' in response) return res.status(400).json({ error: response.error });
   saveData();
   res.status(200).json({ token: response.token });
 });
 
-/**
- * Takes in information about an admin user to determine if they can log in to manage quizzes.
- * This route is not relevant to guests who want to play a particular quiz,
- * but is used for the creation of accounts of people who manage quizzes.
- */
-// TODO VENUS edit and confirm the url is correct
+// Login an admin user
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
   const response = adminAuthLogin(email, password);
-
   if ('error' in response) return res.status(400).json({ error: response.error });
   saveData();
   res.status(200).json({ token: response.token });
 });
 
-/**
- * For the given admin user that is logged in, return all of the relevant details.
- */
-// TODO VENUS
+// Get the details of an admin user.
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
-  const token = req.query.token;
-  const response = adminUserDetails(token as string);
-  if ('error' in response) return res.status(400).json({ error: response.error });
+  const response = adminUserDetails(req.query.token as string);
+  if ('error' in response) return res.status(401).json({ error: response.error });
   res.status(200).json({ response });
 });
 
-/**
- * Given a set of properties, update those properties of this logged in admin user.
- * Update the details of an admin user (non-password).
- */
+// Update the details of an admin user (non-password).
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
   const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
-  if ('error' in response) {
-    return res.status(response.status).json({ error: response.error });
-  }
+  if ('error' in response) { return res.status(response.status).json({ error: response.error }); }
   saveData();
   res.json(response);
 });
 
-/**
- *  Given details relating to a password change, update the password of a logged in user.
- */
-
-// TODO edit and confirm the url is correct
+// Update the password of this admin user.
+/*
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
-  const response = { message: 'TODO Update the password of this admin user' };
-  res.status(501).json(response);
+  const { token, oldPassword, newPassword } = req.body;
+  const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
+  if ('error' in response) { return res.status(response.status).json({ error: response.error }); }
+  saveData();
+  res.json(response);
 });
+*/
+
+// Logs out an admin user who has an active quiz session.
+app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const response = adminAuthLogout(token);
+  if ('error' in response) return res.status(401).json({ error: response.error });
+  saveData();
+  res.json(response);
+});
+
+// =============================================================================
+// ==============================   OTHER.TS  ==================================
+// =============================================================================
+
+// Reset the state of the application back to the start.
+app.delete('/v1/clear', (req: Request, res: Response) => {
+  const response = clear();
+  saveData();
+  res.json(response);
+});
+
+// =============================================================================
+// ==============================  QUIZ.TS  ====================================
+// =============================================================================
 
 /**
  * Provide a list of all quizzes that are owned by the currently logged in user
@@ -227,28 +221,9 @@ app.put('/v1/admin/quiz/{quizid}/description', (req: Request, res: Response) => 
   res.status(501).json(response);
 });
 
-/**
- * Reset the state of the application back to the start.
- * Wipe all details(users, quizzes) back to the beggining as if the data structure is fresh.
- */
-app.delete('/v1/clear', (req: Request, res: Response) => {
-  const response = clear();
-  saveData();
-  res.json(response);
-});
-
 // =============================================================================
 // ============================== ITERATION 2 ==================================
 // =============================================================================
-
-/**
- *  Should be called with a token that is returned after either a login or register has been made.
- */
-// TODO edit and confirm the url is correct
-app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
-  const response = { message: ' TODO: Logs out an admin user who has an active quiz session' };
-  res.status(501).json(response);
-});
 
 /**
  *  View the quizzes that are currently in the trash for the logged in user
