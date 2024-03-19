@@ -198,19 +198,18 @@ describe('Test for adminUserDetails', () => {
     // Perform a successful login
 
     const register = adminAuthRegister('hayden2@gmail.com', '1234abcd', 'Hayden', 'Smith');
-    console.log(register.bodyObj.token);
     const result = adminUserDetails(register.bodyObj.token);
-    console.log(result.statusCode);
-    console.log(result.bodyObj);
     expect(result.statusCode).toBe(OK);
     expect(result.bodyObj).toEqual({
+      response: {
         user: {
           userId: 1,
           name: 'Hayden Smith',
           email: 'hayden2@gmail.com',
           numSuccessfulLogins: 1,
           numFailedPasswordsSinceLastLogin: 0
-        }
+        },
+      }
     });
   });
 
