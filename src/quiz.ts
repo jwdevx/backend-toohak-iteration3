@@ -1,45 +1,16 @@
-
-/* eslint-disable */
-// @ts-nocheck
-//TODO REMOVE THIS 2 COMMENTS ABOVE when this file is lintsafe and typesafe
-
-/*
-
-
-currently there is this 15  number of errors in typecheck in this file:
-	15  src/quiz.ts:27
-
-Please run:
-	npm test
-	npm run lint
-	npm run tsc
-
- /import/ravel/5/z5494973/comp1531/project-backend/src/quiz.ts
-1:1  error  Trailing spaces not allowed                                      no-trailing-spaces
-2:1  error  Too many blank lines at the beginning of file. Max of 1 allowed  no-multiple-empty-lines
-92:9  error  Identifier 'quiz_index' is not in camel case                     camelcase
-94:7  error  Identifier 'quiz_index' is not in camel case                     camelcase
-
-*/
-
-//TODO REMOVE ALL COMMENTS ABOVE -----------------------------------------------
-
-import { ErrorObject,  Quizzes } from './dataStore';
+import { ErrorObject, Quizzes, DataStore, Questions } from './dataStore';
 import { setData, getData } from './dataStore';
 import {
   findSessionId,
-  findUserId,
+} from './helper';
+import {
   invalidQuizName,
   invalidQuizNameLength,
   UsedQuizName,
   invalidDescriptionLength,
   findQuizId,
   matchQuizIdAndAuthor,
-  checkQuizInTrash
 } from './helper';
-
-//TODO ask in help session
-let IdGenerator = 1;
 
 /**
 * Given basic details about a new quiz, create one for the logged in user.
@@ -53,79 +24,70 @@ export function adminQuizCreate(
   token: string,
   name: string,
   description: string): { quizId: number } | ErrorObject {
-
   const data: DataStore = getData();
-  const sessionId = parseInt(decodeURIComponent(token));  
-  if (!token || isNaN(sessionId) ) {
-    return { error: 'Token is empty or not provided', status: 401,};
-  } 
-  const validToken = findSessionId(sessionId);  
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    return { error: 'Token is empty or not provided', status: 401 };
+  }
+  const validToken = findSessionId(sessionId);
   if (!validToken) {
     return {
       error: 'Token is invalid (does not refer to valid logged in user session)', status: 401,
     };
-  }   
-  if (invalidQuizName(name)) {
-    return { error: 'The name is not valid', status: 400 };
   }
+  if (invalidQuizName(name)) return { error: 'The name is not valid', status: 400 };
   if (invalidQuizNameLength(name)) {
     return { error: 'The name is either too long or too short', status: 400 };
   }
   if (UsedQuizName(validToken.userId, name)) {
     return { error: 'The name has already used for the quiz you created before', status: 400 };
-  }       
+  }
   if (invalidDescriptionLength(description)) {
     return { error: 'The description is too long', status: 400 };
-  }   
-
+  }
   const createdTime = Math.floor(new Date().getTime() / 1000);
-    const quiz: Quizzes = {
-		// quizId: data.quizzes.length + 1,  
-		// quizId: data.counterId,
-		quizId: IdGenerator,      
-      
+  const IdGenerator = Math.floor(Math.random() * Math.floor(10000));
+  const quiz: Quizzes = {
+    quizId: IdGenerator,
     name: name,
     timeCreated: createdTime,
     timeLastEdited: createdTime,
     description: description,
-    numQuestions: 0,
     owner: validToken.userId,
+    numQuestions: 0,
     questions: [],
     intrash: false
   };
-  IdGenerator += 1
-	// data.counterId += 1;
-	
-  data.quizzes.push(quiz); 
+  data.quizzes.push(quiz);
   setData(data);
   return {
     quizId: quiz.quizId,
   };
 }
 
+interface QuizSummary {
+  quizId: number;
+  name: string;
+}
+
 /**
  * Provide a list of all quizzes that are owned by the currently logged in user.
- *
- * @param {number} authUserId - the authenticated user ID.
+ * @param {string} token -
  * @returns {{quizzes: json}} An json object containing the quizzes with their ID and name.
  */
-function adminQuizList(token: string) : {quizzes:[]} | ErrorObject{
-  // checking for valid parameters
-  const data: DataStore = getData();
-
-  const sessionId = parseInt(decodeURIComponent(token));  
-  if (!token || isNaN(sessionId) ) {
-    return { error: 'Token is empty or not provided', status: 401,};
-  } 
-  const validToken = findSessionId(sessionId);  
+export function adminQuizList(token: string) : {quizzes: QuizSummary[]} | { error: string } {
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    return { error: 'Token is empty or not provided' };
+  }
+  const validToken = findSessionId(sessionId);
   if (!validToken) {
-    return {
-      error: 'Token is invalid (does not refer to valid logged in user session)', status: 401,
-    };
-  }   
+    return { error: 'Token is invalid (does not refer to valid logged in user session)' };
+  }
   const quizarray = [];
+  const data: DataStore = getData();
   for (const quiz of data.quizzes) {
-    if (quiz.owner === validToken.userId && quiz.intrash == false) {
+    if (quiz.owner === validToken.userId && quiz.intrash === false) {
       quizarray.push({
         quizId: quiz.quizId,
         name: quiz.name,
@@ -137,42 +99,48 @@ function adminQuizList(token: string) : {quizzes:[]} | ErrorObject{
   };
 }
 
-export { adminQuizList };
 /**
- * Removes the quiz
+ * provides information on the quiz
  *
- * @param {number} authUserId - the authenticated user ID.
- * @param {number} quizID - the authenticated user ID.
- * @returns {} nothing
+ * @param {number} token - an encoded session ID of the user
+ * @param {number} quizId - the authenticated quiz ID.
+ * @returns {json} A json object containing the quiz info with their quizId,
+ * name, timeCreated, timeLastEdited, description, and questions.
  */
-function adminQuizRemove(token: string, quizId: number) : {} | ErrorObject {
-  // checking for valid parameters
-  const sessionId = parseInt(decodeURIComponent(token));  
-  if (!token || isNaN(sessionId) ) {
+export function adminQuizInfo(token: string, quizId: number): {
+  quizId: number,
+  name: string
+  timeCreated: number,
+  timeLastEdited: number,
+  description: string,
+  numQuestions: number,
+  questions: Questions[]
+  } | ErrorObject {
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
     return { error: 'Token is empty or not provided', status: 401 };
-  } 
+  }
   const validToken = findSessionId(sessionId);
   if (!validToken) {
-    return {
-      error: 'Token is invalid (does not refer to valid logged in user session)', status: 401,
-    };
-  }  
-  const authUserId = validToken.userId
-  if (!findQuizId(quizId)) {
-    return { error: 'Quiz ID does not refer to a valid quiz.', status: 401};
+    return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
   }
-  if (!matchQuizIdAndAuthor(authUserId, quizId)) {
-    return { error: 'Quiz ID does not refer to a quiz that this user owns.' , status: 403};
+  const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
+  if (isNaN(quizId) || !quiz || quiz.intrash === true) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
   }
-  const data: DataStore = getData();
-  const quiz = data.quizzes.find(quiz => quiz.owner === authUserId && quiz.quizId === quizId);
-  if (quiz.intrash) {
-    return { error: 'Quiz is already been removed.', status: 403}
-  }
-  quiz.intrash = true
-  return {};
+  const quizInfo = {
+    quizId: quiz.quizId,
+    name: quiz.name,
+    timeCreated: quiz.timeCreated,
+    timeLastEdited: quiz.timeLastEdited,
+    description: quiz.description,
+    numQuestions: quiz.numQuestions,
+    questions: quiz.questions
+  };
+  return quizInfo;
 }
-export { adminQuizRemove };
+
+// TODO ASH ->
 /**
 *Update the name of the relevant quiz.
 *
@@ -181,7 +149,8 @@ export { adminQuizRemove };
 * @param {string} name - the name of the quiz
 * @return{{}}empty object
 */
-function adminQuizNameUpdate(authUserId, quizId, name) {
+/*
+export function adminQuizNameUpdate(authUserId, quizId, name) {
   const data: DataStore = getData();
 
   if (!findUserId(authUserId)) return { error: 'The user id is not valid.' };
@@ -189,18 +158,17 @@ function adminQuizNameUpdate(authUserId, quizId, name) {
   if (invalidQuizName(name)) return { error: 'The name is not valid.' };
   if (invalidQuizNameLength(name)) return { error: 'The name is either too long or too short.' };
 
-
-  const sessionId = parseInt(decodeURIComponent(token));  
+  const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) ) {
     return { error: 'Token is empty or not provided', status: 401,};
-  } 
-  const validToken = findSessionId(sessionId);  
+  }
+  const validToken = findSessionId(sessionId);
   if (!validToken) {
     return {
       error: 'Token is invalid (does not refer to valid logged in user session)',
       status: 401,
     };
-  }     
+  }
   if (UsedQuizName(validToken.userId, name)) return { error: 'The quiz name is already been used.' };
   if (!matchQuizIdAndAuthor(authUserId, quizId)) return { error: 'Quiz belongs to a different user.' };
 
@@ -214,7 +182,9 @@ function adminQuizNameUpdate(authUserId, quizId, name) {
 
   return {};
 }
-export { adminQuizNameUpdate };
+*/
+
+// TODO ASH ->
 /**
 *Update the description of the relevant quiz.
 *
@@ -223,7 +193,8 @@ export { adminQuizNameUpdate };
 * @param {string} description - the description of the quiz
 * @return{{}}empty object
 */
-function adminQuizDescriptionUpdate(authUserId, quizId, description) {
+/*
+export function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   const data = getData();
   const quiz = findQuizId(quizId);
 
@@ -238,50 +209,93 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
 
   return {};
 }
+*/
 
-export { adminQuizDescriptionUpdate };
+// =============================================================================
+// ============================ QUIZ TRASH =====================================
+// =============================================================================
 
 /**
- * provides information on the quiz
- *
- * @param {number} token - an encoded session ID of the user
- * @param {number} quizId - the authenticated quiz ID.
- * @returns {json} A json object containing the quiz info with their quizId,
- * name, timeCreated, timeLastEdited, description, and questions.
+ * Send a quiz to trash
+ * @param {token} string - a valid sessionId
+ * @param {number} quizID - the authenticated user ID.
+ * @returns {} nothing
  */
-function adminQuizInfo(token: string, quizId: number): { 
-  quizId: number,
-  name: string
-  timeCreated: number,
-  timeLastEdited: number,
-  description: string,
-  questions: Questions[]
-  } | ErrorObject {
-  const sessionId = parseInt(decodeURIComponent(token));  
-  // checking for valid parameters:
-  if (!token || isNaN(sessionId) ) {
-    return { error: 'Token is empty or not provided', status: 401,};
-  } 
-  const validToken = findSessionId(sessionId);  
+export function adminQuizRemove(token: string, quizId: number) : Record<string, never> | ErrorObject {
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    return { error: 'Token is empty or not provided', status: 401 };
+  }
+  const validToken = findSessionId(sessionId);
   if (!validToken) {
-    return {
-      error: 'Token is invalid (does not refer to valid logged in user session)', status: 401,
-    };
-  }   
-  
-  if (!findQuizId(quizId)) return { error: 'Quiz ID does not refer to a valid quiz.', status: 401 };
-  
+    return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
+  }
   const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
-  if (!quiz) return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 401 };
-  
-  const quizInfo = {
-    quizId: quiz.quizId,
-    name: quiz.name,
-    timeCreated: quiz.timeCreated,
-    timeLastEdited: quiz.timeLastEdited,
-    description: quiz.description,
-    questions: quiz.questions
-  };
-  return quizInfo;
+  if (!quiz || isNaN(quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
+  }
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
+  quiz.intrash = true;
+  return {};
 }
-export { adminQuizInfo };
+
+/**
+ * View the quizzes in trash
+ */
+// TODO /v1/admin/quiz/trash
+export function adminQuizTrashView(): Record<string, never> {
+  return {};
+}
+
+/**
+ * Restore a quiz from trash
+ */
+// TODO /v1/admin/quiz/{quizid}/restore
+export function adminQuizTrashRestore(): Record<string, never> {
+  return {};
+}
+
+/**
+ * Purpose: Empty the trash
+ *
+ * @param {string} token - a valid sessionId
+ * @param {string array} quizIds - is passed via a query, a string representing
+ * a JSONified array of quiz id numbers, example: [3, 4, 5, 6, 7]
+ *
+ * @returns {ErrorObject} - 400 if one or more of the Quiz IDs is not currently in the trash
+ * @returns {ErrorObject} - 401 if token is empty of invalid
+ * @returns {ErrorObject} - 403  if valid token is provided but one of of QuizId is not owner
+ * @returns {} - 200 on success removing all quiz
+ */
+export function adminQuizTrashEmpty(token: string, quizIds: string): Record<string, never> | ErrorObject {
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    return { error: 'Token is empty or not provided', status: 401 };
+  }
+  const validToken = findSessionId(sessionId);
+  if (!validToken) {
+    return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
+  }
+
+  // Error 400 - One or more of the Quiz IDs is not currently in the trash
+  const QuizIdsArray = JSON.parse(quizIds);
+  if (!Array.isArray(QuizIdsArray) || !QuizIdsArray.every(id => typeof id === 'number')) {
+    return { error: 'quizIds must be numbers', status: 400 };
+  }
+  for (const quizId of QuizIdsArray) {
+    const quiz = findQuizId(quizId);
+    if (!quiz || quiz.intrash === false) {
+      return { error: 'One or more of the Quiz IDs is not currently in the trash', status: 400 };
+    } else if (quiz.owner !== validToken.userId) {
+      return { error: 'Valid token is provided, but one or more of the Quiz IDs is not Quiz owner', status: 403 };
+    }
+  }
+  // 200 - Permanent removal of quiz in trash using .splice
+  const data: DataStore = getData();
+  QuizIdsArray.forEach(quizId => {
+    const index = data.quizzes.findIndex(q => q.quizId === quizId);
+    if (index !== -1) { data.quizzes.splice(index, 1); }
+  });
+  setData(data);
+  return {};
+}
