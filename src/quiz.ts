@@ -84,7 +84,8 @@ export function adminQuizCreate(
     numQuestions: 0,
     owner: validToken.userId,
     questions: [],
-    intrash: false
+    intrash: false,
+    duration: 0
   };
   
   data.quizzes.push(quiz);

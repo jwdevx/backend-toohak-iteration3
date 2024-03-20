@@ -190,7 +190,6 @@ describe('Testing if adminQuizRemove successfully removes the given quiz', () =>
     const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
     const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
     const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
-    console.log(quiz1.bodyObj.quizId)
     const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
     const remove = adminQuizRemove(wrongtoken, quiz1.bodyObj.quizId)
     expect(remove.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
