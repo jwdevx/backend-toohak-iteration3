@@ -52,10 +52,30 @@ let data: DataStore = {
 // =============================================================================
 
 export interface Questions {
-  // TODO
+  questionId: number
   question: string;
+  duration: number;
+  points: number;
+  answers: Answer[];
 }
 
+export interface QuestionBody {
+  question: string;
+  duration: number;
+  points: number;
+  answers: answer[];
+}
+
+export interface Answer {
+  answerId: number;
+  answer: string;
+  correct: boolean;
+}
+
+export interface answer {
+  answer: string;
+  correct: boolean;
+}
 export interface Quizzes {
   quizId: number;
   name: string;
@@ -66,6 +86,7 @@ export interface Quizzes {
   owner: number;
   questions: Questions[];
   intrash: boolean;
+  duration: number;
 }
 
 // =============================================================================
