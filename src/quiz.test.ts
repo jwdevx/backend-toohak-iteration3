@@ -568,15 +568,15 @@ describe('Testing if adminQuizTrashView successfully views quiz in trash', () =>
 // =======================    adminQuizTrashRestore    =========================
 // =============================================================================
 
-/*
+
 describe('Testing for adminQuizTrashRestore successfully restore quiz in trash', () => {
   beforeEach(() => {
     clear();
   });
 
-  // TODO if you have implemnted this function, could you please add it to  ****** below in adminQuizTrashEmpty
+  test
 });
-*/
+
 
 // =============================================================================
 // =======================    adminQuizTrashEmpty    ===========================
