@@ -35,20 +35,35 @@ export interface Tokens {
 
 export interface DataStore {
   users: Users[];
-//   counterId: number;
   quizzes: Quizzes[];
   tokens: Tokens[];
 }
 
 let data: DataStore = {
   users: [],
-  //   counterId: 1,
   quizzes: [],
   tokens: [],
 };
 
 // =============================================================================
 // ======================== INTERFACE FOR QUIZZES ==============================
+// =============================================================================
+
+export interface Quizzes {
+  quizId: number;
+  name: string;
+  timeCreated: number;
+  timeLastEdited: number;
+  description: string;
+  owner: number;
+  numQuestions: number;
+  questions: Questions[];
+  intrash: boolean;
+  duration: number;
+}
+
+// =============================================================================
+// ======================== INTERFACE FOR QUESTIONS ============================
 // =============================================================================
 
 export interface Questions {
@@ -76,30 +91,6 @@ export interface answer {
   answer: string;
   correct: boolean;
 }
-export interface Quizzes {
-  quizId: number;
-  name: string;
-  timeCreated: number;
-  timeLastEdited: number;
-  description: string;
-  numQuestions: number;
-  owner: number;
-  questions: Questions[];
-  intrash: boolean;
-  duration: number;
-}
-
-// =============================================================================
-// ======================== INTERFACE FOR QUESTIONS ============================
-// =============================================================================
-
-// TODO interfaces for all things related to quesitons ->
-
-// =============================================================================
-// ======================== INTERFACE FOR TRASH ================================
-// =============================================================================
-
-// TODO interfaces for all things related to trash ->
 
 // =============================================================================
 // ======  YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1 ======
