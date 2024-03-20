@@ -29,7 +29,7 @@ export function adminQuestionCreate(
   const authUserId = validToken.userId;
   const quiz = findQuizId(quizId);
   if (!quiz) {
-    return { error: 'Quiz ID does not refer to a valid quiz.', status: 401 };
+    return { error: 'Quiz ID does not refer to a valid quiz.', status: 403 };
   }
   if (!matchQuizIdAndAuthor(authUserId, quizId)) {
     return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
@@ -76,6 +76,7 @@ export function adminQuestionCreate(
     points: questionbody.points,
     answers: answers
   };
+  quiz.duration += questionbody.duration;
   quiz.questions.push(quesitons);
   return { questionId: id };
 }
