@@ -145,9 +145,9 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const { token, oldPassword, newPassword } = req.body;
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
   // TODO
-  if (response.error === 'token is empty or invalid') {
+  if (response.status === 401) {
     return res.status(401).json({ error: response.error });
-  } else if ('error' in response) {
+  } else if (response) {
     return res.status(400).json({ error: response.error });
   }
   saveData();
