@@ -16,7 +16,7 @@ import {
   adminAuthLogin,
   adminUserDetails,
   adminUserDetailsUpdate,
-  // adminUserPasswordUpdate,
+  adminUserPasswordUpdate,
   adminAuthLogout,
 } from './auth';
 
@@ -116,15 +116,19 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
 });
 
 // adminUserPasswordUpdate: Update the password of this admin user.
-/*
+
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const { token, oldPassword, newPassword } = req.body;
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
-  if ('error' in response) { return res.status(response.status).json({ error: response.error }); }
+  // TODO
+  if (response.status === 401) {
+    return res.status(401).json({ error: response.error });
+  } else if (response) {
+    return res.status(400).json({ error: response.error });
+  }
   saveData();
-  res.json(response);
+  res.status(200).json({});
 });
-*/
 
 // adminAuthLogout: Logs out an admin user who has an active quiz session.
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {

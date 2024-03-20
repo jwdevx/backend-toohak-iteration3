@@ -78,7 +78,23 @@ export const adminUserDetailsUpdate = (
   };
 };
 
-// TODO adminUserPasswordUpdate
+// TODO adminUserPasswordUpdate here ---->>>>
+export const adminUserPasswordUpdate = (
+  token: string, oldPassword: string, newPassword: string) => {
+  const res = request('PUT', SERVER_URL + '/v1/admin/user/password', {
+    json: {
+      token: token,
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
+// TODO adminAuthLogout here ---->>>>
 
 export const adminAuthLogout = (sessionId: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/logout', {
