@@ -114,11 +114,10 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
 });
 
 // adminUserPasswordUpdate: Update the password of this admin user.
-/*
+
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const { token, oldPassword, newPassword } = req.body;
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
-<<<<<<< src/server.ts
   // TODO
   if (response.status === 401) {
     return res.status(401).json({ error: response.error });
@@ -127,13 +126,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   }
   saveData();
   res.status(200).json({});
-=======
-  if ('error' in response) { return res.status(response.status).json({ error: response.error }); }
-  saveData();
-  res.json(response);
->>>>>>> src/server.ts
 });
-*/
 
 // adminAuthLogout: Logs out an admin user who has an active quiz session.
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {

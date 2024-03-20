@@ -3,7 +3,7 @@ import {
   adminAuthLogin,
   adminUserDetails,
   adminUserDetailsUpdate,
-  //   adminUserPasswordUpdate,
+  adminUserPasswordUpdate,
   adminAuthLogout,
   clear
 } from './apiRequests';
@@ -357,7 +357,7 @@ describe('adminUserPasswordUpdate', () => {
   });
   test('the token is invalid', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
-    const error = adminUserPasswordUpdate( '1234abcd', 'WOjiaoZC1');
+    const error = adminUserPasswordUpdate('' ,'1234abcd', 'WOjiaoZC1');
     expect(error.statusCode).toBe(UNAUTHORIZED);
     expect(error.bodyObj).toStrictEqual(ERROR);
   });

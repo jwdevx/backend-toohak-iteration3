@@ -201,7 +201,7 @@ export function adminUserDetailsUpdate(
  * @param {string} newPassword - The newpassword for the user
  * @returns { } null
  */
-export function adminUserPasswordUpdate(token: String, oldPassword: String, newPassword: String) {
+export function adminUserPasswordUpdate(token: string, oldPassword: string, newPassword: string) {
   // Basic validation for missing or null values
   const sessionId = parseInt(decodeURIComponent(token));  
   if (!token || isNaN(sessionId) ) {
@@ -215,23 +215,24 @@ export function adminUserPasswordUpdate(token: String, oldPassword: String, newP
     };
   }
   const user = findUserId(validToken.userId); 
-  if (!oldPassword || !newPassword) return { error: 'One or more missing parameters', status: 400 };
   const data: DataStore = getData();
+  if (!oldPassword || !newPassword) return { error: 'One or more missing parameters', status: 400 };
   if (user.password !== oldPassword) return { error: 'The old password is wrong.', status: 400 };
   if (oldPassword === newPassword) return { error: 'The new password is the same as the old password.', status: 400 };
-  if (user.oldPasswords.includes(newPassword)) return { error: 'The new password is used before.', status: 400 };
+  if (user.oldPasswords.some(passwordObj => passwordObj.password === newPassword)) {
+    return { error: 'The new password has been used before.', status: 400 };
+  }
   if (newPassword.length < 8) return { error: 'Password must be at least 8 characters long', status: 400 };
   if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(newPassword)) {
     return { error: 'Password must contain at least one letter and one number', status: 400 };
   }
 
-  user.oldPasswords.push(oldPassword);
+  user.oldPasswords.push({ password: oldPassword });
   user.password = newPassword;
 
   setData(data);
   return {};
 }
-*/
 
 /**
  * Logs out an admin user who has an active quiz session.
