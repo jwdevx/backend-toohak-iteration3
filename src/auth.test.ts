@@ -1,37 +1,10 @@
-/* eslint-disable */
-//@ts-nocheck
-//TODO REMOVE THIS 2 COMMENTS ABOVE when this file is lintsafe and typesafe
-
-/*
-
-There is this 3  number of errors in typecheck in this file:
-	3  src/auth.test.ts:55
-
-Please run:
-	npm test
-	npm run lint
-	npm run tsc
-
-/import/ravel/5/z5494973/comp1531/project-backend/src/auth.test.ts
-    2:1   error  Too many blank lines at the beginning of file. Max of 1 allowed  no-multiple-empty-lines
-   19:5   error  'ExampleUser' is assigned a value but never used                 @typescript-eslint/no-unused-vars
-   20:5   error  'ExampleUser2' is assigned a value but never used                @typescript-eslint/no-unused-vars
-   68:11  error  'UserId' is assigned a value but never used                      @typescript-eslint/no-unused-vars
-  198:11  error  'user1' is assigned a value but never used                       @typescript-eslint/no-unused-vars
-  205:11  error  'user2' is assigned a value but never used                       @typescript-eslint/no-unused-vars
-  216:11  error  'email5' is assigned a value but never used                      @typescript-eslint/no-unused-vars
-325: 11  error  'error' is assigned a value but never used @typescript-eslint / no - unused - vars
-
-*/
-//TODO REMOVE ALL COMMENTS ABOVE ----------------------------------------------
-
 import {
   adminAuthRegister,
   adminAuthLogin,
   adminUserDetails,
   adminUserDetailsUpdate,
-  adminUserPasswordUpdate,
-  adminAuthLogout,  
+  //   adminUserPasswordUpdate,
+  adminAuthLogout,
   clear
 } from './apiRequests';
 
@@ -39,8 +12,8 @@ const ERROR = { error: expect.any(String) };
 const OK = 200;
 const BAD_REQUEST = 400;
 const UNAUTHORIZED = 401;
-const FORBIDDEN = 403;
-const NOT_FOUND = 404;
+// const FORBIDDEN = 403;
+// const NOT_FOUND = 404;
 
 beforeEach(() => {
   clear();
@@ -54,23 +27,19 @@ describe('Test for adminAuthRegister', () => {
   beforeEach(() => {
     clear();
   });
-
   test('200 check successful registration', () => {
     const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
-
     expect(res.statusCode).toStrictEqual(OK);
-    expect(res.bodyObj).toStrictEqual({ token: expect.any(String)});    
-
+    expect(res.bodyObj).toStrictEqual({ token: expect.any(String) });
     const sessionId = Number(decodeURIComponent(res.bodyObj.token));
     expect(sessionId).not.toBeNaN();
   });
 
   test(' 400 check for duplicate existing email', () => {
-    const UserId = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     expect(res.bodyObj).toStrictEqual({ error: 'Email address is used by another user' });
     expect(res.statusCode).toStrictEqual(BAD_REQUEST);
-   
   });
 
   test.each([
@@ -83,7 +52,7 @@ describe('Test for adminAuthRegister', () => {
   ])('("%s") does not satify validator.isEmail function', (email, password, nameFirst, nameLast) => {
     const res = adminAuthRegister(email, password, nameFirst, nameLast);
     expect(res.bodyObj).toStrictEqual({ error: 'Invalid email address: email is not a string' });
-    expect(res.statusCode).toStrictEqual(BAD_REQUEST);    
+    expect(res.statusCode).toStrictEqual(BAD_REQUEST);
   });
 
   test('Check error message for invalid characters on NameFirst', () => {
@@ -100,7 +69,8 @@ describe('Test for adminAuthRegister', () => {
 
   test('Check error message for NameFirst less than 2 characters or more than 20 characters', () => {
     const NameFirst1 = adminAuthRegister('hayden1.smith@unsw.edu.au', '1234abcd', 'H', 'Smith');
-    const NameFirst2 = adminAuthRegister('hayden2.smith@unsw.edu.au', '1234abcd', 'Haydenhaydenhaydenhayden', 'Smith');
+    const NameFirst2 = adminAuthRegister(
+      'hayden2.smith@unsw.edu.au', '1234abcd', 'Haydenhaydenhaydenhayden', 'Smith');
     expect(NameFirst1.statusCode).toStrictEqual(BAD_REQUEST);
     expect(NameFirst1.bodyObj).toStrictEqual(ERROR);
     expect(NameFirst2.bodyObj).toStrictEqual(ERROR);
@@ -111,7 +81,7 @@ describe('Test for adminAuthRegister', () => {
     const NameLast2 = adminAuthRegister('hayden2.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Sm*ith');
     const NameLast3 = adminAuthRegister('hayden3.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith3');
     const NameLast4 = adminAuthRegister('hayden4.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Sm!th');
-    expect(NameLast1.statusCode).toStrictEqual(BAD_REQUEST);    
+    expect(NameLast1.statusCode).toStrictEqual(BAD_REQUEST);
     expect(NameLast1.bodyObj).toStrictEqual({ error: 'Last name contains invalid characters' });
     expect(NameLast2.bodyObj).toStrictEqual(ERROR);
     expect(NameLast3.bodyObj).toStrictEqual(ERROR);
@@ -120,9 +90,12 @@ describe('Test for adminAuthRegister', () => {
 
   test('Check error message for NameLast less than 2 characters or more than 20 characters', () => {
     const NameLast1 = adminAuthRegister('hayden1@gmail.com', '1234abcd', 'Hayden', 's');
-    const NameLast2 = adminAuthRegister('hayden2@gmail.com', '1234abcd', 'Hayden', 'Smithsmithsmithsmithsmith');
-    expect(NameLast1.statusCode).toStrictEqual(BAD_REQUEST);    
-    expect(NameLast1.bodyObj).toStrictEqual({ error: 'Last name must be between 2 and 20 characters long' });
+    const NameLast2 = adminAuthRegister(
+      'hayden2@gmail.com', '1234abcd', 'Hayden', 'Smithsmithsmithsmithsmith');
+    expect(NameLast1.statusCode).toStrictEqual(BAD_REQUEST);
+    expect(NameLast1.bodyObj).toStrictEqual({
+      error: 'Last name must be between 2 and 20 characters long'
+    });
     expect(NameLast2.bodyObj).toStrictEqual(ERROR);
   });
 
@@ -131,23 +104,23 @@ describe('Test for adminAuthRegister', () => {
     const Pass2 = adminAuthRegister('hayden2@gmail.com', '1234', 'Hayden', 'Smith');
     const Pass3 = adminAuthRegister('hayden3@gmail.com', 'abcd', 'Hayden', 'Smith');
     const Pass4 = adminAuthRegister('hayden4@gmail.com', '123abcd', 'Hayden', 'Smith');
-    expect(Pass1.statusCode).toStrictEqual(BAD_REQUEST);       
+    expect(Pass1.statusCode).toStrictEqual(BAD_REQUEST);
     expect(Pass1.bodyObj).toStrictEqual({ error: 'Password must be at least 8 characters long' });
     expect(Pass2.bodyObj).toStrictEqual(ERROR);
     expect(Pass3.bodyObj).toStrictEqual(ERROR);
     expect(Pass4.bodyObj).toStrictEqual(ERROR);
   });
 
-  test('Check error message for Password does not contain at least one number and at least one letter', () => {
+  test('Check error message for Password not contain at one number and one letter', () => {
     const Pass1 = adminAuthRegister('hayden1@gmail.com', '12341234', 'Hayden', 'Smith');
     const Pass2 = adminAuthRegister('hayden2@gmail.com', 'abcdabcd', 'Hayden', 'Smith');
-    expect(Pass1.statusCode).toStrictEqual(BAD_REQUEST);  
-    expect(Pass1.bodyObj).toStrictEqual({ error: 'Password must contain at least one letter and one number' });
+    expect(Pass1.statusCode).toStrictEqual(BAD_REQUEST);
+    expect(Pass1.bodyObj).toStrictEqual({
+      error: 'Password must contain at least one letter and one number'
+    });
     expect(Pass2.bodyObj).toStrictEqual(ERROR);
   });
-
 });
-
 
 // =============================================================================
 // ============================= adminAuthLogin ================================
@@ -160,87 +133,58 @@ describe('Test for adminAuthLogin', () => {
   test('200 check successful registration', () => {
     const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     expect(res.statusCode).toStrictEqual(OK);
-    expect(res.bodyObj).toStrictEqual({ token: expect.any(String)});    
-    const loginRes = adminAuthLogin('hayden.smith@unsw.edu.au', '1234abcd')
+    expect(res.bodyObj).toStrictEqual({ token: expect.any(String) });
+
+    const loginRes = adminAuthLogin('hayden.smith@unsw.edu.au', '1234abcd');
     expect(loginRes.statusCode).toStrictEqual(OK);
-    expect(loginRes.bodyObj).toStrictEqual({ token: expect.any(String)}); 
+    expect(loginRes.bodyObj).toStrictEqual({ token: expect.any(String) });
     const sessionId = Number(decodeURIComponent(loginRes.bodyObj.token));
     expect(sessionId).not.toBeNaN();
   });
 
   test(' 400 check for missing email', () => {
-    const res = adminAuthLogin('', '1234abcd')
+    const res = adminAuthLogin('', '1234abcd');
     expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(BAD_REQUEST);
   });
+
   test(' 400 check for missing password', () => {
-    const res = adminAuthLogin('email@gmail.com', '')
+    const res = adminAuthLogin('email@gmail.com', '');
     expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(BAD_REQUEST);
   });
+
   test(' 400 email does not exist ', () => {
-    const res = adminAuthLogin('nonexistentemail@gmail.com', 'non_existent_Account')
+    const res = adminAuthLogin('nonexistentemail@gmail.com', 'non_existent_Account');
     expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(BAD_REQUEST);
   });
+
   test(' 400 wrong password right email', () => {
     const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     expect(res.statusCode).toStrictEqual(OK);
-    expect(res.bodyObj).toStrictEqual({ token: expect.any(String)});
-    const loginRes = adminAuthLogin('hayden.smith@unsw.edu.au', 'wrongpassword')
+    expect(res.bodyObj).toStrictEqual({ token: expect.any(String) });
+    const loginRes = adminAuthLogin('hayden.smith@unsw.edu.au', 'wrongpassword');
     expect(loginRes.statusCode).toStrictEqual(BAD_REQUEST);
     expect(loginRes.bodyObj).toStrictEqual({ error: expect.any(String) });
   });
+
   test('400 Null argument', () => {
-    const loginRes = adminAuthLogin();
+    const loginRes = adminAuthLogin('', '');
     expect(loginRes.statusCode).toStrictEqual(BAD_REQUEST);
     expect(loginRes.bodyObj).toStrictEqual({ error: expect.any(String) });
   });
 });
-/*
-
-describe('These are tests for adminAuthLogin', () => {
-let ExampleUser;
-let ExampleUser2;
-
-  beforeEach(() => {
-    ExampleUser = adminAuthRegister('samsmith@gmail.com', 'IS1234567', 'Sam', 'Smith');
-    ExampleUser2 = adminAuthRegister('kingjakerulesdaworld1@gmail.com', '1234567', 'jamie', 'cheong');
-  });
-
-  // NON EXISTENT EMAIL
-  test('Error Case: Email address does not exist', () => {
-    expect(adminAuthLogin('notemail@gmail.com', '123456')).toStrictEqual({ error: expect.any(String) });
-  });
-
-  // WRONG PWD
-  test('Error Case: Password is not correct for given email', () => {
-    expect(adminAuthLogin('samsmith@gmail.com', '1234567')).toStrictEqual({ error: expect.any(String) });
-  });
-
-  // NULL CASE
-  test('Error Case: Null argument', () => {
-    expect(adminAuthLogin()).toStrictEqual({ error: expect.any(String) });
-  });
-
-  // SUCCESS CASE
-  test('Success case: Prints user ID', () => {
-    expect(adminAuthLogin('samsmith@gmail.com', 'IS1234567')).toStrictEqual({ authUserId: expect.any(Number) });
-  });
-});
-*/
 
 // =============================================================================
 // ============================ adminUserDetails ===============================
 // =============================================================================
 describe('Test for adminUserDetails', () => {
-  // Previous test cases...
   beforeEach(() => {
     clear();
-  });  
-  test('Success case', () => {
-    // Perform a successful login
+  });
 
+  test('200 Success case', () => {
     const register = adminAuthRegister('hayden2@gmail.com', '1234abcd', 'Hayden', 'Smith');
     const result = adminUserDetails(register.bodyObj.token);
     expect(result.statusCode).toBe(OK);
@@ -257,94 +201,52 @@ describe('Test for adminUserDetails', () => {
     });
   });
 
-  test('Error case: Empty token', () => {
-    const register = adminAuthRegister('hayden2@gmail.com', '1234abcd', 'Hayden', 'Smith');
+  test('401 Error case: Empty token', () => {
+    adminAuthRegister('hayden2@gmail.com', '1234abcd', 'Hayden', 'Smith');
     const result = adminUserDetails('');
-    expect(result.statusCode).toBe(BAD_REQUEST);
+    expect(result.statusCode).toBe(UNAUTHORIZED);
     expect(result.bodyObj).toEqual({ error: expect.any(String) });
-
   });
-  test('Error case: Empty email', () => {
-    // Perform a login with an empty email
-    const register = adminAuthRegister('hayden2@gmail.com', '1234abcd', 'Hayden', 'Smith');
+  test('401 Error case: invalid token', () => {
+    adminAuthRegister('hayden2@gmail.com', '1234abcd', 'Hayden', 'Smith');
     const result = adminUserDetails('9999999999');
-    expect(result.statusCode).toBe(BAD_REQUEST);
+    expect(result.statusCode).toBe(UNAUTHORIZED);
     expect(result.bodyObj).toEqual({ error: expect.any(String) });
   });
 });
-/*
-describe('These are tests for adminUserDetails', () => {
-  beforeEach(() => {
-    clear();
-  });
-  test('Edge Case: Invalud authUserId', () => {
-    expect(adminUserDetails('256')).toStrictEqual({ error: expect.any(String) });
-  });
-
-  test('Edge Case: Empty authUserId', () => {
-    expect(adminUserDetails('')).toStrictEqual({ error: expect.any(String) });
-  });
-
-  test('Success Case: Fetch user details', () => {
-    // 1. Use adminAuthRegister to create a user and get the authUserId
-    const registrationResult = adminAuthRegister('test@example.com', 'ValidPassword1', 'Johnny', 'Depp');
-
-    // 2. Check if the registration was successful (no error)
-    expect(registrationResult).not.toHaveProperty('error');
-    const authUserId = registrationResult.authUserId;
-
-    // 3. Use adminUserDetails to fetch user details using the authUserId
-    const userDetails = adminUserDetails(authUserId);
-
-    // 4. Assert that user details are as expected
-    expect(userDetails).toEqual({
-      user: {
-        userId: authUserId,
-        name: 'Johnny Depp',
-        email: 'test@example.com',
-        numSuccessfulLogins: expect.any(Number),
-        numFailedPasswordsSinceLastLogin: expect.any(Number),
-      }
-    });
-  });
-
-});
-*/  
-
 // =============================================================================
 // =========================== adminUserDetailsUpdate ==========================
 // =============================================================================
 
- 
 describe('Test for adminUserDetailsUpdate', () => {
   beforeEach(() => {
     clear();
   });
 
-  
   test('Check successful updating user: email, NameFirst, nameLast', () => {
     const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     expect(res.statusCode).toStrictEqual(200);
-         
-    const retVal = adminUserDetailsUpdate(res.bodyObj.token, 'smith.hayden@unsw.edu.au', 'Angelina', 'Jolie');
+
+    const retVal = adminUserDetailsUpdate(
+      res.bodyObj.token, 'smith.hayden@unsw.edu.au', 'Angelina', 'Jolie');
     expect(retVal.statusCode).toStrictEqual(200);
     expect(retVal.bodyObj).toStrictEqual({});
 
-    //TODO uncomment once adminUserDetails is implemented  
     const userDetailsRes = adminUserDetails(res.bodyObj.token);
     expect(userDetailsRes.statusCode).toBe(200);
     expect(userDetailsRes.bodyObj).toStrictEqual({
       response: {
         user: {
-          userId: expect.any(Number),
+          userId: 1,
           name: 'Angelina Jolie',
           email: 'smith.hayden@unsw.edu.au',
-          numSuccessfulLogins: expect.any(Number),
-          numFailedPasswordsSinceLastLogin: expect.any(Number),
+          numSuccessfulLogins: 1,
+          numFailedPasswordsSinceLastLogin: 0,
         },
       }
+    });
   });
-});
+
   test('Token is empty or not provided', () => {
     const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     expect(res.statusCode).toStrictEqual(OK);
@@ -354,23 +256,28 @@ describe('Test for adminUserDetailsUpdate', () => {
     expect(retVal1.statusCode).toStrictEqual(401);
     expect(retVal1.bodyObj).toStrictEqual({ error: 'Token is empty or not provided' });
     expect(retVal2.bodyObj).toStrictEqual({ error: 'Token is empty or not provided' });
-    expect(retVal3.bodyObj).toStrictEqual({ error: 'Token is empty or not provided'});
+    expect(retVal3.bodyObj).toStrictEqual({ error: 'Token is empty or not provided' });
   });
-    
+
   test('Token is invalid (does not refer to valid logged in user session)', () => {
     const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     expect(res.statusCode).toStrictEqual(OK);
     const retVal = adminUserDetailsUpdate('6', 'smith.hayden@unsw.edu.au', 'Angelina', 'Jolie');
     expect(retVal.statusCode).toStrictEqual(401);
-    expect(retVal.bodyObj).toStrictEqual({error: 'Token is invalid (does not refer to valid logged in user session)'});
-  });    
+    expect(retVal.bodyObj).toStrictEqual({
+      error: 'Token is invalid (does not refer to valid logged in user session)'
+    });
+  });
 
   test('Check error message if email is currently used by another user', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
-    const user2 = adminAuthRegister('taylor.swift@unsw.edu.au', '5678efgh', 'Taylor', 'Swift');
-    const retVal = adminUserDetailsUpdate(user1.bodyObj.token, 'taylor.swift@unsw.edu.au', 'Jonathan', 'Swift');
+    adminAuthRegister('taylor.swift@unsw.edu.au', '5678efgh', 'Taylor', 'Swift');
+    const retVal = adminUserDetailsUpdate(
+      user1.bodyObj.token, 'taylor.swift@unsw.edu.au', 'Jonathan', 'Swift');
     expect(retVal.statusCode).toStrictEqual(BAD_REQUEST);
-    expect(retVal.bodyObj).toStrictEqual({ error: 'Email is currently used by another user, choose another email!' });
+    expect(retVal.bodyObj).toStrictEqual({
+      error: 'Email is currently used by another user, choose another email!'
+    });
   });
 
   test('Check error message if email to update is not valid', () => {
@@ -385,17 +292,18 @@ describe('Test for adminUserDetailsUpdate', () => {
     expect(email2.bodyObj).toStrictEqual({ error: 'Invalid email address: email is not a string' });
     expect(email3.bodyObj).toStrictEqual({ error: 'Invalid email address: email is not a string' });
     expect(email4.bodyObj).toStrictEqual({ error: 'Invalid email address: email is not a string' });
+    expect(email5.bodyObj).toStrictEqual({ error: 'Invalid email address: email is not a string' });
   });
 
   test('Check error message for invalid characters on NameFirst', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const NameFirst1 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden@gmail.com', 'Ha*yden', 'Smith');
-    expect(NameFirst1.statusCode).toStrictEqual(BAD_REQUEST);    
-    expect(NameFirst1.bodyObj).toStrictEqual({ error: 'First name contains invalid characters' });    
+    expect(NameFirst1.statusCode).toStrictEqual(BAD_REQUEST);
+    expect(NameFirst1.bodyObj).toStrictEqual({ error: 'First name contains invalid characters' });
     const NameFirst2 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden@gmail.com', 'Hayden7', 'Smith');
-    expect(NameFirst2.bodyObj).toStrictEqual(ERROR);    
+    expect(NameFirst2.bodyObj).toStrictEqual(ERROR);
     const NameFirst3 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden@gmail.com', 'Hayden&Smith', 'Smith');
-    expect(NameFirst3.bodyObj).toStrictEqual(ERROR);        
+    expect(NameFirst3.bodyObj).toStrictEqual(ERROR);
     const NameFirst4 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden@gmail.com', 'H@yden', 'Smith');
     expect(NameFirst4.bodyObj).toStrictEqual(ERROR);
   });
@@ -403,21 +311,22 @@ describe('Test for adminUserDetailsUpdate', () => {
   test('Check error message for NameFirst less than 2 characters or more than 20 characters', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const NameFirst1 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden1@gmail.com', 'H', 'Smith');
-    expect(NameFirst1.statusCode).toStrictEqual(BAD_REQUEST);    
-    expect(NameFirst1.bodyObj).toStrictEqual(ERROR);    
-    const NameFirst2 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden2@gmail.com', 'Haydenhaydenhaydenhayden', 'Smith');
+    expect(NameFirst1.statusCode).toStrictEqual(BAD_REQUEST);
+    expect(NameFirst1.bodyObj).toStrictEqual(ERROR);
+    const NameFirst2 = adminUserDetailsUpdate(
+      user1.bodyObj.token, 'hayden2@gmail.com', 'Haydenhaydenhaydenhayden', 'Smith');
     expect(NameFirst2.bodyObj).toStrictEqual(ERROR);
   });
 
   test('Check error message for invalid characters on NameLast', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const NameLast1 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden3@gmail.com', 'Hayden', 'Sm_ith');
-    expect(NameLast1.statusCode).toStrictEqual(BAD_REQUEST);    
-    expect(NameLast1.bodyObj).toStrictEqual({ error: 'Last name contains invalid characters' });    
+    expect(NameLast1.statusCode).toStrictEqual(BAD_REQUEST);
+    expect(NameLast1.bodyObj).toStrictEqual({ error: 'Last name contains invalid characters' });
     const NameLast2 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden4@gmail.com', 'Hayden', 'Sm*ith');
     expect(NameLast2.bodyObj).toStrictEqual(ERROR);
     const NameLast3 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden5@gmail.com', 'Hayden', 'Smith3');
-    expect(NameLast3.bodyObj).toStrictEqual(ERROR);    
+    expect(NameLast3.bodyObj).toStrictEqual(ERROR);
     const NameLast4 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden6@gmail.com', 'Hayden', 'Sm!th');
     expect(NameLast4.bodyObj).toStrictEqual(ERROR);
   });
@@ -426,15 +335,12 @@ describe('Test for adminUserDetailsUpdate', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const NameLast1 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden7@gmail.com', 'Hayden', 's');
     expect(NameLast1.statusCode).toStrictEqual(BAD_REQUEST);
-    expect(NameLast1.bodyObj).toStrictEqual({ error: 'Last name must be between 2 and 20 characters long' });    
-    const NameLast2 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden8@gmail.com', 'Hayden', 'Smithsmithsmithsmithsmith');
+    expect(NameLast1.bodyObj).toStrictEqual({ error: 'Last name must be between 2 and 20 characters long' });
+    const NameLast2 = adminUserDetailsUpdate(
+      user1.bodyObj.token, 'hayden8@gmail.com', 'Hayden', 'Smithsmithsmithsmithsmith');
     expect(NameLast2.bodyObj).toStrictEqual(ERROR);
   });
-
-
-  
 });
-
 
 // =============================================================================
 // ========================== adminUserPasswordUpdate ==========================
@@ -548,3 +454,47 @@ describe('adminUserPasswordUpdate', () => {
   });
 });
 */
+
+// =============================================================================
+// ============================= adminAuthLogout ===============================
+// =============================================================================
+
+describe('Test for adminAuthLogout', () => {
+  beforeEach(() => {
+    clear();
+  });
+
+  test('Test Combined', () => {
+    // Register Hayden
+    const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    expect(res.statusCode).toStrictEqual(OK);
+    expect(res.bodyObj).toStrictEqual({ token: expect.any(String) });
+
+    // Success Login
+    const login = adminAuthLogin('hayden.smith@unsw.edu.au', '1234abcd');
+    expect(login.statusCode).toStrictEqual(OK);
+    expect(login.bodyObj).toStrictEqual({ token: expect.any(String) });
+
+    // Error Logout Test Start Here
+    const logout1 = adminAuthLogout('');
+    expect(logout1.statusCode).toBe(401);
+    expect(logout1.bodyObj).toStrictEqual({ error: 'Token is empty or not provided' });
+
+    const logout2 = adminAuthLogout('8');
+    expect(logout2.statusCode).toBe(401);
+    expect(logout2.bodyObj).toStrictEqual({
+      error: 'Token is invalid (does not refer to valid logged in user session)'
+    });
+
+    // Success Logout Test Start Here
+    const logout3 = adminAuthLogout(res.bodyObj.token);
+    expect(logout3.statusCode).toBe(200);
+    expect(logout3.bodyObj).toStrictEqual({ });
+
+    const userDetails = adminUserDetails(res.bodyObj.token);
+    expect(userDetails.statusCode).toBe(401);
+    expect(userDetails.bodyObj).toStrictEqual({
+      error: 'Token is invalid (does not refer to valid logged in user session)'
+    });
+  });
+});

@@ -1,5 +1,6 @@
 import request from 'sync-request-curl';
 import config from './config.json';
+import { QuestionBody } from './dataStore';
 const port = config.port;
 const url = config.url;
 const SERVER_URL = `${url}:${port}`;
@@ -7,7 +8,6 @@ const SERVER_URL = `${url}:${port}`;
 // =============================================================================
 // =============================    OTHER        ===============================
 // =============================================================================
-
 export const clear = () => {
   const res = request('DELETE', SERVER_URL + '/v1/clear', { timeout: 100 });
   return {
@@ -19,7 +19,6 @@ export const clear = () => {
 // =============================================================================
 // ============================     USERS        ===============================
 // =============================================================================
-
 export const adminAuthRegister = (
   email: string, password: string, nameFirst: string, nameLast: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/register', {
@@ -27,7 +26,7 @@ export const adminAuthRegister = (
       email: email,
       password: password,
       nameFirst: nameFirst,
-      nameLast: nameLast,
+      nameLast: nameLast
     },
     timeout: 100
   });
@@ -37,13 +36,12 @@ export const adminAuthRegister = (
   };
 };
 
-// TODO adminAuthLogin here ---->>>>
 export const adminAuthLogin = (
   email: string, password: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/login', {
     json: {
       email: email,
-      password: password,
+      password: password
     },
     timeout: 100
   });
@@ -52,12 +50,10 @@ export const adminAuthLogin = (
     statusCode: res.statusCode
   };
 };
+
 export const adminUserDetails = (sessionId: string) => {
   const res = request('GET', SERVER_URL + '/v1/admin/user/details', {
-    qs: {
-      token: sessionId,
-    },
-    timeout: 100
+    qs: { token: sessionId }, timeout: 100
   });
   return {
     bodyObj: JSON.parse(res.body as string),
@@ -72,7 +68,7 @@ export const adminUserDetailsUpdate = (
       token: token,
       email: email,
       nameFirst: nameFirst,
-      nameLast: nameLast,
+      nameLast: nameLast
     },
     timeout: 100
   });
@@ -100,11 +96,19 @@ export const adminUserPasswordUpdate = (
 };
 // TODO adminAuthLogout here ---->>>>
 
+export const adminAuthLogout = (sessionId: string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/auth/logout', {
+    json: { token: sessionId }, timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
 // =============================================================================
 // ===========================     QUIZZES        ==============================
 // =============================================================================
 
-// TODO AdminQuizCreate:
 export const adminQuizCreate = (
   token: string, name: string, description: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/quiz/', {
@@ -131,6 +135,26 @@ export const adminQuizList = (token: string) => {
     statusCode: res.statusCode,
   };
 };
+
+export const adminQuizInfo = (token: string, quizId: number) => {
+  const res = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, {
+    qs: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+// TODO adminQuizNameUpdate
+
+// TODO adminQuizDescriptionUpdate
+
+// =============================================================================
+// ========================     QUIZZES TRASH        ===========================
+// =============================================================================
+
 export const adminQuizRemove = (token: string, quizId: number) => {
   const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}`, {
     qs: { token: token },
@@ -141,9 +165,14 @@ export const adminQuizRemove = (token: string, quizId: number) => {
     statusCode: res.statusCode,
   };
 };
-export const adminQuizInfo = (token: string, quizId: number) => {
-  const res = request('GET', SERVER_URL + '/v1/admin/quiz/{quizid}', {
-    json: { token: token, quizId: quizId },
+
+// TODO adminQuizTrashView
+
+// TODO adminQuizTrashRestore
+
+export const adminQuizTrashEmpty = (token: string, quizIds: string) => {
+  const res = request('DELETE', SERVER_URL + '/v1/admin/quiz/trash/empty', {
+    qs: { token: token, quizIds: quizIds },
     timeout: 100
   });
   return {
@@ -151,8 +180,22 @@ export const adminQuizInfo = (token: string, quizId: number) => {
     statusCode: res.statusCode,
   };
 };
+
 // =============================================================================
 // ==========================     QUESTIONS        =============================
 // =============================================================================
 
-// TODO
+export const adminQuestionCreate = (
+  token: string, quizId: number, questionbody: QuestionBody) => {
+  const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question`, {
+    json: {
+      token: token,
+      questionbody: questionbody
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};

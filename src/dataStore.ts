@@ -49,34 +49,48 @@ let data: DataStore = {
 // ======================== INTERFACE FOR QUIZZES ==============================
 // =============================================================================
 
-export interface Questions {
-  // TODO
-  question: string;
-}
-
 export interface Quizzes {
   quizId: number;
   name: string;
   timeCreated: number;
   timeLastEdited: number;
   description: string;
-  numQuestions: number;
   owner: number;
+  numQuestions: number;
   questions: Questions[];
   intrash: boolean;
+  duration: number;
 }
 
 // =============================================================================
 // ======================== INTERFACE FOR QUESTIONS ============================
 // =============================================================================
 
-// TODO interfaces for all things related to quesitons ->
+export interface Questions {
+  questionId: number
+  question: string;
+  duration: number;
+  points: number;
+  answers: Answer[];
+}
 
-// =============================================================================
-// ======================== INTERFACE FOR TRASH ================================
-// =============================================================================
+export interface QuestionBody {
+  question: string;
+  duration: number;
+  points: number;
+  answers: answer[];
+}
 
-// TODO interfaces for all things related to trash ->
+export interface Answer {
+  answerId: number;
+  answer: string;
+  correct: boolean;
+}
+
+export interface answer {
+  answer: string;
+  correct: boolean;
+}
 
 // =============================================================================
 // ======  YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1 ======
