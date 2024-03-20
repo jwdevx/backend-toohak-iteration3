@@ -30,6 +30,8 @@ import {
   // adminQuizTrashView,
   // adminQuizTrashRestore,
   adminQuizTrashEmpty,
+  // adminQuizTrashRestore,
+  adminQuizTrashView,
 } from './quiz';
 
 import {
@@ -165,6 +167,14 @@ app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
   res.json(response);
 });
 
+app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
+  const { token } = req.query;
+  const response = adminQuizTrashView(String(token));
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
+});
+
 // adminQuizInfo: Get all of the relevant information about the current quiz including questions
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid, 10);
@@ -204,18 +214,18 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
 
 // View the quizzes that are currently in the trash for the logged in user
 // TODO: View the quizzes in trash
-app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
-  const response = { message: ' TODO: View the quizzes in trash' };
-  res.status(501).json(response);
-});
 
 // Restore a particular quiz from the trash back to an active quiz.
 // Note -- This should update it's timeLastEdited timestamp.
 // TODO edit url
-app.post('/v1/admin/quiz/{quizid}/restore', (req: Request, res: Response) => {
-  const response = { message: ' TODO: Restore a quiz from trash' };
-  res.status(501).json(response);
-});
+// app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
+//   const { token } = req.body;
+//   const quizId = parseInt(req.params.quizid);
+//   const response = adminQuizTrashRestore(String(token), quizId);
+//   if ('error' in response) return res.status(response.status).json({ error: response.error });
+//   saveData();
+//   res.json(response);
+// });
 
 // adminQuizTrashEmpty: Permanently delete specific quizzes currently sitting in the trash
 app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
