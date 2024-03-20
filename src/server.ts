@@ -33,7 +33,7 @@ import {
 } from './quiz';
 
 import {
-    adminQuestionCreate
+  adminQuestionCreate
 } from './question';
 
 const app = express(); // Set up web app
