@@ -20,9 +20,9 @@ import {
   adminUserDetailsUpdate,
   adminUserDetails,
   adminAuthLogin,
-  /* adminUserDetailsUpdate,
   adminUserPasswordUpdate,
-  adminAuthLogout, */
+  /* adminUserDetailsUpdate,
+  adminAuthLsogout, */
 } from './auth';
 import {
   adminQuizCreate,
@@ -142,8 +142,16 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
 
 // TODO edit and confirm the url is correct
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
-  const response = { message: 'TODO Update the password of this admin user' };
-  res.status(501).json(response);
+  const { token, oldPassword, newPassword } = req.body;
+  const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
+  // TODO
+  if (response.error === 'token is empty or invalid') {
+    return res.status(401).json({ error: response.error });
+  } else if ('error' in response) {
+    return res.status(400).json({ error: response.error });
+  }
+  saveData();
+  res.status(200).json({});
 });
 
 /**

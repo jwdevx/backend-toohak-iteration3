@@ -439,6 +439,68 @@ describe('Test for adminUserDetailsUpdate', () => {
 // =============================================================================
 // ========================== adminUserPasswordUpdate ==========================
 // =============================================================================
+describe('adminUserPasswordUpdate', () => {
+  beforeEach(() => {
+    clear();
+  });
+  test('the token does not exist', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.bodyObj.token + 1, '1234abcd', 'WOjiaoZC1');
+    const NameLast2 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden8@gmail.com', 'Hayden', 'Smithsmithsmithsmithsmith');
+    expect(NameLast2.statusCode).toBe(UNAUTHORIZED);
+    expect(NameLast2.bodyObj).toStrictEqual(ERROR);
+  });
+  test('the token is invalid', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate('', '1234abcd', 'WOjiaoZC1');
+    const NameLast2 = adminUserDetailsUpdate(user1.bodyObj.token, 'hayden8@gmail.com', 'Hayden', 'Smithsmithsmithsmithsmith');
+    expect(NameLast2.statusCode).toBe(UNAUTHORIZED);
+    expect(NameLast2.bodyObj).toStrictEqual(ERROR);
+  });
+  test('the old password is wrong', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.bodyObj.token, '1234aaaa', 'WOjiaoZC1');
+    expect(error.statusCode).toBe(BAD_REQUEST);
+    expect(error.bodyObj).toStrictEqual(ERROR);
+  });
+  test('the new password is the same as the old one', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.bodyObj.token, '1234abcd', '1234abcd');
+    expect(error.statusCode).toBe(BAD_REQUEST);
+    expect(error.bodyObj).toStrictEqual(ERROR);
+  });
+  test('the new password is used before', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const update = adminUserPasswordUpdate(user1.bodyObj.token, '1234abcd', 'WOjiaoZC123');
+    const error = adminUserPasswordUpdate(user1.bodyObj.token, 'WOjiaoZC123', '1234abcd');
+    expect(error.statusCode).toBe(BAD_REQUEST);
+    expect(error.bodyObj).toStrictEqual(ERROR);
+  });
+  test('short password', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.bodyObj.token, '1234abcd', '1234a');
+    expect(error.statusCode).toBe(BAD_REQUEST);
+    expect(error.bodyObj).toStrictEqual(ERROR);
+  });
+  test('missing number password', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.bodyObj.token, '1234abcd', 'abncdefgh');
+    expect(error.statusCode).toBe(BAD_REQUEST);
+    expect(error.bodyObj).toStrictEqual(ERROR);
+  });
+  test('missing letter password', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error = adminUserPasswordUpdate(user1.bodyObj.token, '1234abcd', '12345678');
+    expect(error.statusCode).toBe(BAD_REQUEST);
+    expect(error.bodyObj).toStrictEqual(ERROR);
+  });
+  test('Success Case', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const success = adminUserPasswordUpdate(user1.bodyObj.token, '1234abcd', 'WOjiaoZC123');
+    const login = adminAuthLogin('hayden.smith@unsw.edu.au', 'WOjiaoZC123');
+    expect(login.bodyObj.token).toStrictEqual(user1.bodyObj.token);
+  });
+});
 /*
 describe('adminUserPasswordUpdate', () => {
   beforeEach(() => {
