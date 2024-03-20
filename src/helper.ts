@@ -162,7 +162,7 @@ export function checkQuestionLength(question: string): boolean {
 }
 
 export function checkQuestionDuration(duration: number): boolean {
-  return duration < 0;
+  return duration <= 0;
 }
 
 export function checkQuestionPoints(points: number): boolean {

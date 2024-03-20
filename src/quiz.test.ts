@@ -532,7 +532,6 @@ describe('Testing if adminQuizRemove successfully removes the given quiz', () =>
 // =======================    adminQuizTrashView    ============================
 // =============================================================================
 
-
 describe('Testing if adminQuizTrashView successfully views quiz in trash', () => {
   beforeEach(() => {
     clear();
@@ -542,7 +541,7 @@ describe('Testing if adminQuizTrashView successfully views quiz in trash', () =>
     const sessionId = token1.bodyObj.token;
     const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
     adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
-    adminQuizRemove(sessionId, quiz1.bodyObj.quizId)
+    adminQuizRemove(sessionId, quiz1.bodyObj.quizId);
     const trash = adminQuizTrashView('999999999');
     expect(trash.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
     expect(trash.statusCode).toStrictEqual(UNAUTHORIZED);
@@ -551,10 +550,10 @@ describe('Testing if adminQuizTrashView successfully views quiz in trash', () =>
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const sessionId = token1.bodyObj.token;
     const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
-    const remove = adminQuizRemove(sessionId, quiz1.bodyObj.quizId)
+    adminQuizRemove(sessionId, quiz1.bodyObj.quizId);
     const trash = adminQuizTrashView(sessionId);
-    expect(trash.bodyObj).toStrictEqual({ 
-      quizzes:[
+    expect(trash.bodyObj).toStrictEqual({
+      quizzes: [
         {
           quizId: quiz1.bodyObj.quizId,
           name: 'quiz1'
@@ -564,7 +563,6 @@ describe('Testing if adminQuizTrashView successfully views quiz in trash', () =>
     expect(trash.statusCode).toStrictEqual(OK);
   });
 });
-
 
 // =============================================================================
 // =======================    adminQuizTrashRestore    =========================
