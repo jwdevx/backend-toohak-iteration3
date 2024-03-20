@@ -1,5 +1,6 @@
 import request from 'sync-request-curl';
 import config from './config.json';
+import { QuestionBody } from './dataStore';
 const port = config.port;
 const url = config.url;
 const SERVER_URL = `${url}:${port}`;
@@ -135,12 +136,6 @@ export const adminQuizInfo = (token: string, quizId: number) => {
 // TODO adminQuizDescriptionUpdate
 
 // =============================================================================
-// ==========================     QUESTIONS        =============================
-// =============================================================================
-
-// TODO
-
-// =============================================================================
 // ========================     QUIZZES TRASH        ===========================
 // =============================================================================
 
@@ -162,6 +157,25 @@ export const adminQuizRemove = (token: string, quizId: number) => {
 export const adminQuizTrashEmpty = (token: string, quizIds: string) => {
   const res = request('DELETE', SERVER_URL + '/v1/admin/quiz/trash/empty', {
     qs: { token: token, quizIds: quizIds },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+// =============================================================================
+// ==========================     QUESTIONS        =============================
+// =============================================================================
+
+export const adminQuestionCreate = (
+  token: string, quizId: number, questionbody: QuestionBody) => {
+  const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question`, {
+    json: {
+      token: token,
+      questionbody: questionbody
+    },
     timeout: 100
   });
   return {

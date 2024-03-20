@@ -1,5 +1,5 @@
 import validator from 'validator';
-import { getData } from './dataStore';
+import { getData, answer } from './dataStore';
 import { Users, DataStore, Tokens, Quizzes } from './dataStore';
 
 /**
@@ -155,4 +155,51 @@ export function checkQuizInTrash(quizId: number): boolean | undefined {
   const quiz: Quizzes | undefined = findQuizId(quizId);
   if (!quiz) return undefined;
   return quiz.intrash;
+}
+
+export function checkQuestionLength(question: string): boolean {
+  return question.length < 5 || question.length > 50;
+}
+
+export function checkQuestionDuration(duration: number): boolean {
+  return duration < 0;
+}
+
+export function checkQuestionPoints(points: number): boolean {
+  return points < 1 || points > 10;
+}
+
+export function checkAnswerNum(answers: answer[]): boolean {
+  return answers.length < 2 || answers.length > 6;
+}
+
+export function checkQuestionDurationSum(quizId:number, duration: number): boolean {
+  const data = getData();
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
+  if (!quiz) return true;
+  return quiz.duration + duration > 180;
+}
+
+export function checkAnswerLength(answers: answer[]): boolean {
+  for (const answer of answers) {
+    if (answer.answer.length < 1 || answer.answer.length > 30) return true;
+  }
+  return false;
+}
+
+export function checkAnswerDuplicate(answers: answer[]): boolean {
+  const uniqueAnswers = new Set<string>();
+  for (const answer of answers) {
+    if (uniqueAnswers.has(answer.answer)) {
+      return true;
+    }
+    uniqueAnswers.add(answer.answer);
+  }
+  return false;
+}
+
+export function checkAnswerCorrect(answers: answer[]) : boolean {
+  const found = answers.find(answer => answer.correct === true);
+  if (found) return false;
+  return true;
 }

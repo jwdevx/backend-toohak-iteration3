@@ -56,7 +56,8 @@ export function adminQuizCreate(
     owner: validToken.userId,
     numQuestions: 0,
     questions: [],
-    intrash: false
+    intrash: false,
+    duration: 0
   };
   data.quizzes.push(quiz);
   setData(data);
