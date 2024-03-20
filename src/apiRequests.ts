@@ -77,7 +77,7 @@ export const adminUserDetailsUpdate = (
   };
 };
 
-// TODO adminUserPasswordUpdate here ---->>>>
+// TODO adminUserPasswordUpdate
 
 export const adminAuthLogout = (sessionId: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/logout', {
@@ -92,7 +92,6 @@ export const adminAuthLogout = (sessionId: string) => {
 // ===========================     QUIZZES        ==============================
 // =============================================================================
 
-// TODO AdminQuizCreate:
 export const adminQuizCreate = (
   token: string, name: string, description: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/quiz/', {
@@ -119,6 +118,32 @@ export const adminQuizList = (token: string) => {
     statusCode: res.statusCode,
   };
 };
+
+export const adminQuizInfo = (token: string, quizId: number) => {
+  const res = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, {
+    qs: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+// TODO adminQuizNameUpdate
+
+// TODO adminQuizDescriptionUpdate
+
+// =============================================================================
+// ==========================     QUESTIONS        =============================
+// =============================================================================
+
+// TODO
+
+// =============================================================================
+// ========================     QUIZZES TRASH        ===========================
+// =============================================================================
+
 export const adminQuizRemove = (token: string, quizId: number) => {
   const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}`, {
     qs: { token: token },
@@ -129,9 +154,14 @@ export const adminQuizRemove = (token: string, quizId: number) => {
     statusCode: res.statusCode,
   };
 };
-export const adminQuizInfo = (token: string, quizId: number) => {
-  const res = request('GET', SERVER_URL + '/v1/admin/quiz/{quizid}', {
-    json: { token: token, quizId: quizId },
+
+// TODO adminQuizTrashView
+
+// TODO adminQuizTrashRestore
+
+export const adminQuizTrashEmpty = (token: string, quizIds: string) => {
+  const res = request('DELETE', SERVER_URL + '/v1/admin/quiz/trash/empty', {
+    qs: { token: token, quizIds: quizIds },
     timeout: 100
   });
   return {
@@ -139,8 +169,3 @@ export const adminQuizInfo = (token: string, quizId: number) => {
     statusCode: res.statusCode,
   };
 };
-// =============================================================================
-// ==========================     QUESTIONS        =============================
-// =============================================================================
-
-// TODO
