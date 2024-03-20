@@ -356,8 +356,7 @@ describe('adminUserPasswordUpdate', () => {
     expect(error.bodyObj).toStrictEqual(ERROR);
   });
   test('the token is invalid', () => {
-    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
-    const error = adminUserPasswordUpdate('' ,'1234abcd', 'WOjiaoZC1');
+    const error = adminUserPasswordUpdate('', '1234abcd', 'WOjiaoZC1');
     expect(error.statusCode).toBe(UNAUTHORIZED);
     expect(error.bodyObj).toStrictEqual(ERROR);
   });
@@ -375,7 +374,6 @@ describe('adminUserPasswordUpdate', () => {
   });
   test('the new password is used before', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
-    const update = adminUserPasswordUpdate(user1.bodyObj.token, '1234abcd', 'WOjiaoZC123');
     const error = adminUserPasswordUpdate(user1.bodyObj.token, 'WOjiaoZC123', '1234abcd');
     expect(error.statusCode).toBe(BAD_REQUEST);
     expect(error.bodyObj).toStrictEqual(ERROR);
@@ -401,8 +399,10 @@ describe('adminUserPasswordUpdate', () => {
   test('Success Case', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const success = adminUserPasswordUpdate(user1.bodyObj.token, '1234abcd', 'WOjiaoZC123');
+    console.log(success);
     const login = adminAuthLogin('hayden.smith@unsw.edu.au', 'WOjiaoZC123');
-    
+    expect(login.statusCode).toStrictEqual(OK);
+    expect(login.bodyObj).toStrictEqual({ token: expect.any(String) });
   });
 });
 /*
