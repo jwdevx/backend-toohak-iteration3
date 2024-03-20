@@ -150,9 +150,27 @@ export const adminQuizRemove = (token: string, quizId: number) => {
   };
 };
 
-// TODO adminQuizTrashView
+export const adminQuizTrashView = (token: string) => {
+  const res = request('GET', SERVER_URL + '/v1/admin/quiz/trash', {
+    qs: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO adminQuizTrashRestore
+// export const adminQuizTrashRestore = (token: string, quizId: number) => {
+//   const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/restore`, {
+//     json: { token: token },
+//     timeout: 100
+//   });
+//   return {
+//     bodyObj: JSON.parse(res.body as string),
+//     statusCode: res.statusCode,
+//   };
+// };
 
 export const adminQuizTrashEmpty = (token: string, quizIds: string) => {
   const res = request('DELETE', SERVER_URL + '/v1/admin/quiz/trash/empty', {

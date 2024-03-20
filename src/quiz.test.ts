@@ -5,12 +5,12 @@ import {
   adminQuizInfo,
   // adminQuizNameUpdate,
   // adminQuizDescriptionUpdate
-  clear
+  clear,
 } from './apiRequests';
 
 import {
   adminQuizRemove,
-  // adminQuizTrashView,
+  adminQuizTrashView,
   // adminQuizTrashRestore,
   adminQuizTrashEmpty,
 } from './apiRequests';
@@ -532,13 +532,39 @@ describe('Testing if adminQuizRemove successfully removes the given quiz', () =>
 // =======================    adminQuizTrashView    ============================
 // =============================================================================
 
-/*
+
 describe('Testing if adminQuizTrashView successfully views quiz in trash', () => {
   beforeEach(() => {
     clear();
   });
+  test('invalid token', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = token1.bodyObj.token;
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
+    adminQuizRemove(sessionId, quiz1.bodyObj.quizId)
+    const trash = adminQuizTrashView('999999999');
+    expect(trash.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(trash.statusCode).toStrictEqual(UNAUTHORIZED);
+  });
+  test('correct input', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = token1.bodyObj.token;
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const remove = adminQuizRemove(sessionId, quiz1.bodyObj.quizId)
+    const trash = adminQuizTrashView(sessionId);
+    expect(trash.bodyObj).toStrictEqual({ 
+      quizzes:[
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+    expect(trash.statusCode).toStrictEqual(OK);
+  });
 });
-*/
+
 
 // =============================================================================
 // =======================    adminQuizTrashRestore    =========================
