@@ -203,3 +203,11 @@ export function checkAnswerCorrect(answers: answer[]) : boolean {
   if (found) return false;
   return true;
 }
+
+export function randomIdGenertor() : number {
+  return Math.floor(Math.random() * Math.floor(10000));
+}
+
+export function getNow() : number {
+  return Math.floor(Date.now() / 1000);
+}
