@@ -189,15 +189,13 @@ describe('Test for adminUserDetails', () => {
     const result = adminUserDetails(register.bodyObj.token);
     expect(result.statusCode).toBe(OK);
     expect(result.bodyObj).toEqual({
-      response: {
-        user: {
-          userId: 1,
-          name: 'Hayden Smith',
-          email: 'hayden2@gmail.com',
-          numSuccessfulLogins: 1,
-          numFailedPasswordsSinceLastLogin: 0
-        },
-      }
+      user: {
+        userId: 1,
+        name: 'Hayden Smith',
+        email: 'hayden2@gmail.com',
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0
+      },
     });
   });
 
@@ -235,15 +233,13 @@ describe('Test for adminUserDetailsUpdate', () => {
     const userDetailsRes = adminUserDetails(res.bodyObj.token);
     expect(userDetailsRes.statusCode).toBe(200);
     expect(userDetailsRes.bodyObj).toStrictEqual({
-      response: {
-        user: {
-          userId: 1,
-          name: 'Angelina Jolie',
-          email: 'smith.hayden@unsw.edu.au',
-          numSuccessfulLogins: 1,
-          numFailedPasswordsSinceLastLogin: 0,
-        },
-      }
+      user: {
+        userId: 1,
+        name: 'Angelina Jolie',
+        email: 'smith.hayden@unsw.edu.au',
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0
+      },
     });
   });
 
