@@ -1,7 +1,7 @@
 import { ErrorObject, Quizzes, DataStore, Questions } from './dataStore';
 import { setData, getData } from './dataStore';
 import {
-  findSessionId,
+  findSessionId, randomIdGenertor,
 } from './helper';
 import {
   invalidQuizName,
@@ -46,9 +46,9 @@ export function adminQuizCreate(
     return { error: 'The description is too long', status: 400 };
   }
   const createdTime = Math.floor(new Date().getTime() / 1000);
-  const IdGenerator = Math.floor(Math.random() * Math.floor(10000));
+  const id = randomIdGenertor();
   const quiz: Quizzes = {
-    quizId: IdGenerator,
+    quizId: id,
     name: name,
     timeCreated: createdTime,
     timeLastEdited: createdTime,
