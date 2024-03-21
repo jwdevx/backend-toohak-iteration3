@@ -101,7 +101,7 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const response = adminUserDetails(req.query.token as string);
   if ('error' in response) return res.status(401).json({ error: response.error });
-  res.status(200).json( response );
+  res.status(200).json(response);
 });
 
 // adminUserDetailsUpdate: Update the details of an admin user (non-password).
