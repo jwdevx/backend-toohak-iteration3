@@ -1,7 +1,7 @@
 import { ErrorObject, Quizzes, DataStore, Questions } from './dataStore';
 import { setData, getData } from './dataStore';
 import {
-  findSessionId, randomIdGenertor,
+  findSessionId, getNow, randomIdGenertor,
 } from './helper';
 import {
   invalidQuizName,
@@ -246,7 +246,6 @@ export function adminQuizRemove(token: string, quizId: number) : Record<string, 
 
 export function adminQuizTrashView(token: string): {quizzes: QuizSummary[]} | ErrorObject {
   const sessionId = parseInt(decodeURIComponent(token));
-  console.log(11111);
   if (!token || !String(token).trim() || isNaN(sessionId)) {
     return { error: 'Token is empty or not provided', status: 401 };
   }
@@ -254,11 +253,10 @@ export function adminQuizTrashView(token: string): {quizzes: QuizSummary[]} | Er
   if (!validToken) {
     return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
   }
-  console.log(11111);
   const data = getData();
   const quizzes : QuizSummary[] = [];
   for (const quiz of data.quizzes) {
-    if (quiz.intrash === true) {
+    if (quiz.intrash === true && quiz.owner === validToken.userId) {
       const trash : QuizSummary = {
         quizId: quiz.quizId,
         name: quiz.name
@@ -273,23 +271,32 @@ export function adminQuizTrashView(token: string): {quizzes: QuizSummary[]} | Er
  * Restore a quiz from trash
  */
 // TODO /v1/admin/quiz/{quizid}/restore
-// export function adminQuizTrashRestore(token: string, quizId: number): Record<string, never> | ErrorObject {
-//   const sessionId = parseInt(decodeURIComponent(token));
-//   if (!token || !String(token).trim() || isNaN(sessionId)) {
-//     return { error: 'Token is empty or not provided', status: 401 };
-//   }
-//   const validToken = findSessionId(sessionId);
-//   if (!validToken) {
-//     return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
-//   }
-//   const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
-//   if (!quiz || isNaN(quizId)) {
-//     return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
-//   }
-//   quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
-//   quiz.intrash = true;
-//   return {};
-// }
+export function adminQuizTrashRestore(token: string, quizId: number): Record<string, never> | ErrorObject {
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    return { error: 'Token is empty or not provided', status: 401 };
+  }
+  const validToken = findSessionId(sessionId);
+  if (!validToken) {
+    return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
+  }
+  if (!findQuizId(quizId)) {
+    return { error: 'The quiz does not exist.', status: 403 };
+  }
+  const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
+  if (!quiz || isNaN(quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
+  }
+  if (quiz.intrash === false) {
+    return { error: 'The quiz is not in trash.', status: 400 };
+  }
+  if (UsedQuizName(quiz.owner, quiz.name)) {
+    return { error: 'The quiz name is used by another quiz', status: 400 };
+  }
+  quiz.timeLastEdited = getNow();
+  quiz.intrash = false;
+  return {};
+}
 
 /**
  * Purpose: Empty the trash

@@ -28,9 +28,8 @@ import {
   // adminQuizDescriptionUpdate,
   adminQuizRemove,
   // adminQuizTrashView,
-  // adminQuizTrashRestore,
+  adminQuizTrashRestore,
   adminQuizTrashEmpty,
-  // adminQuizTrashRestore,
   adminQuizTrashView,
 } from './quiz';
 
@@ -222,14 +221,14 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
 // Restore a particular quiz from the trash back to an active quiz.
 // Note -- This should update it's timeLastEdited timestamp.
 // TODO edit url
-// app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
-//   const { token } = req.body;
-//   const quizId = parseInt(req.params.quizid);
-//   const response = adminQuizTrashRestore(String(token), quizId);
-//   if ('error' in response) return res.status(response.status).json({ error: response.error });
-//   saveData();
-//   res.json(response);
-// });
+app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const quizId = parseInt(req.params.quizid);
+  const response = adminQuizTrashRestore(String(token), quizId);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
+});
 
 // adminQuizTrashEmpty: Permanently delete specific quizzes currently sitting in the trash
 app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
