@@ -123,7 +123,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   // TODO
   if (response.status === 401) {
     return res.status(401).json({ error: response.error });
-  } else if (response) {
+  } else if (response.status === 400) {
     return res.status(400).json({ error: response.error });
   }
   saveData();
