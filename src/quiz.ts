@@ -291,7 +291,7 @@ export function adminQuizTrashRestore(token: string, quizId: number): Record<str
     return { error: 'The quiz is not in trash.', status: 400 };
   }
   if (UsedQuizName(quiz.owner, quiz.name)) {
-    return { error: 'The quiz name is used by another quiz', status: 400};
+    return { error: 'The quiz name is used by another quiz', status: 400 };
   }
   quiz.timeLastEdited = getNow();
   quiz.intrash = false;
