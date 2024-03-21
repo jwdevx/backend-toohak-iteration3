@@ -6,8 +6,7 @@
 /v1/admin/quiz/{quizid}/question/{questionid}/move
 /v1/admin/quiz/{quizid}/question/{questionid}/duplicate
 */
-const Colour = ['red', 'blue', 'green', 'yellow', 'purple', 'brown', 'orange']
-import { getTime } from 'date-fns';
+const Colour = ['red', 'blue', 'green', 'yellow', 'purple', 'brown', 'orange'];
 import { Questions, ErrorObject, Answer, QuestionBody } from './dataStore';
 import {
   findSessionId, checkQuestionLength,
@@ -69,8 +68,8 @@ export function adminQuestionCreate(
     };
     answers.push(newAnswer);
   }
-  const id = randomIdGenertor()
-  const quesitons: Questions = {
+  const id = randomIdGenertor();
+  const quesiton: Questions = {
     questionId: id,
     question: questionbody.question,
     duration: questionbody.duration,
@@ -79,6 +78,6 @@ export function adminQuestionCreate(
   };
   quiz.duration += questionbody.duration;
   quiz.timeLastEdited = getNow();
-  quiz.questions.push(quesitons);
-  return { questionId: id };
+  quiz.questions.push(quesiton);
+  return { questionId: quesiton.questionId };
 }
