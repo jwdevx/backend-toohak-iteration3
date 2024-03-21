@@ -104,6 +104,7 @@ export function adminAuthLogin(email: string, password: string): { token: string
     userId: user.userId,
   };
   data.tokens.push(newToken);
+  user.numFailedPasswordsSinceLastLogin = 0;
   setData(data);
 
   return {
