@@ -94,8 +94,10 @@ export function adminAuthLogin(email: string, password: string): { token: string
   if (!user) {
     return { error: 'Email address does not exist' };
   } else if (user.password !== password) {
+    user.numFailedPasswordsSinceLastLogin++;
     return { error: 'Password does not match email' };
   }
+  user.numSuccessfulLogins++;
   const sessionId: number = Math.floor(Math.random() * Date.now());
   const newToken: Tokens = {
     sessionId: sessionId,

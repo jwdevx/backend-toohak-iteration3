@@ -28,9 +28,8 @@ import {
   // adminQuizDescriptionUpdate,
   adminQuizRemove,
   // adminQuizTrashView,
-  // adminQuizTrashRestore,
+  adminQuizTrashRestore,
   adminQuizTrashEmpty,
-  // adminQuizTrashRestore,
   adminQuizTrashView,
 } from './quiz';
 
@@ -103,7 +102,7 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const response = adminUserDetails(req.query.token as string);
   if ('error' in response) return res.status(401).json({ error: response.error });
-  res.status(200).json({ response });
+  res.status(200).json(response);
 });
 
 // adminUserDetailsUpdate: Update the details of an admin user (non-password).
@@ -123,7 +122,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   // TODO
   if (response.status === 401) {
     return res.status(401).json({ error: response.error });
-  } else if (response) {
+  } else if (response.status === 400) {
     return res.status(400).json({ error: response.error });
   }
   saveData();
@@ -222,14 +221,14 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
 // Restore a particular quiz from the trash back to an active quiz.
 // Note -- This should update it's timeLastEdited timestamp.
 // TODO edit url
-// app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
-//   const { token } = req.body;
-//   const quizId = parseInt(req.params.quizid);
-//   const response = adminQuizTrashRestore(String(token), quizId);
-//   if ('error' in response) return res.status(response.status).json({ error: response.error });
-//   saveData();
-//   res.json(response);
-// });
+app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const quizId = parseInt(req.params.quizid);
+  const response = adminQuizTrashRestore(String(token), quizId);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
+});
 
 // adminQuizTrashEmpty: Permanently delete specific quizzes currently sitting in the trash
 app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {

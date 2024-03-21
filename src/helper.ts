@@ -80,7 +80,7 @@ export function invalidNameLength(name: string): boolean {
  */
 export function UsedQuizName(userId: number, name: string): boolean {
   const data: DataStore = getData();
-  return data.quizzes.some(quiz => quiz.owner === userId && quiz.name === name);
+  return data.quizzes.some(quiz => quiz.owner === userId && quiz.name === name && quiz.intrash === false);
 }
 
 /**
