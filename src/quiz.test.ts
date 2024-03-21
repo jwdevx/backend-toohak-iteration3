@@ -785,6 +785,8 @@ describe('Testing if able to remove trash permanently using adminQuizTrashEmpty'
     expect(emptyRes4.statusCode).toBe(200);
     expect(emptyRes4.bodyObj).toStrictEqual({});
 
-    // TODO ****** test restore trash - ERROR, as quiz1 is permanent deleted and cannot be restored
+    const restore = adminQuizTrashRestore(sessionId1, quiz1.bodyObj.quizId);
+    expect(restore.bodyObj).toStrictEqual({error: 'The quiz does not exist.'})
+    expect(restore.statusCode).toStrictEqual(FORBIDDEN)
   });
 });
