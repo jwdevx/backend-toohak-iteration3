@@ -6,6 +6,7 @@ import {
   // adminQuizNameUpdate,
   // adminQuizDescriptionUpdate
   clear,
+  adminQuizTrashRestore,
 } from './apiRequests';
 
 import {
@@ -568,15 +569,175 @@ describe('Testing if adminQuizTrashView successfully views quiz in trash', () =>
 // =======================    adminQuizTrashRestore    =========================
 // =============================================================================
 
-
 describe('Testing for adminQuizTrashRestore successfully restore quiz in trash', () => {
   beforeEach(() => {
     clear();
   });
-
-  test
+  test('invalid token', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = token1.bodyObj.token;
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
+    adminQuizRemove(sessionId, quiz1.bodyObj.quizId);
+    const trash1 = adminQuizTrashView(sessionId);
+    expect(trash1.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+    const restore = adminQuizTrashRestore('9999999', quiz1.bodyObj.quizId);
+    expect(restore.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(restore.statusCode).toStrictEqual(UNAUTHORIZED);
+    const trash2 = adminQuizTrashView(sessionId);
+    expect(trash2.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+  });
+  test('quizid invalid', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = token1.bodyObj.token;
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
+    adminQuizRemove(sessionId, quiz1.bodyObj.quizId);
+    const trash1 = adminQuizTrashView(sessionId);
+    expect(trash1.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+    const restore = adminQuizTrashRestore(sessionId, quiz1.bodyObj.quizId + 999999);
+    expect(restore.bodyObj).toStrictEqual({ error: 'The quiz does not exist.' });
+    expect(restore.statusCode).toStrictEqual(FORBIDDEN);
+    const trash2 = adminQuizTrashView(sessionId);
+    expect(trash2.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+  })
+  test('user does not own the quiz', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId1 = token1.bodyObj.token;
+    const token2 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'tony', 'kkkk');
+    const sessionId2 = token2.bodyObj.token;
+    const quiz1 = adminQuizCreate(sessionId1, 'quiz1', 'first quiz');
+    const quiz2 = adminQuizCreate(sessionId2, 'quiz2', 'Second quiz');
+    adminQuizRemove(sessionId1, quiz1.bodyObj.quizId);
+    const trash1 = adminQuizTrashView(sessionId1);
+    expect(trash1.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+    const restore = adminQuizTrashRestore(sessionId2, quiz1.bodyObj.quizId);
+    expect(restore.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(restore.statusCode).toStrictEqual(FORBIDDEN);
+    const trash2 = adminQuizTrashView(sessionId1);
+    expect(trash2.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+  })
+  test('quiz is not in trash', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = token1.bodyObj.token;
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
+    adminQuizRemove(sessionId, quiz1.bodyObj.quizId);
+    const trash1 = adminQuizTrashView(sessionId);
+    expect(trash1.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+    const restore = adminQuizTrashRestore(sessionId, quiz2.bodyObj.quizId);
+    expect(restore.bodyObj).toStrictEqual({ error: 'The quiz is not in trash.' });
+    expect(restore.statusCode).toStrictEqual(BAD_REQUEST);
+    const trash2 = adminQuizTrashView(sessionId);
+    expect(trash2.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+  })
+  test('quiz name is used', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = token1.bodyObj.token;
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
+    adminQuizRemove(sessionId, quiz1.bodyObj.quizId);
+    const trash1 = adminQuizTrashView(sessionId);
+    expect(trash1.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+    const quiz3 = adminQuizCreate(sessionId, 'quiz1', 'third quiz')
+    const restore = adminQuizTrashRestore(sessionId, quiz1.bodyObj.quizId);
+    expect(restore.bodyObj).toStrictEqual({ error: 'The quiz name is used by another quiz' });
+    expect(restore.statusCode).toStrictEqual(BAD_REQUEST);
+    const trash2 = adminQuizTrashView(sessionId);
+    expect(trash2.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+  })
+  test('correct inputs', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = token1.bodyObj.token;
+    const quiz1 = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const quiz2 = adminQuizCreate(sessionId, 'quiz2', 'Second quiz');
+    adminQuizRemove(sessionId, quiz1.bodyObj.quizId);
+    const trash1 = adminQuizTrashView(sessionId);
+    expect(trash1.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quiz1.bodyObj.quizId,
+          name: 'quiz1'
+        }
+      ]
+    });
+    const restore = adminQuizTrashRestore(sessionId, quiz1.bodyObj.quizId);
+    expect(restore.bodyObj).toStrictEqual({});
+    expect(restore.statusCode).toStrictEqual(OK);
+    const trash2 = adminQuizTrashView(sessionId);
+    expect(trash2.bodyObj).toStrictEqual({quizzes: []});
+  })
 });
-
 
 // =============================================================================
 // =======================    adminQuizTrashEmpty    ===========================
