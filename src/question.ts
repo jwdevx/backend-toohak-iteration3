@@ -6,11 +6,12 @@
 /v1/admin/quiz/{quizid}/question/{questionid}/move
 /v1/admin/quiz/{quizid}/question/{questionid}/duplicate
 */
-
+const Colour = ['red', 'blue', 'green', 'yellow', 'purple', 'brown', 'orange']
+import { getTime } from 'date-fns';
 import { Questions, ErrorObject, Answer, QuestionBody } from './dataStore';
 import {
   findSessionId, checkQuestionLength,
-  findQuizId, matchQuizIdAndAuthor, checkQuestionDuration, checkQuestionPoints, checkAnswerLength, checkQuestionDurationSum, checkAnswerNum, checkAnswerDuplicate, checkAnswerCorrect
+  findQuizId, matchQuizIdAndAuthor, checkQuestionDuration, checkQuestionPoints, checkAnswerLength, checkQuestionDurationSum, checkAnswerNum, checkAnswerDuplicate, checkAnswerCorrect, randomIdGenertor, getNow
 } from './helper';
 export function adminQuestionCreate(
   token: string,
@@ -59,24 +60,25 @@ export function adminQuestionCreate(
     return { error: 'There should be at least one correct answer.', status: 400 };
   }
   const answers: Answer[] = [];
-  let id = 0;
   for (const answer of questionbody.answers) {
     const newAnswer : Answer = {
-      answerId: id,
+      answerId: randomIdGenertor(),
       answer: answer.answer,
       correct: answer.correct,
+      colour: Colour[Math.floor(Math.random() * 7)]
     };
     answers.push(newAnswer);
-    id++;
   }
+  const id = randomIdGenertor()
   const quesitons: Questions = {
-    questionId: quiz.questions.length,
+    questionId: id,
     question: questionbody.question,
     duration: questionbody.duration,
     points: questionbody.points,
     answers: answers
   };
   quiz.duration += questionbody.duration;
+  quiz.timeLastEdited = getNow();
   quiz.questions.push(quesitons);
   return { questionId: id };
 }
