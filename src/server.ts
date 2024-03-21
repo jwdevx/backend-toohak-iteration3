@@ -30,7 +30,6 @@ import {
   // adminQuizTrashView,
   adminQuizTrashRestore,
   adminQuizTrashEmpty,
-  // adminQuizTrashRestore,
   adminQuizTrashView,
 } from './quiz';
 
