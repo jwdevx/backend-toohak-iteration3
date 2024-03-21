@@ -120,13 +120,11 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const { token, oldPassword, newPassword } = req.body;
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
   // TODO
-  if (response.status === 401) {
-    return res.status(401).json({ error: response.error });
-  } else if (response.status === 400) {
-    return res.status(400).json({ error: response.error });
+  if ('error' in response) {
+    return res.status(response.status).json({ error: response.error });
   }
   saveData();
-  res.status(200).json({});
+  res.json(response);
 });
 
 // adminAuthLogout: Logs out an admin user who has an active quiz session.
