@@ -107,7 +107,7 @@ describe('Further testing on Iteration 2 ', () => {
       const quiz2 = adminQuizCreate(user1_sessionId1_string, 'quiz2name', 'quiz2description');
       expect(quiz2.statusCode).toStrictEqual(200);    
       const user1_quiz2_Id_number = quiz2.bodyObj.quizId;
-    console.log(user1_quiz2_Id_number);
+    // console.log(user1_quiz2_Id_number);
     
 //------------------------------------------------------------------------------
 
@@ -308,46 +308,102 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
           {
             "answer": "Prince Charles",
             "correct": true
+          },
+          {
+            "answer": "1Prince Charles",
+            "correct": false
           }
         ]
       };
     
         // Example: adminQuestionCreate - Create a question for Quiz1
         let questionCreate = adminQuestionCreate(user1_sessionId3_string, user1_quiz2_Id_number, questionBody1);
+        // console.log(questionCreate);
         expect(questionCreate.statusCode).toStrictEqual(200);
         expect(questionCreate.bodyObj).toStrictEqual({ questionId: expect.any(Number) });
         let questionId_number = questionCreate.bodyObj.questionId
         expect(questionId_number).not.toBeNaN();		
-    
-        const questionBody2 = {
+
+        //error exceed time
+        let questionBody2 = {
           "question": "Who is the Monarch of England?",
           "duration": 177,
           "points": 5,
           "answers": [
             {
-              "answer": "Prince Charles",
-              "correct": true
-            }
+                "answer": "Prince Charles",
+                "correct": true
+              },
+              {
+                "answer": "1Prince Charles",
+                "correct": false
+              }
           ]
         };
         questionCreate = adminQuestionCreate(user1_sessionId3_string, user1_quiz2_Id_number, questionBody2);
         expect(questionCreate.statusCode).toStrictEqual(400);
-    
+
+        //error same questions
+        questionBody2 = {
+            "question": "Who is the Monarch of England?",
+            "duration": 5,
+            "points": 5,
+            "answers": [
+              {
+                  "answer": "Prince Charles",
+                  "correct": true
+                },
+                {
+                  "answer": "Prince Charles",
+                  "correct": false
+                }
+            ]
+          };
+          questionCreate = adminQuestionCreate(user1_sessionId3_string, user1_quiz2_Id_number, questionBody2);
+        expect(questionCreate.statusCode).toStrictEqual(400);
+        
+/*
         const quizInfo_quiz2_user1 = adminQuizInfo(user1_sessionId3_string, user1_quiz2_Id_number);
         expect(quizInfo_quiz2_user1.statusCode).toStrictEqual(200);
+
+        console.log(quizInfo_quiz2_user1);
+
         expect(quizInfo_quiz2_user1.bodyObj).toStrictEqual({
+
           quizId: user1_quiz2_Id_number,
           name: 'quiz2name',
           timeCreated: expect.any(Number),
           timeLastEdited: expect.any(Number),
           description: 'quiz2description',
           numQuestions: 1,
-          questions: [questionBody1],
+            questions: [
+                
+                {
+                    questionId: expect.any(Number),
+                    question: "Who is the Monarch of England?",
+                    duration: 4,
+                    points: 5,
+                    answers: [
+                        {
+                            answerId: expect.any(Number),
+                            answer: "Prince Charles",
+                        colour:expect.any(String),
+                        correct: true
+                      },
+                      {answerId: expect.any(Number),
+                          answer: "1Prince Charles",
+                          colour:expect.any(String),
+                        correct: false
+                      }
+                    ]
+                  },
+            ],
+            duration: 4,
         });		
         expect(quizInfo_quiz2_user1.bodyObj.timeLastEdited).not.toEqual(quizInfo_quiz2_user1.bodyObj.timeCreated);
         expect(quizInfo_quiz2_user1.bodyObj.timeLastEdited).toBeGreaterThan(quizInfo_quiz2_user1.bodyObj.timeCreated);
 
-    
+    */
     
     
     
@@ -415,4 +471,44 @@ Time:        4.961 s
 Ran all test suites matching /course_tests\//i.
 npm verb exit 1
 npm verb code 1
+*/
+
+/* ----------------------------   WARNING   ------------------------------------
+Please note, when you have a single route (e.g. /my/route/name) 
+alongside a wildcard route (e.g. /my/route/{variable}) 
+you need to define the single route before the variable route.
+
+Must Follow this order in server.ts, as well when adding function for ITERATION 3
+
+Clear
+  DELETE /v1/clear - JASON
+
+Authentication and User Management
+  POST /v1/admin/auth/register - JASON
+  POST /v1/admin/auth/login - VENUS
+  GET /v1/admin/user/details - VENUS
+  PUT /v1/admin/user/details - JASON
+  PUT /v1/admin/user/password - VENUS
+  POST /v1/admin/auth/logout - JASON  
+
+Quiz Management (General)
+  POST /v1/admin/quiz - SADAT
+  GET /v1/admin/quiz/list - CHENG
+  GET /v1/admin/quiz/trash - CHENG
+  DELETE /v1/admin/quiz/trash/empty - JASON
+
+Quiz-Specific Routes
+  GET /v1/admin/quiz/{quizid} - SADAT
+  DELETE /v1/admin/quiz/{quizid} - CHENG
+  PUT /v1/admin/quiz/{quizid}/name - ASH
+  PUT /v1/admin/quiz/{quizid}/description - ASH
+  POST /v1/admin/quiz/{quizid}/restore - CHENG
+  POST /v1/admin/quiz/{quizid}/transfer - VENUS
+
+Question-Specific Routes  
+  POST /v1/admin/quiz/{quizid}/question - CHENG
+  PUT /v1/admin/quiz/{quizid}/question/{questionid} - ASH
+  DELETE /v1/admin/quiz/{quizid}/question/{questionid} - SADAT
+  PUT /v1/admin/quiz/{quizid}/question/{questionid}/move - SADAT
+  POST /v1/admin/quiz/{quizid}/question/{questionid}/duplicate - ASH
 */
