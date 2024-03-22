@@ -25,7 +25,7 @@ import {
   adminQuizList,
   adminQuizInfo,
   adminQuizNameUpdate,
-  // adminQuizDescriptionUpdate,
+  adminQuizDescriptionUpdate,
   adminQuizRemove,
   // adminQuizTrashView,
   // adminQuizTrashRestore,
@@ -189,6 +189,16 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { token, name } = req.body;
   const response = adminQuizNameUpdate(quizId, token, name);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
+});
+
+// adminQuizDescriptionUpdate: Update the description of the relevant quiz
+app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const { token, description } = req.body;
+  const response = adminQuizDescriptionUpdate(quizId, token, description);
   if ('error' in response) return res.status(response.status).json({ error: response.error });
   saveData();
   res.json(response);
