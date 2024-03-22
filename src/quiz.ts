@@ -136,7 +136,8 @@ export function adminQuizInfo(token: string, quizId: number): {
     timeLastEdited: quiz.timeLastEdited,
     description: quiz.description,
     numQuestions: quiz.numQuestions,
-    questions: quiz.questions
+    questions: quiz.questions,
+    duration: quiz.duration
   };
   return quizInfo;
 }
@@ -202,7 +203,7 @@ export function adminQuizRemove(token: string, quizId: number) : Record<string, 
     return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
   }
   const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
-  if (!quiz || isNaN(quizId)) {
+  if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
   }
   quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
