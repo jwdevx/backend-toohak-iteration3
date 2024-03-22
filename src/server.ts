@@ -254,9 +254,9 @@ app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
  * and the colours of all answers of that question are randomly generated.
  */
 app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
-  const { token, questionBody } = req.body;
+  const { token, questionbody } = req.body;
   const quizId = parseInt(req.params.quizid);
-  const response = adminQuestionCreate(token, quizId, questionBody);
+  const response = adminQuestionCreate(token, quizId, questionbody);
   if ('error' in response) return res.status(response.status).json({ error: response.error });
   saveData();
   res.json(response);
