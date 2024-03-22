@@ -213,7 +213,6 @@ export function adminQuizRemove(token: string, quizId: number) : Record<string, 
 /**
  * View the quizzes in trash
  */
-
 export function adminQuizTrashView(token: string): {quizzes: QuizSummary[]} | ErrorObject {
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
@@ -240,7 +239,6 @@ export function adminQuizTrashView(token: string): {quizzes: QuizSummary[]} | Er
 /**
  * Restore a quiz from trash
  */
-// TODO /v1/admin/quiz/{quizid}/restore
 export function adminQuizTrashRestore(token: string, quizId: number): Record<string, never> | ErrorObject {
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
