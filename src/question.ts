@@ -31,7 +31,7 @@ export function adminQuestionCreate(
   }
   const authUserId = validToken.userId;
   const quiz = findQuizId(quizId);
-  if (!quiz) {
+  if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     return { error: 'Quiz ID does not refer to a valid quiz.', status: 403 };
   }
   if (!matchQuizIdAndAuthor(authUserId, quizId)) {
@@ -113,10 +113,10 @@ export function adminQuestionRemove(
     };
   }
   const authUserId = validToken.userId;
-  if (!findQuizId(quizId)) {
+  const quiz = findQuizId(quizId);
+  if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     return { error: 'Quiz ID does not refer to a valid quiz.', status: 403 };
   }
-  const quiz = findQuizId(quizId);
   if (!matchQuizIdAndAuthor(authUserId, quizId)) {
     return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
   }
@@ -155,10 +155,10 @@ export function adminQuestionMove(
   }
   const authUserId = validToken.userId;
 
-  if (!findQuizId(quizId)) {
+  const quiz = findQuizId(quizId);
+  if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     return { error: 'Quiz ID does not refer to a valid quiz.', status: 403 };
   }
-  const quiz = findQuizId(quizId);
   if (!matchQuizIdAndAuthor(authUserId, quizId)) {
     return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
   }
