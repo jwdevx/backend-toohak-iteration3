@@ -4,14 +4,16 @@ import {
   ErrorObject,
   DataStore
 } from './dataStore';
-import { getData, setData } from './dataStore';
+import {
+    getData,
+    setData
+} from './dataStore';
 import {
   findSessionId,
   findUserId,
   invalidEmail,
   invalidUserName,
   invalidNameLength,
-//   findUserFromToken,
 } from './helper';
 
 interface UserDetails {
@@ -21,7 +23,6 @@ interface UserDetails {
   numSuccessfulLogins: number;
   numFailedPasswordsSinceLastLogin: number;
 }
-
 interface UserDetailsReturn {
   user: UserDetails;
 }
@@ -88,9 +89,9 @@ export function adminAuthRegister(
  */
 export function adminAuthLogin(email: string, password: string): { token: string } | { error: string } {
   if (!email || !password) return { error: 'One or more missing parameters' };
-  const data = getData();
+  
+  const data: DataStore = getData();
   const user = data.users.find((user) => user.email === email);
-
   if (!user) {
     return { error: 'Email address does not exist' };
   } else if (user.password !== password) {
@@ -124,10 +125,10 @@ export function adminUserDetails(token: string): UserDetailsReturn | { error: st
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided' };
 
-  const validToken: Tokens = findSessionId(sessionId);
+  const validToken = findSessionId(sessionId);
   if (!validToken) return { error: 'Token is invalid (does not refer to valid logged in user session)' };
 
-  const user: Users = findUserId(validToken.userId);
+  const user = findUserId(validToken.userId);
   if (!user) return { error: 'User not found' };
 
   return {
@@ -161,11 +162,11 @@ export function adminUserDetailsUpdate(
   if (!token || !String(token).trim() || isNaN(sessionId)) {
     return { error: 'Token is empty or not provided', status: 401 };
   }
-  const validToken: Tokens = findSessionId(sessionId);
+  const validToken = findSessionId(sessionId);
   if (!validToken) {
     return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
   }
-  const user: Users = findUserId(validToken.userId);
+  const user = findUserId(validToken.userId);
   if (!user) return { error: 'User not found', status: 401 };
 
   if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== user.userId)) {
@@ -192,7 +193,6 @@ export function adminUserDetailsUpdate(
   user.nameLast = nameLast;
   user.name = `${nameFirst} ${nameLast}`;
   user.email = email;
-
   setData(data);
   return {};
 }
@@ -204,20 +204,20 @@ export function adminUserDetailsUpdate(
  * @param {string} newPassword - The newpassword for the user
  * @returns { } null
  */
-export function adminUserPasswordUpdate(token: string, oldPassword: string, newPassword: string) {
-  // Basic validation for missing or null values
+export function adminUserPasswordUpdate(
+  token: string,
+  oldPassword: string,
+  newPassword: string): ErrorObject | Record<string, never> {
+  
   const sessionId = parseInt(decodeURIComponent(token));
-  if (!token || isNaN(sessionId)) {
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
     return { error: 'token is empty or invalid', status: 401 };
   }
-
   const validToken = findSessionId(sessionId);
-  if (!validToken) {
-    return {
-      error: 'token is empty or invalid', status: 401
-    };
-  }
+  if (!validToken) { return { error: 'token is empty or invalid', status: 401};}
   const user = findUserId(validToken.userId);
+  if (!user) return { error: 'User not found', status: 401 };
+
   const data: DataStore = getData();
   if (!oldPassword || !newPassword) return { error: 'One or more missing parameters', status: 400 };
   if (user.password !== oldPassword) return { error: 'The old password is wrong.', status: 400 };
@@ -229,10 +229,8 @@ export function adminUserPasswordUpdate(token: string, oldPassword: string, newP
   if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(newPassword)) {
     return { error: 'Password must contain at least one letter and one number', status: 400 };
   }
-
   user.oldPasswords.push({ password: oldPassword });
   user.password = newPassword;
-
   setData(data);
   return {};
 }
@@ -242,7 +240,7 @@ export function adminUserPasswordUpdate(token: string, oldPassword: string, newP
  * Should be called with a token that is returned after either a login or register has been made.
  *
  * @param {string} token - the sessionId of the user in the Token array
- * @returns {Object} empty objects indicating success of an object with an error: string message
+ * @returns {Object} empty objects indicating success OR an object with an error: string message
  */
 export function adminAuthLogout(token: string): { error: string } | Record<string, never> {
   const data: DataStore = getData();
