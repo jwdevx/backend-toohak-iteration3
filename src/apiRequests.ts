@@ -78,7 +78,23 @@ export const adminUserDetailsUpdate = (
   };
 };
 
-// TODO adminUserPasswordUpdate
+// TODO adminUserPasswordUpdate here ---->>>>
+export const adminUserPasswordUpdate = (
+  token: string, oldPassword: string, newPassword: string) => {
+  const res = request('PUT', SERVER_URL + '/v1/admin/user/password', {
+    json: {
+      token: token,
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
+// TODO adminAuthLogout here ---->>>>
 
 export const adminAuthLogout = (sessionId: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/logout', {
@@ -188,16 +204,16 @@ export const adminQuizTrashView = (token: string) => {
   };
 };
 
-// export const adminQuizTrashRestore = (token: string, quizId: number) => {
-//   const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/restore`, {
-//     json: { token: token },
-//     timeout: 100
-//   });
-//   return {
-//     bodyObj: JSON.parse(res.body as string),
-//     statusCode: res.statusCode,
-//   };
-// };
+export const adminQuizTrashRestore = (token: string, quizId: number) => {
+  const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/restore`, {
+    json: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
 export const adminQuizTrashEmpty = (token: string, quizIds: string) => {
   const res = request('DELETE', SERVER_URL + '/v1/admin/quiz/trash/empty', {
@@ -215,11 +231,11 @@ export const adminQuizTrashEmpty = (token: string, quizIds: string) => {
 // =============================================================================
 
 export const adminQuestionCreate = (
-  token: string, quizId: number, questionbody: QuestionBody) => {
+  token: string, quizId: number, questionBody: QuestionBody) => {
   const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question`, {
     json: {
       token: token,
-      questionbody: questionbody
+      questionBody: questionBody
     },
     timeout: 100
   });

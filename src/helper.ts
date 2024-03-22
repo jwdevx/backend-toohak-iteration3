@@ -80,7 +80,7 @@ export function invalidNameLength(name: string): boolean {
  */
 export function UsedQuizName(userId: number, name: string): boolean {
   const data: DataStore = getData();
-  return data.quizzes.some(quiz => quiz.owner === userId && quiz.name === name);
+  return data.quizzes.some(quiz => quiz.owner === userId && quiz.name === name && quiz.intrash === false);
 }
 
 /**
@@ -202,4 +202,12 @@ export function checkAnswerCorrect(answers: answer[]) : boolean {
   const found = answers.find(answer => answer.correct === true);
   if (found) return false;
   return true;
+}
+
+export function randomIdGenertor() : number {
+  return Math.floor(Math.random() * Math.floor(10000));
+}
+
+export function getNow() : number {
+  return Math.floor(Date.now() / 1000);
 }

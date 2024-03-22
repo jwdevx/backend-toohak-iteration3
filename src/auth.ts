@@ -4,14 +4,16 @@ import {
   ErrorObject,
   DataStore
 } from './dataStore';
-import { getData, setData } from './dataStore';
+import {
+  getData,
+  setData
+} from './dataStore';
 import {
   findSessionId,
   findUserId,
   invalidEmail,
   invalidUserName,
   invalidNameLength,
-//   findUserFromToken,
 } from './helper';
 
 interface UserDetails {
@@ -21,7 +23,6 @@ interface UserDetails {
   numSuccessfulLogins: number;
   numFailedPasswordsSinceLastLogin: number;
 }
-
 interface UserDetailsReturn {
   user: UserDetails;
 }
@@ -88,20 +89,23 @@ export function adminAuthRegister(
  */
 export function adminAuthLogin(email: string, password: string): { token: string } | { error: string } {
   if (!email || !password) return { error: 'One or more missing parameters' };
-  const data = getData();
-  const user = data.users.find((user) => user.email === email);
 
+  const data: DataStore = getData();
+  const user = data.users.find((user) => user.email === email);
   if (!user) {
     return { error: 'Email address does not exist' };
   } else if (user.password !== password) {
+    user.numFailedPasswordsSinceLastLogin++;
     return { error: 'Password does not match email' };
   }
+  user.numSuccessfulLogins++;
   const sessionId: number = Math.floor(Math.random() * Date.now());
   const newToken: Tokens = {
     sessionId: sessionId,
     userId: user.userId,
   };
   data.tokens.push(newToken);
+  user.numFailedPasswordsSinceLastLogin = 0;
   setData(data);
 
   return {
@@ -121,10 +125,10 @@ export function adminUserDetails(token: string): UserDetailsReturn | { error: st
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided' };
 
-  const validToken: Tokens = findSessionId(sessionId);
+  const validToken = findSessionId(sessionId);
   if (!validToken) return { error: 'Token is invalid (does not refer to valid logged in user session)' };
 
-  const user: Users = findUserId(validToken.userId);
+  const user = findUserId(validToken.userId);
   if (!user) return { error: 'User not found' };
 
   return {
@@ -158,11 +162,11 @@ export function adminUserDetailsUpdate(
   if (!token || !String(token).trim() || isNaN(sessionId)) {
     return { error: 'Token is empty or not provided', status: 401 };
   }
-  const validToken: Tokens = findSessionId(sessionId);
+  const validToken = findSessionId(sessionId);
   if (!validToken) {
     return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
   }
-  const user: Users = findUserId(validToken.userId);
+  const user = findUserId(validToken.userId);
   if (!user) return { error: 'User not found', status: 401 };
 
   if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== user.userId)) {
@@ -189,7 +193,6 @@ export function adminUserDetailsUpdate(
   user.nameLast = nameLast;
   user.name = `${nameFirst} ${nameLast}`;
   user.email = email;
-
   setData(data);
   return {};
 }
@@ -201,37 +204,42 @@ export function adminUserDetailsUpdate(
  * @param {string} newPassword - The newpassword for the user
  * @returns { } null
  */
-/*
-export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
-  // Basic validation for missing or null values
-  if (!authUserId || !oldPassword || !newPassword) return { error: 'One or more missing parameters' };
-
-  const user = findUserId(authUserId);
-  if (!user) return { error: 'AuthUserId is not a valid user' };
+export function adminUserPasswordUpdate(
+  token: string,
+  oldPassword: string,
+  newPassword: string): ErrorObject | Record<string, never> {
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    return { error: 'token is empty or invalid', status: 401 };
+  }
+  const validToken = findSessionId(sessionId);
+  if (!validToken) { return { error: 'token is empty or invalid', status: 401 }; }
+  const user = findUserId(validToken.userId);
+  if (!user) return { error: 'User not found', status: 401 };
 
   const data: DataStore = getData();
-  if (user.password !== oldPassword) return { error: 'The old password is wrong.' };
-  if (oldPassword === newPassword) return { error: 'The new password is the same as the old password.' };
-  if (user.oldPasswords.includes(newPassword)) return { error: 'The new password is used before.' };
-  if (newPassword.length < 8) return { error: 'Password must be at least 8 characters long' };
-  if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(newPassword)) {
-    return { error: 'Password must contain at least one letter and one number' };
+  if (!oldPassword || !newPassword) return { error: 'One or more missing parameters', status: 400 };
+  if (user.password !== oldPassword) return { error: 'The old password is wrong.', status: 400 };
+  if (oldPassword === newPassword) return { error: 'The new password is the same as the old password.', status: 400 };
+  if (user.oldPasswords.some(passwordObj => passwordObj.password === newPassword)) {
+    return { error: 'The new password has been used before.', status: 400 };
   }
-
-  user.oldPasswords.push(oldPassword);
+  if (newPassword.length < 8) return { error: 'Password must be at least 8 characters long', status: 400 };
+  if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(newPassword)) {
+    return { error: 'Password must contain at least one letter and one number', status: 400 };
+  }
+  user.oldPasswords.push({ password: oldPassword });
   user.password = newPassword;
-
   setData(data);
   return {};
 }
-*/
 
 /**
  * Logs out an admin user who has an active quiz session.
  * Should be called with a token that is returned after either a login or register has been made.
  *
  * @param {string} token - the sessionId of the user in the Token array
- * @returns {Object} empty objects indicating success of an object with an error: string message
+ * @returns {Object} empty objects indicating success OR an object with an error: string message
  */
 export function adminAuthLogout(token: string): { error: string } | Record<string, never> {
   const data: DataStore = getData();

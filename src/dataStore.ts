@@ -85,6 +85,7 @@ export interface Answer {
   answerId: number;
   answer: string;
   correct: boolean;
+  colour: string;
 }
 
 export interface answer {
