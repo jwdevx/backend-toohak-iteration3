@@ -80,7 +80,6 @@ export function adminQuestionCreate(
   quiz.timeLastEdited = getNow();
   quiz.numQuestions += 1;
   quiz.questions.push(quesiton);
-  quiz.numQuestions += 1;
   return { questionId: quesiton.questionId };
 }
 /**
