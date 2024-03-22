@@ -244,3 +244,15 @@ export const adminQuestionCreate = (
     statusCode: res.statusCode,
   };
 };
+
+export const adminQuestionRemove = (
+  quizId: number, questionId: number, token: string) => {
+  const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}`, {
+    qs: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};

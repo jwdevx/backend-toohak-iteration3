@@ -1,4 +1,4 @@
-import { adminAuthRegister, adminQuestionCreate, adminQuizCreate, clear } from './apiRequests';
+import { adminAuthRegister, adminQuestionCreate, adminQuizCreate, adminQuestionRemove, adminQuizInfo, clear } from './apiRequests';
 import { QuestionBody, answer } from './dataStore';
 
 const OK = 200;
@@ -263,5 +263,140 @@ describe('test question create', () => {
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
     expect(questionid.bodyObj).toStrictEqual({ error: 'There should be at least one correct answer.' });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
+  });
+});
+/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+describe('test question remove', () => {
+  beforeEach(() => {
+    clear();
+  });
+  const answer1 = 'this is answer1';
+  const answer2 = 'this is answer2';
+  const answerObj1: answer = { answer: answer1, correct: true };
+  const answerObj2: answer = { answer: answer2, correct: false };
+  test('correctly removes the given question', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const token = token1.bodyObj.token;
+    const quiz = adminQuizCreate(token, 'quiz1', 'first quiz');
+    const answers = [answerObj1, answerObj2];
+    const body1 : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    const body2 : QuestionBody = {
+      question: 'this is another test',
+      duration: 15,
+      points: 5,
+      answers: answers
+    };
+    const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
+    const questionid2 = adminQuestionCreate(token, quiz.bodyObj.quizId, body2);
+    const id1 = questionid1.bodyObj.questionId;
+    const id2 = questionid2.bodyObj.questionId;
+    adminQuestionRemove(quiz.bodyObj.quizId, id1, token);
+    expect(adminQuizInfo(token, quiz.bodyObj.quizId).bodyObj).toStrictEqual({
+      quizId: quiz.bodyObj.quizId,
+      name: 'quiz1',
+      timeCreated: expect.any(Number),
+      timeLastEdited: expect.any(Number),
+      description: 'first quiz',
+      numQuestions: 1,
+      questions: [{
+        questionId: id2,
+        question: body2.question,
+        duration: body2.duration,
+        points: body2.points,
+        answers: [{
+          answer: answer1,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: true,
+        }, {
+          answer: answer2,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: false,
+        }]
+      }],
+      duration: 15
+    });
+    const obj = adminQuestionRemove(quiz.bodyObj.quizId, id2, token);
+    const info = adminQuizInfo(token, quiz.bodyObj.quizId);
+    expect(info.bodyObj).toStrictEqual({
+      quizId: quiz.bodyObj.quizId,
+      name: 'quiz1',
+      timeCreated: expect.any(Number),
+      timeLastEdited: expect.any(Number),
+      description: 'first quiz',
+      numQuestions: 0,
+      questions: [],
+      duration: 0
+    });
+    expect(info.statusCode).toStrictEqual(OK);
+    expect(obj.bodyObj).toStrictEqual({});
+  });
+  test('Question Id does not refer to a valid question within this quiz', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const token = token1.bodyObj.token;
+    const quiz = adminQuizCreate(token, 'quiz1', 'first quiz');
+    const answers = [answerObj1, answerObj2];
+    const body1 : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
+    const id1 = questionid1.bodyObj.questionId;
+    const obj = adminQuestionRemove(quiz.bodyObj.quizId, id1 + 1, token);
+    expect(obj.bodyObj).toStrictEqual({ error: 'Question Id does not refer to a valid question within this quiz' });
+    expect(obj.statusCode).toStrictEqual(400);
+  });
+
+  test('Token is empty or invalid (does not refer to valid logged in user session', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const token = token1.bodyObj.token;
+    const quiz = adminQuizCreate(token, 'quiz1', 'first quiz');
+
+    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
+
+    const answers = [answerObj1, answerObj2];
+    const body1 : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
+    const id1 = questionid1.bodyObj.questionId;
+    const obj = adminQuestionRemove(quiz.bodyObj.quizId, id1, wrongtoken);
+    expect(obj.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(obj.statusCode).toStrictEqual(401);
+  });
+
+  test('Valid token is provided, but either the quiz ID is invalid, or the user does not own the quiz', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const token2 = adminAuthRegister('jason@gmail.com', 'WOjiaoZC123', 'jason', 'cheng');
+    const token = token1.bodyObj.token;
+    const quiz = adminQuizCreate(token, 'quiz1', 'first quiz');
+    const answers = [answerObj1, answerObj2];
+    const body1 : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
+    const id1 = questionid1.bodyObj.questionId;
+    const obj = adminQuestionRemove(quiz.bodyObj.quizId, id1, token2.bodyObj.token);
+    expect(obj.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(obj.statusCode).toStrictEqual(403);
+
+    const obj1 = adminQuestionRemove(quiz.bodyObj.quizId + 100, id1, token1.bodyObj.token);
+    expect(obj1.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
+    expect(obj1.statusCode).toStrictEqual(403);
   });
 });

@@ -161,6 +161,7 @@ describe('Testing get quiz info', () => {
       description: 'quiz1description',
       numQuestions: 0,
       questions: [],
+      duration: 0
     });
   });
   test('Check invalid token', () => {

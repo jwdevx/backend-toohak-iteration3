@@ -134,6 +134,7 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
       timeCreated: expect.any(Number),
       timeLastEdited: expect.any(Number),
       description: 'quiz1description',
+      duration: 0,
       numQuestions: 0,
       questions: [],
     });
