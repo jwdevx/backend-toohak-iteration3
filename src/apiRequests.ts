@@ -204,11 +204,11 @@ export const adminQuizTrashEmpty = (token: string, quizIds: string) => {
 // =============================================================================
 
 export const adminQuestionCreate = (
-  token: string, quizId: number, questionbody: QuestionBody) => {
+  token: string, quizId: number, questionBody: QuestionBody) => {
   const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question`, {
     json: {
       token: token,
-      questionbody: questionbody
+      questionBody: questionBody
     },
     timeout: 100
   });
