@@ -4,7 +4,7 @@ import {
   adminQuizList,
   adminQuizInfo,
   adminQuizNameUpdate,
-  // adminQuizDescriptionUpdate,
+  adminQuizDescriptionUpdate,
   clear,
 } from './apiRequests';
 
@@ -324,6 +324,81 @@ describe('Testing QuizNameUpdate', () => {
     const NameUpdateStatus = NameUpdate.statusCode;
     expect(NameUpdateBody).toStrictEqual({ });
     expect(NameUpdateStatus).toStrictEqual(OK);
+  });
+});
+
+// =============================================================================
+// ======================    adminQuizDescriptionUpdate   ======================
+// =============================================================================
+
+describe('Testing QuizDescriptionUpdate', () => {
+  beforeEach(() => {
+    clear();
+  });
+
+  test('Check invalid token', () => {
+    const user1 = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'Sami', 'Ashfaque').bodyObj.token;
+    const Quiz1 = adminQuizCreate(user1, 'quiz01', 'i love autotests').bodyObj.quizId;
+    const token = (parseInt(decodeURIComponent(user1)));
+    const wrongtoken = encodeURIComponent(JSON.stringify(token + 1));
+    const DescriptionUpdate = adminQuizDescriptionUpdate(Quiz1, wrongtoken, 'i hate autotests');
+    expect(DescriptionUpdate.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(DescriptionUpdate.statusCode).toStrictEqual(UNAUTHORIZED);
+  });
+
+  test('Check invalid token', () => {
+    const user1 = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'Sami', 'Ashfaque').bodyObj.token;
+    const Quiz1 = adminQuizCreate(user1, 'quiz01', 'i love autotests').bodyObj.quizId;
+    const emptyToken = '';
+    const DescriptionUpdate = adminQuizDescriptionUpdate(Quiz1, emptyToken, 'i hate autotests');
+    expect(DescriptionUpdate.bodyObj).toStrictEqual({ error: 'Token is empty or not provided' });
+    expect(DescriptionUpdate.statusCode).toStrictEqual(UNAUTHORIZED);
+  });
+
+  test('Check invalid Quiz ID', () => {
+    const user1 = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'Sami', 'Ashfaque').bodyObj.token;
+    const Quiz1 = adminQuizCreate(user1, 'quiz01', 'i love autotests').bodyObj.quizId;
+    const DescriptionUpdate = adminQuizDescriptionUpdate(Quiz1 + 1, user1, 'quiz02');
+    expect(DescriptionUpdate.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(DescriptionUpdate.statusCode).toStrictEqual(FORBIDDEN);
+  });
+
+  test('Quiz ID does not refer to a quiz that this user owns.', () => {
+    const user1 = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'sami', 'ashfaque').bodyObj.token;
+    const user2 = adminAuthRegister('ami@gmail.com', 'BnGBd123', 'ami', 'ishfaque').bodyObj.token;
+    const Quiz1 = adminQuizCreate(user1, 'quiz01', 'i love autotests').bodyObj.quizId;
+    const Quiz2 = adminQuizCreate(user2, 'quiz02', 'i love autotests').bodyObj.quizId;
+    const DescriptionUpdate = adminQuizDescriptionUpdate(Quiz1, user2, 'quiz3');
+    const DescriptionUpdate2 = adminQuizDescriptionUpdate(Quiz2, user1, 'quiz3');
+    const DescriptionUpdateBody = DescriptionUpdate.bodyObj;
+    const DescriptionUpdateStatus = DescriptionUpdate.statusCode;
+    const DescriptionUpdate2Body = DescriptionUpdate2.bodyObj;
+    const DescriptionUpdate2Status = DescriptionUpdate2.statusCode;
+    expect(DescriptionUpdateBody).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(DescriptionUpdate2Body).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(DescriptionUpdateStatus).toStrictEqual(FORBIDDEN);
+    expect(DescriptionUpdate2Status).toStrictEqual(FORBIDDEN);
+  });
+
+  // Testing for too long description
+  test('long description', () => {
+    const user1 = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'Sami', 'Ashfaque').bodyObj.token;
+    const quiz1 = adminQuizCreate(user1, 'quiz01', 'i love autotests').bodyObj.quizId;
+    const longdescription = 'a'.repeat(150);
+    const DescriptionUpdate = adminQuizDescriptionUpdate(quiz1, user1, longdescription);
+    expect(DescriptionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(DescriptionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
+  });
+
+  // Testing for correct input and output
+  test('Correct input', () => {
+    const user1 = adminAuthRegister('sami@yahoo.com', 'DhkBD123', 'Sami', 'Ashfaque').bodyObj.token;
+    const Quiz1 = adminQuizCreate(user1, 'quiz01', 'i love autotests').bodyObj.quizId;
+    const DescriptionUpdate = adminQuizDescriptionUpdate(Quiz1, user1, 'quiz2');
+    const DescriptionUpdateBody = DescriptionUpdate.bodyObj;
+    const DescriptionUpdateStatus = DescriptionUpdate.statusCode;
+    expect(DescriptionUpdateBody).toStrictEqual({ });
+    expect(DescriptionUpdateStatus).toStrictEqual(OK);
   });
 });
 
