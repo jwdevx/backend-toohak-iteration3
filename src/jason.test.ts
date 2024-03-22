@@ -53,11 +53,13 @@ describe('Further testing on Iteration 2 ', () => {
     beforeEach(() => {
       clear();
     });
-    test('Success Case Password Update', () => {
-      const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+  test('Success Case Password Update', () => {
+
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
       const success = adminUserPasswordUpdate(user1.bodyObj.token, '1234abcd', 'WOjiaoZC123');
       expect(success.statusCode).toStrictEqual(200);
-      console.log(success);
+      expect(success.bodyObj).toStrictEqual({});
+      // console.log(success);
       const login = adminAuthLogin('hayden.smith@unsw.edu.au', 'WOjiaoZC123');
       expect(login.statusCode).toStrictEqual(200);
       expect(login.bodyObj).toStrictEqual({ token: expect.any(String) });
@@ -66,7 +68,17 @@ describe('Further testing on Iteration 2 ', () => {
 	test(' Combo1 ', () => {
 			
 			//* adminAuthRegister - User 1 - Session 1
-      const user1 = adminAuthRegister('hayden1.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    let user1 = adminAuthRegister('', '1234abcd', 'Hayden', 'Smith');
+    expect(user1.statusCode).toStrictEqual(400);
+    user1 = adminAuthRegister('     ', '1234abcd', 'Hayden', 'Smith');
+    expect(user1.statusCode).toStrictEqual(400);
+    user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '', 'Hayden', 'Smith');
+    expect(user1.statusCode).toStrictEqual(400);
+    user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', '', 'Smith');
+    expect(user1.statusCode).toStrictEqual(400);
+    user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', '');
+    expect(user1.statusCode).toStrictEqual(400);
+    user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
 			expect(user1.statusCode).toStrictEqual(200);
 			const user1_sessionId1_string = user1.bodyObj.token;					
 			expect(user1.bodyObj).toStrictEqual({ token: expect.any(String) });
@@ -75,7 +87,7 @@ describe('Further testing on Iteration 2 ', () => {
 
 
       //* adminAuthLogin - Successful login for User 1 - Session 2
-			let login1User1 = adminAuthLogin('hayden1.smith@unsw.edu.au', '1234abcd');
+			let login1User1 = adminAuthLogin('hayden.smith@unsw.edu.au', '1234abcd');
 			expect(login1User1.statusCode).toStrictEqual(200);
 			expect(login1User1.bodyObj).toHaveProperty('token');
 			expect(login1User1.bodyObj).toStrictEqual({ token: expect.any(String) });
@@ -95,7 +107,25 @@ describe('Further testing on Iteration 2 ', () => {
       const quiz2 = adminQuizCreate(user1_sessionId1_string, 'quiz2name', 'quiz2description');
       expect(quiz2.statusCode).toStrictEqual(200);    
       const user1_quiz2_Id_number = quiz2.bodyObj.quizId;
+    console.log(user1_quiz2_Id_number);
+    
+//------------------------------------------------------------------------------
 
+    // PASS course_tests / tests / quiz_tests / quizDescriptionUpdate.test.js
+    /*
+const quizdescription = adminQuizDescriptionUpdate(user1_sessionId1_string, user1_quiz1_Id_number, 'new description');
+const quizState1 = adminQuizInfo(user1_sessionId1_string, user1_quiz1_Id_number);
+expect(quizState1.bodyObj.timeLastEdited).not.toEqual(quizState1.bodyObj.timeCreated);
+expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.timeCreated);
+    */
+    
+// PASS course_tests/tests/auth_tests/userDetails.test.js
+// PASS course_tests/tests/quiz_tests/quizNameUpdate.test.js
+// FAIL course_tests/tests/quiz_tests/quizInfo.test.js
+
+
+ 
+    
 //------------------------------------------------------------------------------    
 			// adminQuizList - List quizzes for User 1
 			let quizListUser1 = adminQuizList(user1_sessionId1_string);
@@ -115,6 +145,8 @@ describe('Further testing on Iteration 2 ', () => {
         numQuestions: 0,
         questions: [],
       });			
+      expect(quizInfo_quiz1_user1.bodyObj.timeCreated.toString()).toMatch(/^\d{10}$/);
+      expect(quizInfo_quiz1_user1.bodyObj.timeLastEdited.toString()).toMatch(/^\d{10}$/);
     
       // adminQuizRemove - User1 remove Quiz1 in trash
       const quiz1Remove = adminQuizRemove(user1_sessionId1_string, user1_quiz1_Id_number);
@@ -163,14 +195,14 @@ describe('Further testing on Iteration 2 ', () => {
  		
 			//* adminAuthLogin - Failed login for User 1 for Session 3
       //Failed 1
-      login1User1 = adminAuthLogin('hayden1.smith@unsw.edu.au', '1234abcd9999');
-			expect(login1User1.statusCode).toStrictEqual(400);
-      expect(login1User1.bodyObj).toStrictEqual(ERROR_STRING);
+      let failedlogin1User1 = adminAuthLogin('hayden.smith@unsw.edu.au', '1234abcd9999');
+			expect(failedlogin1User1.statusCode).toStrictEqual(400);
+      expect(failedlogin1User1.bodyObj).toStrictEqual(ERROR_STRING);
  
       //Failed 2
-      login1User1 = adminAuthLogin('hayden11.smith@unsw.edu.au', '1234abcd');
-			expect(login1User1.statusCode).toStrictEqual(400);
-      expect(login1User1.bodyObj).toStrictEqual(ERROR_STRING);
+      failedlogin1User1 = adminAuthLogin('hayden.smith@unsw.edu.au', 'jkggrdyj');
+			expect(failedlogin1User1.statusCode).toStrictEqual(400);
+      expect(failedlogin1User1.bodyObj).toStrictEqual(ERROR_STRING);
       
 			//* adminUserDetails - Failed + Success Retrieve User 1 details 
 			let userDetailsUser1 = adminUserDetails(user1_sessionId1_string);
@@ -178,36 +210,34 @@ describe('Further testing on Iteration 2 ', () => {
       expect(userDetailsUser1.bodyObj).toStrictEqual(ERROR_STRING);
           
       userDetailsUser1 = adminUserDetails(user1_sessionId2_string);
+    // console.log(userDetailsUser1);
       expect(userDetailsUser1.bodyObj).toStrictEqual({
-        response: {
           user: {
             userId: 1,
             name: 'Hayden Smith',
-            email: 'hayden1.smith@unsw.edu.au',
+            email: 'hayden.smith@unsw.edu.au',
             numSuccessfulLogins: 2,
             numFailedPasswordsSinceLastLogin: 2,
-          },
-        }
+          }
       });
     
       //* adminAuthLogin - Successful login for User 1 - Session 3
-			login1User1 = adminAuthLogin('hayden1.smith@unsw.edu.au', '1234abcd');
-			expect(login1User1.statusCode).toStrictEqual(200);
-			expect(login1User1.bodyObj).toHaveProperty('token');
-			expect(login1User1.bodyObj).toStrictEqual({ token: expect.any(String) });
-			let user1_sessionId3_string = login1User1.bodyObj.token;	
+			let login2User1 = adminAuthLogin('hayden.smith@unsw.edu.au', '1234abcd');
+			expect(login2User1.statusCode).toStrictEqual(200);
+			expect(login2User1.bodyObj).toHaveProperty('token');
+			expect(login2User1.bodyObj).toStrictEqual({ token: expect.any(String) });
+			let user1_sessionId3_string = login2User1.bodyObj.token;	
     
-      userDetailsUser1 = adminUserDetails(user1_sessionId2_string);
+    userDetailsUser1 = adminUserDetails(user1_sessionId3_string);
+    // console.log(userDetailsUser1);
       expect(userDetailsUser1.bodyObj).toStrictEqual({
-        response: {
           user: {
             userId: 1,
             name: 'Hayden Smith',
-            email: 'hayden1.smith@unsw.edu.au',
+            email: 'hayden.smith@unsw.edu.au',
             numSuccessfulLogins: 3,
             numFailedPasswordsSinceLastLogin: 0,
-          },
-        }
+          }
       });
                     
 //------------------------------------------------------------------------------ 		
@@ -229,15 +259,15 @@ describe('Further testing on Iteration 2 ', () => {
 			expect(updateDetailsUser1.statusCode).toStrictEqual(200);
 
 			//* adminUserPasswordUpdate - Failed + Update User 1 password successfully
-      let updateUser1Password1 = adminUserPasswordUpdate(user1_sessionId2_string, 'password1', 'password1');
+      //invalid token
+      let updateUser1Password1 = adminUserPasswordUpdate(user1_sessionId1_string, 'password1', 'password1Update1');
+			expect(updateUser1Password1.statusCode).toStrictEqual(401);
+      expect(updateUser1Password1.bodyObj).toStrictEqual(ERROR_STRING);     
+       
+      updateUser1Password1 = adminUserPasswordUpdate(user1_sessionId2_string, 'password1', 'password1');
 			expect(updateUser1Password1.statusCode).toStrictEqual(400);
 			expect(updateUser1Password1.bodyObj).toStrictEqual(ERROR_STRING);
       
-      updateUser1Password1 = adminUserPasswordUpdate(user1_sessionId1_string, 'password1', 'password1Update1');
-			expect(updateUser1Password1.statusCode).toStrictEqual(401);
-      expect(updateUser1Password1.bodyObj).toStrictEqual(ERROR_STRING);
-
-    
       const success = adminUserPasswordUpdate(user1_sessionId2_string, '1234abcd', 'WOjiaoZC123');
       expect(success.statusCode).toStrictEqual(200);
       const login = adminAuthLogin('hayden1.smith@unsw.edu.au', 'WOjiaoZC123');
@@ -270,10 +300,28 @@ describe('Further testing on Iteration 2 ', () => {
     
       // TODO adminQuizinfo - User 1 Quiz1 //aim to check time last edited
         
-      const QuestionBody = {
-   
+      const questionBody1 = {
+        "question": "Who is the Monarch of England?",
+        "duration": 4,
+        "points": 5,
+        "answers": [
+          {
+            "answer": "Prince Charles",
+            "correct": true
+          }
+        ]
+      };
+    
+        // Example: adminQuestionCreate - Create a question for Quiz1
+        let questionCreate = adminQuestionCreate(user1_sessionId3_string, user1_quiz2_Id_number, questionBody1);
+        expect(questionCreate.statusCode).toStrictEqual(200);
+        expect(questionCreate.bodyObj).toStrictEqual({ questionId: expect.any(Number) });
+        let questionId_number = questionCreate.bodyObj.questionId
+        expect(questionId_number).not.toBeNaN();		
+    
+        const questionBody2 = {
           "question": "Who is the Monarch of England?",
-          "duration": 4,
+          "duration": 177,
           "points": 5,
           "answers": [
             {
@@ -281,14 +329,27 @@ describe('Further testing on Iteration 2 ', () => {
               "correct": true
             }
           ]
-   
-      }      
-			// Example: adminQuestionCreate - Create a question for Quiz1
-			const questionCreate = adminQuestionCreate(user1_sessionId2_string, user1_quiz2_Id_number, QuestionBody);
-			expect(questionCreate.statusCode).toStrictEqual(200);
-			expect(questionCreate.bodyObj).toHaveProperty('questionId');		
-			const questionId_number = questionCreate.bodyObj.questionId
-			expect(questionId_number).not.toBeNaN();		
+        };
+        questionCreate = adminQuestionCreate(user1_sessionId3_string, user1_quiz2_Id_number, questionBody2);
+        expect(questionCreate.statusCode).toStrictEqual(400);
+    
+        const quizInfo_quiz2_user1 = adminQuizInfo(user1_sessionId3_string, user1_quiz2_Id_number);
+        expect(quizInfo_quiz2_user1.statusCode).toStrictEqual(200);
+        expect(quizInfo_quiz2_user1.bodyObj).toStrictEqual({
+          quizId: user1_quiz2_Id_number,
+          name: 'quiz2name',
+          timeCreated: expect.any(Number),
+          timeLastEdited: expect.any(Number),
+          description: 'quiz2description',
+          numQuestions: 1,
+          questions: [questionBody1],
+        });		
+        expect(quizInfo_quiz2_user1.bodyObj.timeLastEdited).not.toEqual(quizInfo_quiz2_user1.bodyObj.timeCreated);
+        expect(quizInfo_quiz2_user1.bodyObj.timeLastEdited).toBeGreaterThan(quizInfo_quiz2_user1.bodyObj.timeCreated);
+
+    
+    
+    
     
     });
 });
