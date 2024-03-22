@@ -35,6 +35,7 @@ import {
 import {
   adminQuestionCreate,
   adminQuestionRemove,
+  adminQuestionMove,
 } from './question';
 
 const app = express(); // Set up web app
@@ -312,7 +313,6 @@ app.put('/v1/admin/quiz/{quizid}/question/{questionid}', (req: Request, res: Res
 });
 
 // Delete a particular question from a quiz
-
 app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const questionId = parseInt(req.params.questionid);
@@ -324,10 +324,14 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
 });
 
 // Move a quiz question, when this route is called, the timeLastEdited is updated
-// TODO edit and confirm the url is correct
-app.put('/v1/admin/quiz/{quizid}/question/{questionid}/move', (req: Request, res: Response) => {
-  const response = { message: ' TODO: Move a quiz question ' };
-  res.status(501).json(response);
+app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const questionId = parseInt(req.params.questionid);
+  const { token, newPosition } = req.body;
+  const response = adminQuestionMove(quizId, questionId, token, newPosition);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
 });
 
 // Duplicate a quiz Question, when this route is called, the timeLastEdited is updated
