@@ -395,7 +395,6 @@ describe('adminUserPasswordUpdate', () => {
   test('Success Case', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const success = adminUserPasswordUpdate(user1.bodyObj.token, '1234abcd', 'WOjiaoZC123');
-    console.log(success);
     const login = adminAuthLogin('hayden.smith@unsw.edu.au', 'WOjiaoZC123');
     expect(login.statusCode).toStrictEqual(OK);
     expect(login.bodyObj).toStrictEqual({ token: expect.any(String) });
