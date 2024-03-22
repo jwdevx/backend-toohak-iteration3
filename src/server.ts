@@ -24,7 +24,7 @@ import {
   adminQuizCreate,
   adminQuizList,
   adminQuizInfo,
-  // adminQuizNameUpdate,
+  adminQuizNameUpdate,
   // adminQuizDescriptionUpdate,
   adminQuizRemove,
   // adminQuizTrashView,
@@ -186,17 +186,13 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
 });
 
 // adminQuizNameUpdate: Update the name of the relevant quiz
-// TODO edit the url  - ASH
-app.put('/v1/admin/quiz/{quizid}/name', (req: Request, res: Response) => {
-  const response = { message: 'TODO: Update Quiz name' };
-  res.status(501).json(response);
-});
-
-// adminQuizDescriptionUpdate: Update the description of the relevant quiz
-// TODO edit the url - ASH
-app.put('/v1/admin/quiz/{quizid}/description', (req: Request, res: Response) => {
-  const response = { message: 'TODO: Update quiz description ' };
-  res.status(501).json(response);
+app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const { token, name } = req.body;
+  const response = adminQuizNameUpdate(quizId, token, name);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
 });
 
 // =============================================================================

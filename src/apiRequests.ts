@@ -148,8 +148,19 @@ export const adminQuizInfo = (token: string, quizId: number) => {
 };
 
 // TODO adminQuizNameUpdate
-
-// TODO adminQuizDescriptionUpdate
+export const adminQuizNameUpdate = (quizId:number, token: string, name: string) => {
+  const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/name`, {
+    json: {
+      token: token,
+      name: name
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
 
 // =============================================================================
 // ========================     QUIZZES TRASH        ===========================
