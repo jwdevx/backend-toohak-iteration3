@@ -8,9 +8,13 @@ import {
   checkAnswerCorrect, randomIdGenertor, getNow
 } from './helper';
 
-/*
-Comments required here
-*/
+/**
+ * creates a quiz question.
+ * @param {string} token - a valid sessionId
+ * @param {number} quizId - the authenticated user ID
+ * @param {QuestionBody} questionBody - an object of interface QuestionBody
+ * @returns {questionId: number} | ErrorObject
+ */
 export function adminQuestionCreate(
   token: string,
   quizId: number,
@@ -126,12 +130,50 @@ export function adminQuestionRemove(
   quiz.numQuestions -= 1;
   return {};
 }
+/**
+ * Moves a quiz question.
+ * @param {number} quizId - the authenticated quiz ID
+ * @param {number} questionId - the authenticated question ID
+ * @param {string} token - an encoded string containing the session ID.
+ * @param {number} newPosition- an index where we wish to move this question to
+ * @returns {} | ErrorObject
+ */
+export function adminQuestionMove(
+  quizId: number,
+  questionId: number,
+  token: string,
+  newPosition: number) : Record<string, never> | ErrorObject {
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || isNaN(sessionId) || !String(token).trim()) {
+    return { error: 'Token is empty or not provided', status: 401 };
+  }
+  const validToken = findSessionId(sessionId);
+  if (!validToken) {
+    return {
+      error: 'Token is invalid (does not refer to valid logged in user session)', status: 401,
+    };
+  }
+  const authUserId = validToken.userId;
 
-/*
-Comments required here
-*/
-// TODO adminQuestionMove
-
+  if (!findQuizId(quizId)) {
+    return { error: 'Quiz ID does not refer to a valid quiz.', status: 403 };
+  }
+  const quiz = findQuizId(quizId);
+  if (!matchQuizIdAndAuthor(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
+  }
+  const questionIndex = quiz.questions.findIndex(question => question.questionId === questionId);
+  if ((newPosition > quiz.numQuestions - 1) || (newPosition < 0) || (newPosition === questionIndex)) {
+    return { error: 'Not a valid new position.', status: 400 };
+  }
+  if (questionIndex === -1) {
+    return { error: 'Question Id does not refer to a valid question within this quiz', status: 400 };
+  }
+  const [movedQuestion] = quiz.questions.splice(questionIndex, 1);
+  quiz.questions.splice(newPosition, 0, movedQuestion);
+  quiz.timeLastEdited = getNow();
+  return {};
+}
 /*
 Comments required here
 */

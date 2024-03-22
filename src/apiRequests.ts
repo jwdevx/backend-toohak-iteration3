@@ -256,3 +256,18 @@ export const adminQuestionRemove = (
     statusCode: res.statusCode,
   };
 };
+
+export const adminQuestionMove = (
+  quizId: number, questionId: number, token: string, newPosition: number) => {
+  const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/move`, {
+    json: {
+      token: token,
+      newPosition: newPosition
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
