@@ -183,6 +183,41 @@ export function adminQuizNameUpdate(quizId: number, token: string, name: string)
   return {};
 }
 
+/**
+*Update the description of the relevant quiz.
+*
+* @param {number} quizId- the authenticated quiz ID.
+* @param {string} token - the encoded session id of the user
+* @param {string} description - the description of the quiz
+* @return{{}}empty object
+*/
+
+export function adminQuizDescriptionUpdate(quizId: number, token: string, description: string):ErrorObject | Record<string, never> {
+  const data = getData();
+
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    return { error: 'Token is empty or not provided', status: 401 };
+  }
+  const validToken = findSessionId(sessionId);
+  if (!validToken) {
+    return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
+  }
+  const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
+  if (isNaN(quizId) || !quiz || quiz.intrash === true) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
+  }
+  if (invalidDescriptionLength(description)) {
+    return { error: 'The description is too long', status: 400 };
+  }
+
+  quiz.description = description;
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
+  setData(data);
+
+  return {};
+}
+
 // =============================================================================
 // ============================ QUIZ TRASH =====================================
 // =============================================================================
@@ -214,7 +249,6 @@ export function adminQuizRemove(token: string, quizId: number) : Record<string, 
 /**
  * View the quizzes in trash
  */
-
 export function adminQuizTrashView(token: string): {quizzes: QuizSummary[]} | ErrorObject {
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
@@ -241,7 +275,6 @@ export function adminQuizTrashView(token: string): {quizzes: QuizSummary[]} | Er
 /**
  * Restore a quiz from trash
  */
-// TODO /v1/admin/quiz/{quizid}/restore
 export function adminQuizTrashRestore(token: string, quizId: number): Record<string, never> | ErrorObject {
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {

@@ -413,12 +413,12 @@ describe('Test for adminAuthLogout', () => {
   });
 
   test('Test Combined', () => {
-    // Register Hayden
+    // Register Hayden - Session 1
     const res = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     expect(res.statusCode).toStrictEqual(OK);
     expect(res.bodyObj).toStrictEqual({ token: expect.any(String) });
 
-    // Success Login
+    // Success Login - Session 2
     const login = adminAuthLogin('hayden.smith@unsw.edu.au', '1234abcd');
     expect(login.statusCode).toStrictEqual(OK);
     expect(login.bodyObj).toStrictEqual({ token: expect.any(String) });
@@ -428,7 +428,7 @@ describe('Test for adminAuthLogout', () => {
     expect(logout1.statusCode).toBe(401);
     expect(logout1.bodyObj).toStrictEqual({ error: 'Token is empty or not provided' });
 
-    const logout2 = adminAuthLogout('8');
+    const logout2 = adminAuthLogout('888888888888888888');
     expect(logout2.statusCode).toBe(401);
     expect(logout2.bodyObj).toStrictEqual({
       error: 'Token is invalid (does not refer to valid logged in user session)'

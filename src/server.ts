@@ -25,12 +25,11 @@ import {
   adminQuizList,
   adminQuizInfo,
   adminQuizNameUpdate,
-  // adminQuizDescriptionUpdate,
+  adminQuizDescriptionUpdate,
   adminQuizRemove,
-  // adminQuizTrashView,
+  adminQuizTrashView,
   adminQuizTrashRestore,
   adminQuizTrashEmpty,
-  adminQuizTrashView,
 } from './quiz';
 
 import {
@@ -49,6 +48,46 @@ app.use('/docs', sui.serve, sui.setup(YAML.parse(file), { swaggerOptions: { docE
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || '127.0.0.1';
+
+/* ----------------------------   WARNING   ------------------------------------
+Please note, when you have a single route (e.g. /my/route/name) alongside
+  a wildcard route (e.g. /my/route/{variable})
+  you need to define the single route before the variable route.
+
+Must Follow this order in server.ts, as well when adding function for ITERATION 3
+
+Clear
+  DELETE /v1/clear - JASON
+
+Authentication and User Management
+  POST /v1/admin/auth/register - JASON
+  POST /v1/admin/auth/login - VENUS
+  GET /v1/admin/user/details - VENUS
+  PUT /v1/admin/user/details - JASON
+  PUT /v1/admin/user/password - VENUS
+  POST /v1/admin/auth/logout - JASON
+
+Quiz Management (General)
+  POST /v1/admin/quiz - SADAT
+  GET /v1/admin/quiz/list - CHENG
+  GET /v1/admin/quiz/trash - CHENG
+  DELETE /v1/admin/quiz/trash/empty - JASON
+
+Quiz-Specific Routes
+  GET /v1/admin/quiz/{quizid} - SADAT
+  DELETE /v1/admin/quiz/{quizid} - CHENG
+  PUT /v1/admin/quiz/{quizid}/name - ASH
+  PUT /v1/admin/quiz/{quizid}/description - ASH
+  POST /v1/admin/quiz/{quizid}/restore - CHENG
+  POST /v1/admin/quiz/{quizid}/transfer - VENUS
+
+Question-Specific Routes
+  POST /v1/admin/quiz/{quizid}/question - CHENG
+  PUT /v1/admin/quiz/{quizid}/question/{questionid} - ASH
+  DELETE /v1/admin/quiz/{quizid}/question/{questionid} - SADAT
+  PUT /v1/admin/quiz/{quizid}/question/{questionid}/move - SADAT
+  POST /v1/admin/quiz/{quizid}/question/{questionid}/duplicate - ASH
+*/
 
 // =============================================================================
 // ============================ LOAD & SAVE DATA ===============================
@@ -77,6 +116,16 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
+// =============================================================================
+// ==============================   OTHER.TS  ==================================
+// =============================================================================
+
+// clear: Reset the state of the application back to the start.
+app.delete('/v1/clear', (req: Request, res: Response) => {
+  const response = clear();
+  saveData();
+  res.json(response);
+});
 // =============================================================================
 // ==============================  AUTH.TS  ====================================
 // =============================================================================
@@ -110,20 +159,16 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
   const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
-  if ('error' in response) { return res.status(response.status).json({ error: response.error }); }
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
   saveData();
   res.json(response);
 });
 
 // adminUserPasswordUpdate: Update the password of this admin user.
-
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const { token, oldPassword, newPassword } = req.body;
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
-  // TODO
-  if ('error' in response) {
-    return res.status(response.status).json({ error: response.error });
-  }
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
   saveData();
   res.json(response);
 });
@@ -138,27 +183,8 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
 });
 
 // =============================================================================
-// ==============================   OTHER.TS  ==================================
-// =============================================================================
-
-// clear: Reset the state of the application back to the start.
-app.delete('/v1/clear', (req: Request, res: Response) => {
-  const response = clear();
-  saveData();
-  res.json(response);
-});
-
-// =============================================================================
 // ==============================  QUIZ.TS  ====================================
 // =============================================================================
-
-// adminQuizList: Provide a list of all quizzes that are owned by the currently logged in user
-app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
-  const { token } = req.query;
-  const response = adminQuizList(String(token));
-  if ('error' in response) return res.status(401).json({ error: response.error });
-  res.json(response);
-});
 
 // adminQuizCreate - Given basic details about a new quiz, create one for the logged in user
 app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
@@ -169,6 +195,15 @@ app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
   res.json(response);
 });
 
+// adminQuizList: Provide a list of all quizzes that are owned by the currently logged in user
+app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
+  const { token } = req.query;
+  const response = adminQuizList(String(token));
+  if ('error' in response) return res.status(401).json({ error: response.error });
+  res.json(response);
+});
+
+// View the quizzes that are currently in the trash for the logged in user
 app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
   const { token } = req.query;
   const response = adminQuizTrashView(String(token));
@@ -177,12 +212,35 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
   res.json(response);
 });
 
+// adminQuizTrashEmpty: Permanently delete specific quizzes currently sitting in the trash
+app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const quizIds = req.query.quizIds as string;
+  const response = adminQuizTrashEmpty(token, quizIds);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  res.json(response);
+});
+
+// =============================================================================
+// =====================    QUIZ.TS Routes Specific      =======================
+// =============================================================================
+
 // adminQuizInfo: Get all of the relevant information about the current quiz including questions
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid, 10);
   const token = req.query.token as string;
   const response = adminQuizInfo(token, quizId);
   if ('error' in response) return res.status(response.status).json({ error: response.error });
+  res.json(response);
+});
+
+// adminQuizRemove: Send a quiz to trash (can be recovered later), timeLastEdited is updated
+app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const { token } = req.query;
+  const quizId = parseInt(req.params.quizid);
+  const response = adminQuizRemove(String(token), quizId);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
   res.json(response);
 });
 
@@ -196,41 +254,24 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   res.json(response);
 });
 
-// =============================================================================
-// =========================    QUIZ.TS TRASH      =============================
-// =============================================================================
-
-// adminQuizRemove: Send a quiz to trash (can be recovered later), timeLastEdited is updated
-app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
-  const { token } = req.query;
+// adminQuizDescriptionUpdate: Update the description of the relevant quiz
+app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
-  const response = adminQuizRemove(String(token), quizId);
+  const { token, description } = req.body;
+  const response = adminQuizDescriptionUpdate(quizId, token, description);
   if ('error' in response) return res.status(response.status).json({ error: response.error });
   saveData();
   res.json(response);
 });
 
-// View the quizzes that are currently in the trash for the logged in user
-// TODO: View the quizzes in trash
-
 // Restore a particular quiz from the trash back to an active quiz.
 // Note -- This should update it's timeLastEdited timestamp.
-// TODO edit url
 app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   const { token } = req.body;
   const quizId = parseInt(req.params.quizid);
   const response = adminQuizTrashRestore(String(token), quizId);
   if ('error' in response) return res.status(response.status).json({ error: response.error });
   saveData();
-  res.json(response);
-});
-
-// adminQuizTrashEmpty: Permanently delete specific quizzes currently sitting in the trash
-app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-  const quizIds = req.query.quizIds as string;
-  const response = adminQuizTrashEmpty(token, quizIds);
-  if ('error' in response) return res.status(response.status).json({ error: response.error });
   res.json(response);
 });
 
@@ -263,7 +304,6 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
  * Update the relevant details of a particular question within a quiz.
  * When this route is called, the last edited time is updated,
  * and the colours of all answers of that question are randomly generated.
- *
  */
 // TODO edit and confirm the url is correct
 app.put('/v1/admin/quiz/{quizid}/question/{questionid}', (req: Request, res: Response) => {
@@ -283,20 +323,14 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
   res.json(response);
 });
 
-/**
- * Move a question from one particular position in the quiz to another
- * When this route is called, the timeLastEdited is updated
- */
+// Move a quiz question, when this route is called, the timeLastEdited is updated
 // TODO edit and confirm the url is correct
 app.put('/v1/admin/quiz/{quizid}/question/{questionid}/move', (req: Request, res: Response) => {
   const response = { message: ' TODO: Move a quiz question ' };
   res.status(501).json(response);
 });
 
-/**
- * A particular question gets duplicated to immediately after where the source question is
- * When this route is called, the timeLastEdited is updated
- */
+// Duplicate a quiz Question, when this route is called, the timeLastEdited is updated
 // TODO edit and confirm the url is correct
 app.post('/v1/admin/quiz/{quizid}/question/{questionid}/duplicate', (req: Request, res: Response) => {
   const response = { message: ' TODO: Duplicate a quiz question  ' };
