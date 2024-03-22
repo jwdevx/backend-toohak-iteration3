@@ -34,7 +34,8 @@ import {
 } from './quiz';
 
 import {
-  adminQuestionCreate
+  adminQuestionCreate,
+  adminQuestionRemove,
 } from './question';
 
 const app = express(); // Set up web app
@@ -271,10 +272,15 @@ app.put('/v1/admin/quiz/{quizid}/question/{questionid}', (req: Request, res: Res
 });
 
 // Delete a particular question from a quiz
-// TODO edit and confirm the url is correct
-app.delete('/v1/admin/quiz/{quizid}/question/{questionid}', (req: Request, res: Response) => {
-  const response = { message: ' TODO: Delete a particular question from a quiz ' };
-  res.status(501).json(response);
+
+app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const questionId = parseInt(req.params.questionid);
+  const token = req.query.token as string;
+  const response = adminQuestionRemove(quizId, questionId, token);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
 });
 
 /**
