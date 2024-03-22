@@ -5,8 +5,8 @@ import {
   DataStore
 } from './dataStore';
 import {
-    getData,
-    setData
+  getData,
+  setData
 } from './dataStore';
 import {
   findSessionId,
@@ -89,7 +89,7 @@ export function adminAuthRegister(
  */
 export function adminAuthLogin(email: string, password: string): { token: string } | { error: string } {
   if (!email || !password) return { error: 'One or more missing parameters' };
-  
+
   const data: DataStore = getData();
   const user = data.users.find((user) => user.email === email);
   if (!user) {
@@ -208,13 +208,12 @@ export function adminUserPasswordUpdate(
   token: string,
   oldPassword: string,
   newPassword: string): ErrorObject | Record<string, never> {
-  
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
     return { error: 'token is empty or invalid', status: 401 };
   }
   const validToken = findSessionId(sessionId);
-  if (!validToken) { return { error: 'token is empty or invalid', status: 401};}
+  if (!validToken) { return { error: 'token is empty or invalid', status: 401 }; }
   const user = findUserId(validToken.userId);
   if (!user) return { error: 'User not found', status: 401 };
 

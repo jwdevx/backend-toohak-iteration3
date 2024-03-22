@@ -49,8 +49,8 @@ const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || '127.0.0.1';
 
 /* ----------------------------   WARNING   ------------------------------------
-Please note, when you have a single route (e.g. /my/route/name) alongside 
-  a wildcard route (e.g. /my/route/{variable}) 
+Please note, when you have a single route (e.g. /my/route/name) alongside
+  a wildcard route (e.g. /my/route/{variable})
   you need to define the single route before the variable route.
 
 Must Follow this order in server.ts, as well when adding function for ITERATION 3
@@ -64,7 +64,7 @@ Authentication and User Management
   GET /v1/admin/user/details - VENUS
   PUT /v1/admin/user/details - JASON
   PUT /v1/admin/user/password - VENUS
-  POST /v1/admin/auth/logout - JASON  
+  POST /v1/admin/auth/logout - JASON
 
 Quiz Management (General)
   POST /v1/admin/quiz - SADAT
@@ -80,7 +80,7 @@ Quiz-Specific Routes
   POST /v1/admin/quiz/{quizid}/restore - CHENG
   POST /v1/admin/quiz/{quizid}/transfer - VENUS
 
-Question-Specific Routes  
+Question-Specific Routes
   POST /v1/admin/quiz/{quizid}/question - CHENG
   PUT /v1/admin/quiz/{quizid}/question/{questionid} - ASH
   DELETE /v1/admin/quiz/{quizid}/question/{questionid} - SADAT
@@ -313,7 +313,6 @@ app.put('/v1/admin/quiz/{quizid}/question/{questionid}/move', (req: Request, res
   const response = { message: ' TODO: Move a quiz question ' };
   res.status(501).json(response);
 });
-
 
 // Duplicate a quiz Question, when this route is called, the timeLastEdited is updated
 // TODO edit and confirm the url is correct
