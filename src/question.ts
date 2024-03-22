@@ -79,5 +79,6 @@ export function adminQuestionCreate(
   quiz.duration += questionBody.duration;
   quiz.timeLastEdited = getNow();
   quiz.questions.push(quesiton);
+  quiz.numQuestions += 1;
   return { questionId: quesiton.questionId };
 }
