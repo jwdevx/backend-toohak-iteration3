@@ -122,7 +122,6 @@ export function adminQuestionRemove(
   }
   const duration = quiz.questions[questionIndex].duration;
   quiz.questions.splice(questionIndex, 1);
-  quiz.timeLastEdited = getNow();
   quiz.duration -= duration;
   quiz.numQuestions -= 1;
   return {};
