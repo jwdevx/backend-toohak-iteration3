@@ -1,4 +1,8 @@
-import { adminAuthRegister, adminQuestionCreate, adminQuizCreate, adminQuestionRemove, adminQuizInfo, adminQuestionMove, clear } from './apiRequests';
+import {
+  adminAuthRegister, adminQuestionCreate,
+  adminQuizCreate, adminQuestionRemove,
+  adminQuizInfo, adminQuestionMove, clear
+} from './apiRequests';
 import { QuestionBody, answer } from './dataStore';
 
 const OK = 200;
