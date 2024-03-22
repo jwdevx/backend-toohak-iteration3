@@ -14,13 +14,13 @@ import {
   adminQuizCreate,
   adminQuizList,
   adminQuizInfo,
-  // adminQuizNameUpdate,
-  // adminQuizDescriptionUpdate,
+  adminQuizNameUpdate,
+  adminQuizDescriptionUpdate,
+  // adminQuizTransfer,
 
-  // Trash
   adminQuizRemove,
-  // adminQuizTrashView,
-  // adminQuizTrashRestore,
+  adminQuizTrashView,
+  adminQuizTrashRestore,
   adminQuizTrashEmpty,
 } from './apiRequests';
 
@@ -29,7 +29,7 @@ import {
   // adminQuestionUpdate,
   // adminQuestionMove,
   // adminQuestionDuplicate,
-  // adminQuestionDelete,
+  adminQuestionRemove,
 } from './apiRequests';
 
 const ERROR_STRING = { error: expect.any(String) };
@@ -63,6 +63,9 @@ describe('Further testing on Iteration 2 ', () => {
   });
 
   test(' Combo1 ', () => {
+    const inthebeginning = Math.floor(Date.now() / 1000);
+    console.log('in the beginning there was light at', inthebeginning);
+
     //* adminAuthRegister - User 1 - Session 1
     let user1 = adminAuthRegister('', '1234abcd', 'Hayden', 'Smith');
     expect(user1.statusCode).toStrictEqual(400);
@@ -141,9 +144,42 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
     expect(quizInfoQuiz1User1.bodyObj.timeCreated.toString()).toMatch(/^\d{10}$/);
     expect(quizInfoQuiz1User1.bodyObj.timeLastEdited.toString()).toMatch(/^\d{10}$/);
 
+    // restore an unremoved quiz
+    let restoreQuiz1 = adminQuizTrashRestore(user1SessionId1String, user1Quiz1IdNumber);
+    expect(restoreQuiz1.statusCode).toBe(400);
+    expect(restoreQuiz1.bodyObj).toStrictEqual({ error: expect.any(String) });
+
+    // view an empty trash
+    let viewTrashQuiz1 = adminQuizTrashView(user1SessionId1String);
+    // console.log(viewTrashQuiz1);
+    expect(viewTrashQuiz1.statusCode).toBe(200);
+
+    viewTrashQuiz1 = adminQuizTrashView('99999');
+    // console.log(viewTrashQuiz1);
+    expect(viewTrashQuiz1.statusCode).toBe(401);
+    expect(viewTrashQuiz1.bodyObj).toStrictEqual({ error: expect.any(String) });
+    // ------------------------------------------------------------------------------
     // adminQuizRemove - User1 remove Quiz1 in trash
-    const quiz1Remove = adminQuizRemove(user1SessionId1String, user1Quiz1IdNumber);
+    let quiz1Remove = adminQuizRemove(user1SessionId1String, user1Quiz1IdNumber);
     expect(quiz1Remove.statusCode).toBe(200);
+
+    restoreQuiz1 = adminQuizTrashRestore(user1SessionId1String, user1Quiz1IdNumber);
+    expect(restoreQuiz1.statusCode).toBe(200);
+    expect(restoreQuiz1.bodyObj).toStrictEqual({});
+
+    quiz1Remove = adminQuizRemove(user1SessionId1String, user1Quiz1IdNumber);
+    expect(quiz1Remove.statusCode).toBe(200);
+
+    viewTrashQuiz1 = adminQuizTrashView(user1SessionId1String);
+    expect(viewTrashQuiz1.statusCode).toBe(200);
+    expect(viewTrashQuiz1.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: expect.any(Number),
+          name: 'quiz1name'
+        }
+      ]
+    });
 
     // adminQuizTrashEmpty - Error 401 'Token is empty or not provided'
     const emptyRes1 = adminQuizTrashEmpty('', JSON.stringify([user1Quiz1IdNumber]));
@@ -167,7 +203,9 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
 
     //! NOMORE - user1Quiz1IdNumber
 
-    // TODO view
+    restoreQuiz1 = adminQuizTrashRestore(user1SessionId1String, user1Quiz1IdNumber);
+    expect(restoreQuiz1.statusCode).toBe(403);
+    expect(restoreQuiz1.bodyObj).toStrictEqual({ error: expect.any(String) });
 
     // TODO empty
 
@@ -277,19 +315,22 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
     expect(quizListUser1.bodyObj.quizzes.length).toStrictEqual(1);
 
     // TODO not implementated
-    /*
+
     // adminQuizNameUpdate - Successfully update Quiz1 name
-    const user1_quiz2_NameUpdate = adminQuizNameUpdate(user1Quiz2IdNumber, user1SessionId2String, 'quiz1name_Update1');
-    expect(user1_quiz2_NameUpdate.statusCode).toStrictEqual(200);
+    const user1Quiz2NameUpdate = adminQuizNameUpdate(user1Quiz2IdNumber, user1SessionId2String, 'quiz2name Update1');
+    // console.log(user1Quiz2NameUpdate);
+    expect(user1Quiz2NameUpdate.statusCode).toStrictEqual(200);
 
     // adminQuizDescriptionUpdate - Successfully update Quiz1 description
-    const user1_quiz2_quizDescUpdate = adminQuizDescriptionUpdate(user1Quiz2IdNumber, user1SessionId2String, 'quiz1description_Update1');
-    expect(user1_quiz2_quizDescUpdate.statusCode).toStrictEqual(200);
-    */
+    const user1Quiz2QuizDescUpdate = adminQuizDescriptionUpdate(user1Quiz2IdNumber, user1SessionId2String, 'quiz2description Update1');
+    expect(user1Quiz2QuizDescUpdate.statusCode).toStrictEqual(200);
+
     // TODO Continue with more tests for quiz trash view, restore, emptying, and question operations...
 
     // TODO adminQuizinfo - User 1 Quiz1 //aim to check time last edited
+    const timeBeforePost = Math.floor(Date.now() / 1000);
 
+    // SUCCESS creating quiz
     const questionBody1 = {
       question: 'Who is the Monarch of England?',
       duration: 4,
@@ -307,11 +348,11 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
     };
 
     // Example: adminQuestionCreate - Create a question for Quiz1
-    let questionCreate = adminQuestionCreate(user1SessionId3String, user1Quiz2IdNumber, questionBody1);
-    // console.log(questionCreate);
-    expect(questionCreate.statusCode).toStrictEqual(200);
-    expect(questionCreate.bodyObj).toStrictEqual({ questionId: expect.any(Number) });
-    const questionIdNumber = questionCreate.bodyObj.questionId;
+    const questionCreate1 = adminQuestionCreate(user1SessionId3String, user1Quiz2IdNumber, questionBody1);
+    // console.log(questionCreate1);
+    expect(questionCreate1.statusCode).toStrictEqual(200);
+    expect(questionCreate1.bodyObj).toStrictEqual({ questionId: expect.any(Number) });
+    const questionIdNumber = questionCreate1.bodyObj.questionId;
     expect(questionIdNumber).not.toBeNaN();
 
     // error exceed time
@@ -330,8 +371,8 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
         }
       ]
     };
-    questionCreate = adminQuestionCreate(user1SessionId3String, user1Quiz2IdNumber, questionBody2);
-    expect(questionCreate.statusCode).toStrictEqual(400);
+    let questionCreate2 = adminQuestionCreate(user1SessionId3String, user1Quiz2IdNumber, questionBody2);
+    expect(questionCreate2.statusCode).toStrictEqual(400);
 
     // error same questions
     questionBody2 = {
@@ -349,51 +390,62 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
         }
       ]
     };
-    questionCreate = adminQuestionCreate(user1SessionId3String, user1Quiz2IdNumber, questionBody2);
-    expect(questionCreate.statusCode).toStrictEqual(400);
+    questionCreate2 = adminQuestionCreate(user1SessionId3String, user1Quiz2IdNumber, questionBody2);
+    expect(questionCreate2.statusCode).toStrictEqual(400);
 
-    /*
-        const quizInfo_quiz2_user1 = adminQuizInfo(user1SessionId3String, user1Quiz2IdNumber);
-        expect(quizInfo_quiz2_user1.statusCode).toStrictEqual(200);
+    // success INFO
+    const quizInfoQuiz2User1 = adminQuizInfo(user1SessionId3String, user1Quiz2IdNumber);
+    expect(quizInfoQuiz2User1.statusCode).toStrictEqual(200);
 
-        console.log(quizInfo_quiz2_user1);
+    // console.log(quizInfoQuiz2User1);
 
-        expect(quizInfo_quiz2_user1.bodyObj).toStrictEqual({
+    expect(quizInfoQuiz2User1.bodyObj).toStrictEqual({
 
-          quizId: user1Quiz2IdNumber,
-          name: 'quiz2name',
-          timeCreated: expect.any(Number),
-          timeLastEdited: expect.any(Number),
-          description: 'quiz2description',
-          numQuestions: 1,
-            questions: [
+      quizId: user1Quiz2IdNumber,
+      name: 'quiz2name Update1',
+      timeCreated: expect.any(Number),
+      timeLastEdited: expect.any(Number),
+      description: 'quiz2description Update1',
+      numQuestions: 1,
+      questions: [
 
-                {
-                    questionId: expect.any(Number),
-                    question: "Who is the Monarch of England?",
-                    duration: 4,
-                    points: 5,
-                    answers: [
-                        {
-                            answerId: expect.any(Number),
-                            answer: "Prince Charles",
-                        colour:expect.any(String),
-                        correct: true
-                      },
-                      {answerId: expect.any(Number),
-                          answer: "1Prince Charles",
-                          colour:expect.any(String),
-                        correct: false
-                      }
-                    ]
-                  },
-            ],
-            duration: 4,
-        });
-        expect(quizInfo_quiz2_user1.bodyObj.timeLastEdited).not.toEqual(quizInfo_quiz2_user1.bodyObj.timeCreated);
-        expect(quizInfo_quiz2_user1.bodyObj.timeLastEdited).toBeGreaterThan(quizInfo_quiz2_user1.bodyObj.timeCreated);
+        {
+          questionId: expect.any(Number),
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 5,
+          answers: [
+            {
+              answerId: expect.any(Number),
+              answer: 'Prince Charles',
+              colour: expect.any(String),
+              correct: true
+            },
+            {
+              answerId: expect.any(Number),
+              answer: '1Prince Charles',
+              colour: expect.any(String),
+              correct: false
+            }
+          ]
+        },
+      ],
+      duration: 4,
+    });
 
-    */
+    const timeLastEdited = quizInfoQuiz2User1.bodyObj.timeLastEdited;
+    const timeAfterPost = Math.floor(Date.now() / 1000) + 2;
+    expect(timeLastEdited).toBeGreaterThanOrEqual(timeBeforePost);
+    expect(timeLastEdited).toBeLessThanOrEqual(timeAfterPost);
+
+    // expect(quizInfoQuiz2User1.bodyObj.timeLastEdited).not.toEqual(quizInfoQuiz2User1.bodyObj.timeCreated);
+    // expect(quizInfoQuiz2User1.bodyObj.timeLastEdited).toBeGreaterThan(quizInfoQuiz2User1.bodyObj.timeCreated);
+
+    const user1Quiz2QuestionRemove = adminQuestionRemove(user1Quiz2IdNumber, questionCreate1.bodyObj.questionId, user1SessionId3String);
+    // console.log(user1Quiz2QuestionRemove);
+    expect(user1Quiz2QuestionRemove.statusCode).toStrictEqual(200);
+
+    console.log('in the end there was darkness at', inthebeginning);
   });
 });
 

@@ -1,17 +1,16 @@
-// TODO Implement functions for the following:
-/*
-/v1/admin/quiz/{quizid}/question
-/v1/admin/quiz/{quizid}/question/{questionid}
-/v1/admin/quiz/{quizid}/question/{questionid}
-/v1/admin/quiz/{quizid}/question/{questionid}/move
-/v1/admin/quiz/{quizid}/question/{questionid}/duplicate
-*/
 const Colour = ['red', 'blue', 'green', 'yellow', 'purple', 'brown', 'orange'];
+
 import { Questions, ErrorObject, Answer, QuestionBody } from './dataStore';
 import {
-  findSessionId, checkQuestionLength,
-  findQuizId, matchQuizIdAndAuthor, checkQuestionDuration, checkQuestionPoints, checkAnswerLength, checkQuestionDurationSum, checkAnswerNum, checkAnswerDuplicate, checkAnswerCorrect, randomIdGenertor, getNow
+  findSessionId, checkQuestionLength, findQuizId, matchQuizIdAndAuthor,
+  checkQuestionDuration, checkQuestionPoints, checkAnswerLength,
+  checkQuestionDurationSum, checkAnswerNum, checkAnswerDuplicate,
+  checkAnswerCorrect, randomIdGenertor, getNow
 } from './helper';
+
+/*
+Comments required here
+*/
 export function adminQuestionCreate(
   token: string,
   quizId: number,
@@ -82,6 +81,12 @@ export function adminQuestionCreate(
   quiz.questions.push(quesiton);
   return { questionId: quesiton.questionId };
 }
+
+/*
+Comments required here
+*/
+// TODO implementation adminQuestionUpdate
+
 /**
  * deletes a quiz question.
  * @param {number} quizId - the authenticated user ID
@@ -104,7 +109,6 @@ export function adminQuestionRemove(
     };
   }
   const authUserId = validToken.userId;
-
   if (!findQuizId(quizId)) {
     return { error: 'Quiz ID does not refer to a valid quiz.', status: 403 };
   }
@@ -123,3 +127,13 @@ export function adminQuestionRemove(
   quiz.numQuestions -= 1;
   return {};
 }
+
+/*
+Comments required here
+*/
+// TODO adminQuestionMove
+
+/*
+Comments required here
+*/
+// TODO adminQuestionDuplicate
