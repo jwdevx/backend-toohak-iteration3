@@ -36,6 +36,7 @@ import {
   adminQuestionCreate,
   adminQuestionRemove,
   adminQuestionMove,
+  adminQuestionUpdate,
 } from './question';
 
 const app = express(); // Set up web app
@@ -306,10 +307,14 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
  * When this route is called, the last edited time is updated,
  * and the colours of all answers of that question are randomly generated.
  */
-// TODO edit and confirm the url is correct
-app.put('/v1/admin/quiz/{quizid}/question/{questionid}', (req: Request, res: Response) => {
-  const response = { message: ' TODO: Update quiz question' };
-  res.status(501).json(response);
+app.put('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const { token, questionBody } = req.body;
+  const quizId = parseInt(req.params.quizid);
+  const questionId = parseInt(req.params.questionid);
+  const response = adminQuestionUpdate(token, quizId, questionId, questionBody);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
 });
 
 // Delete a particular question from a quiz
