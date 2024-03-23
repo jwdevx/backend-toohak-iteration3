@@ -322,6 +322,32 @@ describe('test question Update', () => {
       answers: ans
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body1);
+    expect(adminQuizInfo(sessionId, quiz).bodyObj).toStrictEqual({
+      quizId: quiz,
+      name: 'quiz1',
+      timeCreated: expect.any(Number),
+      timeLastEdited: expect.any(Number),
+      description: 'first quiz',
+      numQuestions: 1,
+      questions: [{
+        questionId: questionid,
+        question: body1.question,
+        duration: body1.duration,
+        points: body1.points,
+        answers: [{
+          answer: answer8,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: true,
+        }, {
+          answer: answer2,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: false,
+        }]
+      }],
+      duration: 4
+    });
     expect(questionUpdate.bodyObj).toStrictEqual({ });
     expect(questionUpdate.statusCode).toStrictEqual(OK);
   });
@@ -528,6 +554,40 @@ describe('test question Update', () => {
     const questionidUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body2);
     expect(questionidUpdate.bodyObj).toStrictEqual({ error: 'The sum of the duration should be less than 3 min' });
     expect(questionidUpdate.statusCode).toStrictEqual(BAD_REQUEST);
+  });
+
+  test('duration sum greater than 180', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = decodeURIComponent(token1.bodyObj.token);
+    const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz').bodyObj.quizId;
+    const answers1 = [answerObj1, answerObj2];
+    const body1 : QuestionBody = {
+      question: 'this is a test',
+      duration: 140,
+      points: 5,
+      answers: answers1
+    };
+    const questionid2 = adminQuestionCreate(sessionId, quiz, body1).bodyObj.questionId;
+    const answers2 = [answerObj1, answerObj2];
+    const body3 : QuestionBody = {
+      question: 'this is a test',
+      duration: 20,
+      points: 5,
+      answers: answers2
+    };
+    const questionid = adminQuestionCreate(sessionId, quiz, body3).bodyObj.questionId;
+    const answers3 = [answerObj1, answerObj4];
+    const body2 : QuestionBody = {
+      question: 'this is a test',
+      duration: 30,
+      points: 5,
+      answers: answers3
+    };
+    const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body2);
+    const questionUpdate2 = adminQuestionUpdate(sessionId, quiz, questionid2, body1);
+    expect(questionUpdate.bodyObj).toStrictEqual({ });
+    expect(questionUpdate2.bodyObj).toStrictEqual({ });
+    expect(questionUpdate.statusCode).toStrictEqual(OK);
   });
 
   test('low points', () => {

@@ -111,6 +111,7 @@ export function adminQuestionUpdate(
     };
   }
   const authUserId = validToken.userId;
+
   const quiz = findQuizId(quizId);
   if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     return { error: 'Quiz ID does not refer to a valid quiz.', status: 403 };
@@ -128,7 +129,12 @@ export function adminQuestionUpdate(
   if (checkQuestionDuration(questionBody.duration)) {
     return { error: 'The duration should be positive number', status: 400 };
   }
-  if (checkQuestionDurationSum(quizId, questionBody.duration)) {
+
+  const Question = quiz.questions.find(question => question.questionId === questionId);
+  if (!Question) {
+    return { error: 'Question Id does not refer to a valid question within this quiz', status: 400 };
+  }
+  if (checkQuestionDurationSum(quizId, questionBody.duration - Question.duration)) {
     return { error: 'The sum of the duration should be less than 3 min', status: 400 };
   }
   if (checkQuestionPoints(questionBody.points)) {
@@ -142,11 +148,6 @@ export function adminQuestionUpdate(
   }
   if (checkAnswerCorrect(questionBody.answers)) {
     return { error: 'There should be at least one correct answer.', status: 400 };
-  }
-
-  const Question = quiz.questions.find(question => question.questionId === questionId);
-  if (!Question) {
-    return { error: 'Question Id does not refer to a valid question within this quiz', status: 400 };
   }
 
   const answers: Answer[] = [];
@@ -171,8 +172,7 @@ export function adminQuestionUpdate(
   quiz.duration = quizDur - oldQuestionDur + Question.duration;
   quiz.timeLastEdited = getNow();
 
-  return { };
-
+  return {};
 }
 
 /**
