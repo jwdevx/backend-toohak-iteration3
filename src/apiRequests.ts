@@ -271,3 +271,18 @@ export const adminQuestionMove = (
     statusCode: res.statusCode,
   };
 };
+
+export const adminQuestionUpdate = (
+  token: string, quizId: number, questionId:number, questionBody: QuestionBody) => {
+  const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}`, {
+    json: {
+      token: token,
+      questionBody: questionBody
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
