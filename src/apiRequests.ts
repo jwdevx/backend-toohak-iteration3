@@ -178,6 +178,20 @@ export const adminQuizDescriptionUpdate = (
   };
 };
 
+export const adminQuizTransfer = (quizId: number, token: string, userEmail: string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/quiz/' + quizId + '/transfer', {
+    json: {
+      token: token,
+      userEmail: userEmail,
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
 // =============================================================================
 // ========================     QUIZZES TRASH        ===========================
 // =============================================================================
@@ -263,6 +277,35 @@ export const adminQuestionMove = (
     json: {
       token: token,
       newPosition: newPosition
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+export const adminQuestionUpdate = (
+  token: string, quizId: number, questionId:number, questionBody: QuestionBody) => {
+  const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}`, {
+    json: {
+      token: token,
+      questionBody: questionBody
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+export const adminQuestionDuplicate = (
+  token: string, quizId: number, questionId:number) => {
+  const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, {
+    json: {
+      token: token,
     },
     timeout: 100
   });

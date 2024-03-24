@@ -30,12 +30,15 @@ import {
   adminQuizTrashView,
   adminQuizTrashRestore,
   adminQuizTrashEmpty,
+  adminQuizTransfer
 } from './quiz';
 
 import {
   adminQuestionCreate,
   adminQuestionRemove,
   adminQuestionMove,
+  adminQuestionUpdate,
+  adminQuestionDuplicate,
 } from './question';
 
 const app = express(); // Set up web app
@@ -278,9 +281,13 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
 
 // Transfer ownership of a quiz to a different user based on their email
 // TODO edit the url
-app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
-  const response = { message: ' TODO: Transfer the quiz to another owner ' };
-  res.status(501).json(response);
+app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const { token, userEmail } = req.body;
+  const response = adminQuizTransfer(quizId, token, userEmail);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
 });
 
 // =============================================================================
@@ -306,10 +313,14 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
  * When this route is called, the last edited time is updated,
  * and the colours of all answers of that question are randomly generated.
  */
-// TODO edit and confirm the url is correct
-app.put('/v1/admin/quiz/{quizid}/question/{questionid}', (req: Request, res: Response) => {
-  const response = { message: ' TODO: Update quiz question' };
-  res.status(501).json(response);
+app.put('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const { token, questionBody } = req.body;
+  const quizId = parseInt(req.params.quizid);
+  const questionId = parseInt(req.params.questionid);
+  const response = adminQuestionUpdate(token, quizId, questionId, questionBody);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
 });
 
 // Delete a particular question from a quiz
@@ -336,9 +347,14 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
 
 // Duplicate a quiz Question, when this route is called, the timeLastEdited is updated
 // TODO edit and confirm the url is correct
-app.post('/v1/admin/quiz/{quizid}/question/{questionid}/duplicate', (req: Request, res: Response) => {
-  const response = { message: ' TODO: Duplicate a quiz question  ' };
-  res.status(501).json(response);
+app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const quizId = parseInt(req.params.quizid);
+  const questionId = parseInt(req.params.questionid);
+  const response = adminQuestionDuplicate(token, quizId, questionId);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
 });
 
 // =============================================================================
