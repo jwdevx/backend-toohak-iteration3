@@ -30,6 +30,7 @@ import {
   adminQuizTrashView,
   adminQuizTrashRestore,
   adminQuizTrashEmpty,
+  adminQuizTransfer
 } from './quiz';
 
 import {
@@ -279,9 +280,13 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
 
 // Transfer ownership of a quiz to a different user based on their email
 // TODO edit the url
-app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
-  const response = { message: ' TODO: Transfer the quiz to another owner ' };
-  res.status(501).json(response);
+app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const { token, userEmail } = req.body;
+  const response = adminQuizTransfer(quizId, token, userEmail);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
 });
 
 // =============================================================================
