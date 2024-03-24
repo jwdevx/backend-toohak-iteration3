@@ -7,6 +7,7 @@ import {
   adminQuizDescriptionUpdate,
   clear,
   adminQuizTrashRestore,
+  adminQuizTransfer,
 } from './apiRequests';
 
 import {
@@ -749,5 +750,93 @@ describe('Testing if able to remove trash permanently using adminQuizTrashEmpty'
     const restore = adminQuizTrashRestore(sessionId1, quiz1.bodyObj.quizId);
     expect(restore.bodyObj).toStrictEqual({ error: 'The quiz does not exist.' });
     expect(restore.statusCode).toStrictEqual(FORBIDDEN);
+  });
+});
+// =============================================================================
+// =======================    adminQuizTransfer   ==============================
+// =============================================================================
+
+describe('adminQuizTransfer Response Tests', () => {
+  beforeEach(() => {
+    clear();
+  });
+  test('Success Case: Quiz Transferred - Response Code 200', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    expect(user1.statusCode).toStrictEqual(200);
+    const user1SessionId1String = user1.bodyObj.token;
+    expect(user1.bodyObj).toStrictEqual({ token: expect.any(String) });
+    const sessionIdNumber = Number(decodeURIComponent(user1.bodyObj.token));
+    expect(sessionIdNumber).not.toBeNaN();
+    const user2 = adminAuthRegister('sadat@gmail.com', '1234abcd', 'Galantis', 'Express');
+    expect(user2.statusCode).toStrictEqual(200);
+    const user2SessionId1String = user2.bodyObj.token;
+    // adminQuizCreate - User1 Create Quiz1
+    const quiz1 = adminQuizCreate(user1SessionId1String, 'quiz1namebyUser1', 'quiz1description');
+    expect(quiz1.statusCode).toStrictEqual(200);
+    const user1Quiz1IdNumber = quiz1.bodyObj.quizId;
+    console.log(user1Quiz1IdNumber);
+    //   console.log(user1SessionId1String);
+
+    // Transfer Quiz1 owned by User1 to User 2
+    let ownershipTransfer = adminQuizTransfer(user1Quiz1IdNumber, '999999999999999999999999', 'sadat@gmail.com');
+    expect(ownershipTransfer.statusCode).toStrictEqual(401);
+    ownershipTransfer = adminQuizTransfer(user1Quiz1IdNumber, user1SessionId1String, 'sadat@gmail.com');
+    //   console.log(ownershipTransfer);
+    expect(ownershipTransfer.statusCode).toStrictEqual(200);
+    expect(ownershipTransfer.bodyObj).toStrictEqual({});
+    const quizListUser2 = adminQuizList(user2SessionId1String);
+    expect(quizListUser2.statusCode).toStrictEqual(200);
+    expect(quizListUser2.bodyObj.quizzes.length).toStrictEqual(1);
+    expect(quizListUser2.bodyObj).toStrictEqual({
+      quizzes: [
+        {
+          quizId: user1Quiz1IdNumber,
+          name: 'quiz1namebyUser1'
+        }
+      ]
+    });
+    console.log(quizListUser2);
+    console.log(quizListUser2.bodyObj.quizzes[0]);
+  });
+  test('Error Case: Invalid user - Response Code 400', () => {
+    const token1 = adminAuthRegister('valid@unsw.com', 'Password1', 'Taew', 'Yun').bodyObj.token;
+    const quizId = adminQuizCreate(token1, 'Good Quiz', 'abcd').bodyObj.quizId;
+    const transfer = adminQuizTransfer(token1, quizId, 'invalid@unsw.com');
+    expect(transfer.statusCode).toBe(400);
+    expect(transfer.bodyObj).toStrictEqual({ error: expect.any(String) });
+  });
+
+  test('Error Case: User is the owner - Response Code 400', () => {
+    const token1: string = (adminAuthRegister('valid@unsw.com', 'Password1', 'Taew', 'Yun').bodyObj.token);
+    const quiz = adminQuizCreate(token1, 'Good Quiz', 'abcd');
+    const quizId = Number(decodeURIComponent(quiz.bodyObj.quizId));
+    expect(adminQuizTransfer(quizId, token1, 'valid@unsw.com').statusCode).toBe(400);
+  });
+
+  test('Error Case: Quiz name already exists for target user - Response Code 400', () => {
+    const user1 = adminAuthRegister('valid@unsw.com', 'Password1', 'Taew', 'Yun');
+    const token1 = (user1.bodyObj.token);
+    const quizId1 = adminQuizCreate(token1, 'Good Quiz', '').bodyObj.quizId;
+    const user2 = adminAuthRegister('valid2@unsw.com', 'Password2', 'Taew', 'Yun');
+    const token2 = (user2.bodyObj.token);
+    const quiz = adminQuizCreate(token2, 'Good Quiz', '');
+    const quizId2 = Number(decodeURIComponent(quiz.bodyObj.quizId));
+    expect(quizId2).toStrictEqual(expect.any(Number));
+    expect(adminQuizTransfer(quizId1, token1, 'valid2@unsw.com').statusCode).toBe(400);
+  });
+
+  test('Error Case: Token is empty or invalid - Response Code 401', () => {
+    const token1: string = adminAuthRegister('valid@unsw.com', 'Password1', 'Taew', 'Yun').bodyObj.token;
+    const quizId: number = adminQuizCreate(token1, 'Good Quiz', '').bodyObj.quizId;
+    const result = adminQuizTransfer(quizId, ' ', 'valid@unsw.com');
+    expect(result.statusCode).toBe(401);
+    console.log(result.bodyObj);
+  });
+
+  test('Error Case: Quiz ID is invalid or user does not own the quiz - Response Code 403', () => {
+    const token1: string = adminAuthRegister('valid@unsw.com', 'Password1', 'Taew', 'Yun').bodyObj.token;
+    const quizId: number = adminQuizCreate(token1, 'Good Quiz', '').bodyObj.quizId;
+    const token2 = adminAuthRegister('valid2@unsw.com', 'Password2', 'Taew', 'Yun').bodyObj.token;
+    expect(adminQuizTransfer(quizId, token2, 'valid@unsw.com').statusCode).toBe(403);
   });
 });

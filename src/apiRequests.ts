@@ -178,6 +178,20 @@ export const adminQuizDescriptionUpdate = (
   };
 };
 
+export const adminQuizTransfer = (quizId: number, token: string, userEmail: string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/quiz/' + quizId + '/transfer', {
+    json: {
+      token: token,
+      userEmail: userEmail,
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
 // =============================================================================
 // ========================     QUIZZES TRASH        ===========================
 // =============================================================================
