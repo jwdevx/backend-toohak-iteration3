@@ -259,10 +259,13 @@ export function adminQuestionMove(
   return {};
 }
 
-/*
-Comments required here
-*/
-// TODO adminQuestionDuplicate
+/**
+ * creates a quiz question.
+ * @param {string} token - a valid sessionId
+ * @param {number} quizId - the authenticated user ID
+ * @param {number} questionId - the authenticated question ID
+ * @returns {questionId: number} | ErrorObject
+ */
 export function adminQuestionDuplicate(
   token: string,
   quizId: number,
@@ -291,6 +294,8 @@ export function adminQuestionDuplicate(
     return { error: 'Question Id does not refer to a valid question within this quiz', status: 400 };
   }
 
+  const questionIndex = quiz.questions.findIndex(question => question.questionId === questionId);
+
   const answers: Answer[] = [];
   for (const answer of Question.answers) {
     const newAnswer : Answer = {
@@ -312,6 +317,11 @@ export function adminQuestionDuplicate(
   quiz.duration += Question.duration;
   quiz.timeLastEdited = getNow();
   quiz.numQuestions += 1;
+
   quiz.questions.push(quesiton);
+  const questionIndex2 = quiz.questions.findIndex(Question => Question.questionId);
+  const [movedQuestion] = quiz.questions.splice(questionIndex2, 1);
+  quiz.questions.splice(questionIndex + 1, 0, movedQuestion);
+
   return { questionId: quesiton.questionId };
 }

@@ -1151,6 +1151,13 @@ describe('test question Duplicate', () => {
       points: 5,
       answers: answers
     };
+    const body1 : QuestionBody = {
+      question: 'this is a test 2',
+      duration: 15,
+      points: 5,
+      answers: answers
+    };
+    const questionid2 = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body1).bodyObj.questionId;
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body).bodyObj.questionId;
     const questionDuplicate = adminQuestionDuplicate(sessionId, quiz.bodyObj.quizId, questionid);
     expect(adminQuizInfo(sessionId, quiz.bodyObj.quizId).bodyObj).toStrictEqual({
@@ -1159,7 +1166,7 @@ describe('test question Duplicate', () => {
       timeCreated: expect.any(Number),
       timeLastEdited: expect.any(Number),
       description: 'first quiz',
-      numQuestions: 2,
+      numQuestions: 3,
       questions: [{
         questionId: questionid,
         question: body.question,
@@ -1194,8 +1201,25 @@ describe('test question Duplicate', () => {
           colour: expect.any(String),
           correct: false,
         }]
+      },
+      {
+        questionId: questionid2,
+        question: body1.question,
+        duration: body1.duration,
+        points: body1.points,
+        answers: [{
+          answer: answer1,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: true,
+        }, {
+          answer: answer2,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: false,
+        }]
       }],
-      duration: 20
+      duration: 35
     });
     expect(questionDuplicate.bodyObj).toStrictEqual({ questionId: expect.any(Number) });
     expect(questionDuplicate.statusCode).toStrictEqual(OK);
