@@ -259,7 +259,69 @@ export function adminQuestionMove(
   return {};
 }
 
-/*
-Comments required here
-*/
-// TODO adminQuestionDuplicate
+/**
+ * creates a quiz question.
+ * @param {string} token - a valid sessionId
+ * @param {number} quizId - the authenticated user ID
+ * @param {number} questionId - the authenticated question ID
+ * @returns {questionId: number} | ErrorObject
+ */
+export function adminQuestionDuplicate(
+  token: string,
+  quizId: number,
+  questionId: number) : {questionId: number} | ErrorObject {
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || isNaN(sessionId) || !String(token).trim()) {
+    return { error: 'Token is empty or not provided', status: 401 };
+  }
+  const validToken = findSessionId(sessionId);
+  if (!validToken) {
+    return {
+      error: 'Token is invalid (does not refer to valid logged in user session)', status: 401,
+    };
+  }
+  const authUserId = validToken.userId;
+  const quiz = findQuizId(quizId);
+  if (!quiz || isNaN(quizId) || quiz.intrash === true) {
+    return { error: 'Quiz ID does not refer to a valid quiz.', status: 403 };
+  }
+  if (!matchQuizIdAndAuthor(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
+  }
+
+  const Question = quiz.questions.find(question => question.questionId === questionId);
+  if (!Question) {
+    return { error: 'Question Id does not refer to a valid question within this quiz', status: 400 };
+  }
+
+  const questionIndex = quiz.questions.findIndex(question => question.questionId === questionId);
+
+  const answers: Answer[] = [];
+  for (const answer of Question.answers) {
+    const newAnswer : Answer = {
+      answerId: answer.answerId,
+      answer: answer.answer,
+      correct: answer.correct,
+      colour: Colour[Math.floor(Math.random() * 7)]
+    };
+    answers.push(newAnswer);
+  }
+  const id = randomIdGenertor();
+  const quesiton: Questions = {
+    questionId: id,
+    question: Question.question,
+    duration: Question.duration,
+    points: Question.points,
+    answers: answers
+  };
+  quiz.duration += Question.duration;
+  quiz.timeLastEdited = getNow();
+  quiz.numQuestions += 1;
+
+  quiz.questions.push(quesiton);
+  const questionIndex2 = quiz.questions.findIndex(Question => Question.questionId);
+  const [movedQuestion] = quiz.questions.splice(questionIndex2, 1);
+  quiz.questions.splice(questionIndex + 1, 0, movedQuestion);
+
+  return { questionId: quesiton.questionId };
+}

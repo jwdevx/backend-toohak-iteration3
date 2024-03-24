@@ -38,6 +38,7 @@ import {
   adminQuestionRemove,
   adminQuestionMove,
   adminQuestionUpdate,
+  adminQuestionDuplicate,
 } from './question';
 
 const app = express(); // Set up web app
@@ -346,9 +347,14 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
 
 // Duplicate a quiz Question, when this route is called, the timeLastEdited is updated
 // TODO edit and confirm the url is correct
-app.post('/v1/admin/quiz/{quizid}/question/{questionid}/duplicate', (req: Request, res: Response) => {
-  const response = { message: ' TODO: Duplicate a quiz question  ' };
-  res.status(501).json(response);
+app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const quizId = parseInt(req.params.quizid);
+  const questionId = parseInt(req.params.questionid);
+  const response = adminQuestionDuplicate(token, quizId, questionId);
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
+  res.json(response);
 });
 
 // =============================================================================

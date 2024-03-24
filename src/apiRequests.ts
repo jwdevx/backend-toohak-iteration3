@@ -300,3 +300,17 @@ export const adminQuestionUpdate = (
     statusCode: res.statusCode,
   };
 };
+
+export const adminQuestionDuplicate = (
+  token: string, quizId: number, questionId:number) => {
+  const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, {
+    json: {
+      token: token,
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};

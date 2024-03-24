@@ -1,7 +1,7 @@
 import {
   adminAuthRegister, adminQuestionCreate, adminQuestionUpdate,
   adminQuizCreate, adminQuestionRemove,
-  adminQuizInfo, adminQuestionMove, clear
+  adminQuizInfo, adminQuestionMove, adminQuestionDuplicate, clear
 } from './apiRequests';
 import { QuestionBody, answer } from './dataStore';
 
@@ -1050,5 +1050,178 @@ describe('test question move', () => {
     const obj1 = adminQuestionMove(quiz.bodyObj.quizId + 100, id1, token1.bodyObj.token, 0);
     expect(obj1.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
     expect(obj1.statusCode).toStrictEqual(403);
+  });
+});
+
+// =============================================================================
+// =========================  adminQuestionDuplicate  ==========================
+// =============================================================================
+
+describe('test question Duplicate', () => {
+  beforeEach(() => {
+    clear();
+  });
+  const answer1 = 'this is answer1';
+  const answer2 = 'this is answer2';
+  const answerObj1: answer = { answer: answer1, correct: true };
+  const answerObj2: answer = { answer: answer2, correct: false };
+
+  test('invalid token', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
+    const sessionId = decodeURIComponent(token1);
+    const sessionId2 = (parseInt(decodeURIComponent(token1)));
+    const wrongtoken = encodeURIComponent(JSON.stringify(sessionId2 + 1));
+    const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    const question = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
+    const duplicate = adminQuestionDuplicate(wrongtoken, quiz.bodyObj.quizId, question.bodyObj.questionId);
+    expect(duplicate.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(duplicate.statusCode).toStrictEqual(UNAUTHORIZED);
+  });
+  test('quizid doest match', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId1 = decodeURIComponent(token1.bodyObj.token);
+    const token2 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'jason', 'wong');
+    const sessionId2 = decodeURIComponent(token2.bodyObj.token);
+    const quiz = adminQuizCreate(sessionId1, 'quiz1', 'first quiz');
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    const questionid = adminQuestionCreate(sessionId2, quiz.bodyObj.quizId, body);
+    const duplicate = adminQuestionDuplicate(sessionId2, quiz.bodyObj.quizId + 1, questionid.bodyObj.questionId);
+    expect(duplicate.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
+    expect(duplicate.statusCode).toStrictEqual(FORBIDDEN);
+  });
+
+  test('quizid doest match', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId1 = decodeURIComponent(token1.bodyObj.token);
+    const token2 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'jason', 'wong');
+    const sessionId2 = decodeURIComponent(token2.bodyObj.token);
+    const quiz = adminQuizCreate(sessionId1, 'quiz1', 'first quiz');
+    const quiz1 = adminQuizCreate(sessionId2, 'quiz1', 'first quiz');
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    const questionid = adminQuestionCreate(sessionId2, quiz.bodyObj.quizId, body);
+    const duplicate = adminQuestionDuplicate(sessionId1, quiz1.bodyObj.quizId, questionid.bodyObj.questionId);
+    expect(duplicate.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(duplicate.statusCode).toStrictEqual(FORBIDDEN);
+  });
+
+  test('Question Id does not refer to a valid question within this quiz', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
+    const sessionId = decodeURIComponent(token1);
+    const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz').bodyObj.quizId;
+    const answers = [answerObj1, answerObj2];
+    const body1 : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    const questionid = adminQuestionCreate(sessionId, quiz, body1).bodyObj.questionId;
+    const questionDuplicate = adminQuestionDuplicate(sessionId, quiz, questionid + 1);
+    expect(questionDuplicate.bodyObj).toStrictEqual({ error: 'Question Id does not refer to a valid question within this quiz' });
+    expect(questionDuplicate.statusCode).toStrictEqual(400);
+  });
+
+  test('success create', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId = decodeURIComponent(token1.bodyObj.token);
+    const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    const body1 : QuestionBody = {
+      question: 'this is a test 2',
+      duration: 15,
+      points: 5,
+      answers: answers
+    };
+    const questionid2 = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body1).bodyObj.questionId;
+    const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body).bodyObj.questionId;
+    const questionDuplicate = adminQuestionDuplicate(sessionId, quiz.bodyObj.quizId, questionid);
+    expect(adminQuizInfo(sessionId, quiz.bodyObj.quizId).bodyObj).toStrictEqual({
+      quizId: quiz.bodyObj.quizId,
+      name: 'quiz1',
+      timeCreated: expect.any(Number),
+      timeLastEdited: expect.any(Number),
+      description: 'first quiz',
+      numQuestions: 3,
+      questions: [{
+        questionId: questionid,
+        question: body.question,
+        duration: body.duration,
+        points: body.points,
+        answers: [{
+          answer: answer1,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: true,
+        }, {
+          answer: answer2,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: false,
+        }]
+      },
+
+      {
+        questionId: questionDuplicate.bodyObj.questionId,
+        question: body.question,
+        duration: body.duration,
+        points: body.points,
+        answers: [{
+          answer: answer1,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: true,
+        }, {
+          answer: answer2,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: false,
+        }]
+      },
+      {
+        questionId: questionid2,
+        question: body1.question,
+        duration: body1.duration,
+        points: body1.points,
+        answers: [{
+          answer: answer1,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: true,
+        }, {
+          answer: answer2,
+          answerId: expect.any(Number),
+          colour: expect.any(String),
+          correct: false,
+        }]
+      }],
+      duration: 35
+    });
+    expect(questionDuplicate.bodyObj).toStrictEqual({ questionId: expect.any(Number) });
+    expect(questionDuplicate.statusCode).toStrictEqual(OK);
   });
 });
