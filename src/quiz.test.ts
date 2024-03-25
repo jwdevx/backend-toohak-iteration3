@@ -732,6 +732,16 @@ describe('Testing if able to remove trash permanently using adminQuizTrashEmpty'
     expect(emptyRes1.statusCode).toBe(401);
     expect(emptyRes1.bodyObj).toStrictEqual({ error: 'Token is empty or not provided' });
 
+    // Error 401
+    const error = adminQuizTrashEmpty('9999999999', JSON.stringify([quiz1.bodyObj.quizId]));
+    expect(error.statusCode).toBe(401);
+    expect(error.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+
+    // Error 400 'quizIds must be numbers'
+    const error1 = adminQuizTrashEmpty(sessionId1, JSON.stringify(['999999999']));
+    expect(error1.statusCode).toBe(400);
+    expect(error1.bodyObj).toStrictEqual({ error: 'quizIds must be numbers' });
+
     // Error 400  'One or more of the Quiz IDs is not currently in the trash'
     const emptyRes2 = adminQuizTrashEmpty(sessionId1, JSON.stringify([quiz1.bodyObj.quizId, quiz2.bodyObj.quizId]));
     expect(emptyRes2.statusCode).toBe(400);
