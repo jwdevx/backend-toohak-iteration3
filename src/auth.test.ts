@@ -356,6 +356,16 @@ describe('adminUserPasswordUpdate', () => {
     expect(error.statusCode).toBe(UNAUTHORIZED);
     expect(error.bodyObj).toStrictEqual(ERROR);
   });
+  test('missing parameter', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj.token;
+    const error = adminUserPasswordUpdate(user1, '', 'WOjiaoZC1');
+    expect(error.statusCode).toBe(BAD_REQUEST);
+    expect(error.bodyObj).toStrictEqual(ERROR);
+    const user2 = adminAuthRegister('hayden.mith@unsw.edu.au', '1234abcd', 'Hayde', 'mith').bodyObj.token;
+    const error1 = adminUserPasswordUpdate(user2, '', 'WOjiaoZC1');
+    expect(error1.statusCode).toBe(BAD_REQUEST);
+    expect(error1.bodyObj).toStrictEqual(ERROR);
+  });
   test('the old password is wrong', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
     const error = adminUserPasswordUpdate(user1.bodyObj.token, '1234aaaa', 'WOjiaoZC1');
