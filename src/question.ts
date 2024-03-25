@@ -139,7 +139,7 @@ export function adminQuestionUpdate(
   if (possibleNewDuration > 180) {
     return { error: 'The sum of the duration should be less than 3 min', status: 400 };
   }
-    
+
   // Check Error Answers
   if (checkAnswerLength(questionBody.answers)) {
     return { error: 'Answer string should be longer than 1 charcters, shorter than 30 charcters', status: 400 };
@@ -152,7 +152,7 @@ export function adminQuestionUpdate(
   }
   if (checkAnswerNum(questionBody.answers)) {
     return { error: 'The answers is either too much or too little.', status: 400 };
-  }    
+  }
 
   // Updating Source question
   srcQuestion.question = questionBody.question;
@@ -172,8 +172,8 @@ export function adminQuestionUpdate(
   }
   srcQuestion.answers = answers;
 
-  // Update Quiz  
-  quiz.duration = possibleNewDuration;    
+  // Update Quiz
+  quiz.duration = possibleNewDuration;
   quiz.timeLastEdited = getNow();
   return {};
 }
