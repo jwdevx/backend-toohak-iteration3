@@ -119,20 +119,6 @@ export function adminQuestionUpdate(
     return { error: 'Quiz ID does not refer to a quiz that this user owns.', status: 403 };
   }
 
-  // Check Error Answers
-  if (checkAnswerLength(questionBody.answers)) {
-    return { error: 'Answer string should be longer than 1 charcters, shorter than 30 charcters', status: 400 };
-  }
-  if (checkAnswerDuplicate(questionBody.answers)) {
-    return { error: 'An answer is a duplicate of the other', status: 400 };
-  }
-  if (checkAnswerCorrect(questionBody.answers)) {
-    return { error: 'There should be at least one correct answer.', status: 400 };
-  }
-  if (checkAnswerNum(questionBody.answers)) {
-    return { error: 'The answers is either too much or too little.', status: 400 };
-  }
-
   // Check Error Questions
   if (checkQuestionPoints(questionBody.points)) {
     return { error: 'The points is either too high or too low', status: 400 };
@@ -153,7 +139,20 @@ export function adminQuestionUpdate(
   if (possibleNewDuration > 180) {
     return { error: 'The sum of the duration should be less than 3 min', status: 400 };
   }
-  quiz.duration = possibleNewDuration;
+    
+  // Check Error Answers
+  if (checkAnswerLength(questionBody.answers)) {
+    return { error: 'Answer string should be longer than 1 charcters, shorter than 30 charcters', status: 400 };
+  }
+  if (checkAnswerDuplicate(questionBody.answers)) {
+    return { error: 'An answer is a duplicate of the other', status: 400 };
+  }
+  if (checkAnswerCorrect(questionBody.answers)) {
+    return { error: 'There should be at least one correct answer.', status: 400 };
+  }
+  if (checkAnswerNum(questionBody.answers)) {
+    return { error: 'The answers is either too much or too little.', status: 400 };
+  }    
 
   // Updating Source question
   srcQuestion.question = questionBody.question;
@@ -173,7 +172,8 @@ export function adminQuestionUpdate(
   }
   srcQuestion.answers = answers;
 
-  // Update Time
+  // Update Quiz  
+  quiz.duration = possibleNewDuration;    
   quiz.timeLastEdited = getNow();
   return {};
 }

@@ -544,7 +544,7 @@ describe('test question Update', () => {
       answers: answers1
     };
     const questionid = adminQuestionCreate(sessionId, quiz, body1).bodyObj.questionId;
-    const answers2 = [answerObj3, answerObj4];
+    const answers2 = [answerObj3, answerObj4, answerObj1];
     const body2 : QuestionBody = {
       question: 'this is a test',
       duration: 190,
