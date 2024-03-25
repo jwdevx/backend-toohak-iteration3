@@ -370,6 +370,8 @@ describe('adminUserPasswordUpdate', () => {
   });
   test('the new password is used before', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
+    const error1 = adminUserPasswordUpdate(user1.bodyObj.token, '1234abcd', 'WOjiaoZC123');
+    console.log(error1);
     const error = adminUserPasswordUpdate(user1.bodyObj.token, 'WOjiaoZC123', '1234abcd');
     expect(error.statusCode).toBe(BAD_REQUEST);
     expect(error.bodyObj).toStrictEqual(ERROR);
