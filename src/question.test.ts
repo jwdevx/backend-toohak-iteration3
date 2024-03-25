@@ -1157,10 +1157,13 @@ describe('test question Duplicate', () => {
       points: 5,
       answers: answers
     };
-    const questionid2 = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body1).bodyObj.questionId;
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body).bodyObj.questionId;
+    const questionid2 = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body1).bodyObj.questionId;
     const questionDuplicate = adminQuestionDuplicate(sessionId, quiz.bodyObj.quizId, questionid);
-    expect(adminQuizInfo(sessionId, quiz.bodyObj.quizId).bodyObj).toStrictEqual({
+    const info = adminQuizInfo(sessionId, quiz.bodyObj.quizId);
+    console.log('Duplicate test from ash');
+    console.log(info.bodyObj.questions);
+    expect(info.bodyObj).toStrictEqual({
       quizId: quiz.bodyObj.quizId,
       name: 'quiz1',
       timeCreated: expect.any(Number),
