@@ -280,7 +280,6 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
 });
 
 // Transfer ownership of a quiz to a different user based on their email
-// TODO edit the url
 app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { token, userEmail } = req.body;
@@ -346,7 +345,6 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
 });
 
 // Duplicate a quiz Question, when this route is called, the timeLastEdited is updated
-// TODO edit and confirm the url is correct
 app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request, res: Response) => {
   const { token } = req.body;
   const quizId = parseInt(req.params.quizid);

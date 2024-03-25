@@ -174,7 +174,7 @@ export function checkAnswerNum(answers: answer[]): boolean {
 }
 
 export function checkQuestionDurationSum(quizId:number, duration: number): boolean {
-  const data = getData();
+  const data: DataStore = getData();
   const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
   if (!quiz) return true;
   return quiz.duration + duration > 180;
