@@ -66,6 +66,23 @@ describe('test question create', () => {
     expect(question.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
     expect(question.statusCode).toStrictEqual(UNAUTHORIZED);
   });
+  test('quizid is invalid', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
+    const sessionId1 = decodeURIComponent(token1.bodyObj.token);
+    const token2 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'jason', 'wong');
+    const sessionId2 = decodeURIComponent(token2.bodyObj.token);
+    const quiz = adminQuizCreate(sessionId1, 'quiz1', 'first quiz');
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    const questionid = adminQuestionCreate(sessionId2, quiz.bodyObj.quizId + 1, body);
+    expect(questionid.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
+    expect(questionid.statusCode).toStrictEqual(FORBIDDEN);
+  });
   test('quizid doest match', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const sessionId1 = decodeURIComponent(token1.bodyObj.token);
@@ -351,7 +368,29 @@ describe('test question Update', () => {
     expect(questionUpdate.bodyObj).toStrictEqual({ });
     expect(questionUpdate.statusCode).toStrictEqual(OK);
   });
-
+  test('invalid QuizId', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
+    const sessionId = decodeURIComponent(token1);
+    const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz').bodyObj.quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    const questionid = adminQuestionCreate(token1, quiz, body).bodyObj.questionId;
+    const ans = [answerObj8, answerObj2];
+    const body1 : QuestionBody = {
+      question: 'this is a test update',
+      duration: 4,
+      points: 6,
+      answers: ans
+    };
+    const questionUpdate = adminQuestionUpdate(sessionId, quiz + 1, questionid, body1);
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
+    expect(questionUpdate.statusCode).toStrictEqual(FORBIDDEN);
+  });
   test('invalid token', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
     const sessionId = (decodeURIComponent(token1));
