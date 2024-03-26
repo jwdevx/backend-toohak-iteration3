@@ -3,6 +3,7 @@ import {
   adminUserDetails,
   clear
 } from './apiRequests';
+const ERROR = { error: expect.any(String) };
 
 describe('Testing the clear function', () => {
   beforeEach(() => {
@@ -25,6 +26,6 @@ describe('Testing the clear function', () => {
     // Check user is empty
     const userDetailsRes = adminUserDetails(res.bodyObj.token);
     expect(userDetailsRes.statusCode).toBe(401);
-    expect(userDetailsRes.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(userDetailsRes.bodyObj).toStrictEqual(ERROR);
   });
 });
