@@ -42,20 +42,27 @@ export function adminAuthRegister(
   password: string,
   nameFirst: string,
   nameLast: string
-): { error: string} | { token: string} {
+): { token: string} | ErrorObject {
+  // 1.Error 400 - ensure parameters are not undefined, null, or empty ("")
   const data: DataStore = getData();
+  if (!email || !password || !nameFirst || !nameLast) return { error: 'One or more missing parameters', status: 400 };
+  // Ensure parameters are not just whitespace
+  if (!String(email).trim() || !String(password).trim() || !String(nameFirst).trim() || !String(nameLast).trim()) {
+    return { error: 'One or more missing parameters', status: 400 };
+  }
   if (data.users.some(existingUser => existingUser.email === email)) {
-    return { error: 'Email address is used by another user' };
+    return { error: 'Email address is used by another user', status: 400 };
   }
-  if (invalidEmail(email)) return { error: 'Invalid email address: email is not a string' };
-  if (invalidUserName(nameFirst)) return { error: 'First name contains invalid characters' };
-  if (invalidNameLength(nameFirst)) return { error: 'First name must be between 2 and 20 characters long' };
-  if (invalidUserName(nameLast)) return { error: 'Last name contains invalid characters' };
-  if (invalidNameLength(nameLast)) return { error: 'Last name must be between 2 and 20 characters long' };
-  if (password.length < 8) return { error: 'Password must be at least 8 characters long' };
+  if (invalidEmail(email)) return { error: 'Invalid email address: email is not a string', status: 400 };
+  if (invalidUserName(nameFirst)) return { error: 'First name contains invalid characters', status: 400 };
+  if (invalidNameLength(nameFirst)) return { error: 'First name must be between 2 and 20 characters long', status: 400 };
+  if (invalidUserName(nameLast)) return { error: 'Last name contains invalid characters', status: 400 };
+  if (invalidNameLength(nameLast)) return { error: 'Last name must be between 2 and 20 characters long', status: 400 };
+  if (password.length < 8) return { error: 'Password must be at least 8 characters long', status: 400 };
   if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(password)) {
-    return { error: 'Password must contain at least one letter and one number' };
+    return { error: 'Password must contain at least one letter and one number', status: 400 };
   }
+  // Success 200
   const sessionId: number = Math.floor(Math.random() * Date.now());
   const newUser: Users = {
     userId: data.users.length + 1,
@@ -87,17 +94,20 @@ export function adminAuthRegister(
  * @param {string} password - The password for the user
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
-export function adminAuthLogin(email: string, password: string): { token: string } | { error: string } {
-  if (!email || !password) return { error: 'One or more missing parameters' };
-
+export function adminAuthLogin(email: string, password: string): { token: string } | ErrorObject {
+  // 1.Error 400
+  if (!email || !password || !String(email).trim() || !String(password).trim()) {
+    return { error: 'One or more missing parameters', status: 400 };
+  }
   const data: DataStore = getData();
   const user = data.users.find((user) => user.email === email);
   if (!user) {
-    return { error: 'Email address does not exist' };
+    return { error: 'Email address does not exist', status: 400 };
   } else if (user.password !== password) {
     user.numFailedPasswordsSinceLastLogin++;
-    return { error: 'Password does not match email' };
+    return { error: 'Password does not match email', status: 400 };
   }
+  // Success 200
   user.numSuccessfulLogins++;
   const sessionId: number = Math.floor(Math.random() * Date.now());
   const newToken: Tokens = {
@@ -107,7 +117,6 @@ export function adminAuthLogin(email: string, password: string): { token: string
   data.tokens.push(newToken);
   user.numFailedPasswordsSinceLastLogin = 0;
   setData(data);
-
   return {
     token: encodeURIComponent(sessionId.toString()),
   };
@@ -121,16 +130,18 @@ export function adminAuthLogin(email: string, password: string): { token: string
  * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}}
  */
 // helper functions for adminUserDetails
-export function adminUserDetails(token: string): UserDetailsReturn | { error: string } {
+export function adminUserDetails(token: string): UserDetailsReturn | ErrorObject {
+  // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
-  if (!token || !String(token).trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided' };
+  if (!token || !String(token).trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided', status: 401 };
 
   const validToken = findSessionId(sessionId);
-  if (!validToken) return { error: 'Token is invalid (does not refer to valid logged in user session)' };
+  if (!validToken) return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
 
   const user = findUserId(validToken.userId);
-  if (!user) return { error: 'User not found' };
+  if (!user) return { error: 'User not found', status: 401 };
 
+  // Success 200
   return {
     user: {
       userId: user.userId,
@@ -157,6 +168,7 @@ export function adminUserDetailsUpdate(
   email: string,
   nameFirst: string,
   nameLast: string): ErrorObject | Record<string, never> {
+  // 1.Error 401
   const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
@@ -169,6 +181,11 @@ export function adminUserDetailsUpdate(
   const user = findUserId(validToken.userId);
   if (!user) return { error: 'User not found', status: 401 };
 
+  // 2.Error 400
+  if (!email || !nameFirst || !nameLast) return { error: 'One or more missing parameters', status: 400 };
+  if (!String(email).trim() || !String(nameFirst).trim() || !String(nameLast).trim()) {
+    return { error: 'One or more missing parameters', status: 400 };
+  }
   if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== user.userId)) {
     return {
       error: 'Email is currently used by another user, choose another email!', status: 400
@@ -189,6 +206,8 @@ export function adminUserDetailsUpdate(
   if (invalidNameLength(nameLast)) {
     return { error: 'Last name must be between 2 and 20 characters long', status: 400 };
   }
+
+  // Success 200
   user.nameFirst = nameFirst;
   user.nameLast = nameLast;
   user.name = `${nameFirst} ${nameLast}`;
@@ -208,17 +227,21 @@ export function adminUserPasswordUpdate(
   token: string,
   oldPassword: string,
   newPassword: string): ErrorObject | Record<string, never> {
+  // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
     return { error: 'token is empty or invalid', status: 401 };
   }
   const validToken = findSessionId(sessionId);
-  if (!validToken) { return { error: 'token is empty or invalid', status: 401 }; }
+  if (!validToken) return { error: 'token is empty or invalid', status: 401 };
   const user = findUserId(validToken.userId);
   if (!user) return { error: 'User not found', status: 401 };
 
+  // 2.Error 400
   const data: DataStore = getData();
-  if (!oldPassword || !newPassword) return { error: 'One or more missing parameters', status: 400 };
+  if (!oldPassword || !newPassword || !String(oldPassword).trim() || !String(newPassword).trim()) {
+    return { error: 'One or more missing parameters', status: 400 };
+  }
   if (user.password !== oldPassword) return { error: 'The old password is wrong.', status: 400 };
   if (oldPassword === newPassword) return { error: 'The new password is the same as the old password.', status: 400 };
   if (user.oldPasswords.some(passwordObj => passwordObj.password === newPassword)) {
@@ -228,6 +251,8 @@ export function adminUserPasswordUpdate(
   if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(newPassword)) {
     return { error: 'Password must contain at least one letter and one number', status: 400 };
   }
+
+  // Success 200
   user.oldPasswords.push({ password: oldPassword });
   user.password = newPassword;
   setData(data);
@@ -241,14 +266,16 @@ export function adminUserPasswordUpdate(
  * @param {string} token - the sessionId of the user in the Token array
  * @returns {Object} empty objects indicating success OR an object with an error: string message
  */
-export function adminAuthLogout(token: string): { error: string } | Record<string, never> {
+export function adminAuthLogout(token: string): ErrorObject | Record<string, never> {
+  // 1.Error 401
   const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));
-  if (!token || !String(token).trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided' };
+  if (!token || !String(token).trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided', status: 401 };
 
   const validToken = data.tokens.findIndex(tokens => tokens.sessionId === sessionId);
-  if (validToken === -1) return { error: 'Token is invalid (does not refer to valid logged in user session)' };
+  if (validToken === -1) return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
 
+  // Success 200
   data.tokens.splice(validToken, 1);
   setData(data);
   return {};

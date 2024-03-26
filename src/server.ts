@@ -138,7 +138,7 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = adminAuthRegister(email, password, nameFirst, nameLast);
-  if ('error' in response) return res.status(400).json({ error: response.error });
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
   saveData();
   res.status(200).json({ token: response.token });
 });
@@ -147,7 +147,7 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
   const response = adminAuthLogin(email, password);
-  if ('error' in response) return res.status(400).json({ error: response.error });
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
   saveData();
   res.status(200).json({ token: response.token });
 });
@@ -155,7 +155,7 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 // adminUserDetails: Get the details of an admin user.
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const response = adminUserDetails(req.query.token as string);
-  if ('error' in response) return res.status(401).json({ error: response.error });
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
   res.status(200).json(response);
 });
 
@@ -181,7 +181,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const { token } = req.body;
   const response = adminAuthLogout(token);
-  if ('error' in response) return res.status(401).json({ error: response.error });
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
   saveData();
   res.json(response);
 });
@@ -203,7 +203,7 @@ app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const { token } = req.query;
   const response = adminQuizList(String(token));
-  if ('error' in response) return res.status(401).json({ error: response.error });
+  if ('error' in response) return res.status(response.status).json({ error: response.error });
   res.json(response);
 });
 

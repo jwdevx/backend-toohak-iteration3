@@ -14,12 +14,6 @@ export function findSessionId(sessionId: number): Tokens | undefined {
   return data.tokens.find(token => token.sessionId === sessionId);
 }
 
-export function findUserFromToken(sessionId: number) {
-  const data: DataStore = getData();
-  const tokenData: Tokens | undefined = findSessionId(sessionId);
-  return data.users.find(user => user.userId === tokenData?.userId);
-}
-
 /**
  * Helper Function used in auth.js, quiz.js
  * Checks if the provided AuthUserId does not correspond to any existing user.
@@ -70,6 +64,9 @@ export function invalidNameLength(name: string): boolean {
   return (name.length < 2 || name.length > 20);
 }
 
+// =============================================================================
+// ==============================   QUIZ.TS  ===================================
+// =============================================================================
 /**
  * Helper Function used in quiz.js
  * Checks if the provided quiz name does not correspond to any existing quiz.
@@ -156,6 +153,10 @@ export function checkQuizInTrash(quizId: number): boolean | undefined {
   if (!quiz) return undefined;
   return quiz.intrash;
 }
+
+// =============================================================================
+// ==========================   QUESTION.TS  ===================================
+// =============================================================================
 
 export function checkQuestionLength(question: string): boolean {
   return question.length < 5 || question.length > 50;

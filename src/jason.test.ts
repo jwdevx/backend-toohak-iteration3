@@ -56,8 +56,8 @@ describe('Further testing on Iteration 2 ', () => {
   });
 
   test(' Combo1 ', () => {
-    const inthebeginning = Math.floor(Date.now() / 1000);
-    console.log('--------------- BEGIN START OF TEST ---------------', inthebeginning);
+    // const inthebeginning = Math.floor(Date.now() / 1000);
+    //* console.log('--------------- BEGIN START OF TEST ---------------', inthebeginning);
 
     //* adminAuthRegister - User 1 - Session 1
     let user1 = adminAuthRegister('', '1234abcd', 'Hayden', 'Smith');
@@ -414,8 +414,8 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
     expect(quizInfoQuiz2User1.statusCode).toStrictEqual(200);
 
     // console.log(quizInfoQuiz2User1);
-    console.log('success creating 2 questions:');
-    console.log(quizInfoQuiz2User1.bodyObj.questions);
+    //* console.log('success creating 2 questions:');
+    //* console.log(quizInfoQuiz2User1.bodyObj.questions);
     // console.log(quizInfoQuiz2User1.bodyObj.questions[0].answers[0]);
     // console.log(quizInfoQuiz2User1.bodyObj.questions[0].answers[1]);
     // console.log(quizInfoQuiz2User1.bodyObj.questions[0].answers[2]); //undefined
@@ -489,8 +489,8 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
 
     quizInfoQuiz2User1 = adminQuizInfo(user1SessionId3String, user1Quiz2IdNumber);
     expect(quizInfoQuiz2User1.statusCode).toStrictEqual(200);
-    console.log('before moving quiz');
-    console.log(quizInfoQuiz2User1.bodyObj.questions);
+    //* console.log('before moving quiz');
+    //* console.log(quizInfoQuiz2User1.bodyObj.questions);
 
     // move question of index 2 to question of index 1
     const questionMove = adminQuestionMove(user1Quiz2IdNumber, questionCreate2.bodyObj.questionId, user1SessionId3String, 0);
@@ -498,18 +498,18 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
 
     quizInfoQuiz2User1 = adminQuizInfo(user1SessionId3String, user1Quiz2IdNumber);
     expect(quizInfoQuiz2User1.statusCode).toStrictEqual(200);
-    console.log('after moving quiz, move question of index 2 to question of index 1');
-    console.log(quizInfoQuiz2User1.bodyObj.questions);
+    //* console.log('after moving quiz, move question of index 2 to question of index 1');
+    //* console.log(quizInfoQuiz2User1.bodyObj.questions);
     // --------------------------------------------------------------------------
 
     // question duplicate
     const questionDuplicate = adminQuestionDuplicate(user1SessionId3String, user1Quiz2IdNumber, questionCreate2.bodyObj.questionId);
     expect(questionDuplicate.statusCode).toStrictEqual(200);
 
-    console.log('duplicate question 1');
+    //* console.log('duplicate question 1');
     quizInfoQuiz2User1 = adminQuizInfo(user1SessionId3String, user1Quiz2IdNumber);
     expect(quizInfoQuiz2User1.statusCode).toStrictEqual(200);
-    console.log(quizInfoQuiz2User1.bodyObj.questions);
+    //* console.log(quizInfoQuiz2User1.bodyObj.questions);
 
     expect(quizInfoQuiz2User1.bodyObj).toStrictEqual({
 
@@ -588,15 +588,15 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
     });
     // --------------------------------------------------------------------------
     const user1Quiz2QuestionRemove = adminQuestionRemove(user1Quiz2IdNumber, questionCreate2.bodyObj.questionId, user1SessionId3String);
-    console.log(user1Quiz2QuestionRemove);
+    //* console.log(user1Quiz2QuestionRemove);
     expect(user1Quiz2QuestionRemove.statusCode).toStrictEqual(200);
 
-    console.log('removed original question 2');
+    //* console.log('removed original question 2');
     quizInfoQuiz2User1 = adminQuizInfo(user1SessionId3String, user1Quiz2IdNumber);
     expect(quizInfoQuiz2User1.statusCode).toStrictEqual(200);
-    console.log(quizInfoQuiz2User1.bodyObj.questions);
+    //* console.log(quizInfoQuiz2User1.bodyObj.questions);
 
-    console.log('--------------- SUCCESS END OF TEST ---------------', inthebeginning);
+    //* console.log('--------------- SUCCESS END OF TEST ---------------', inthebeginning);
   });
 });
 

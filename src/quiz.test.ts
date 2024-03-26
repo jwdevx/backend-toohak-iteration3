@@ -1,19 +1,18 @@
 import {
+  clear,
   adminAuthRegister,
   adminQuizCreate,
   adminQuizList,
   adminQuizInfo,
   adminQuizNameUpdate,
   adminQuizDescriptionUpdate,
-  clear,
-  adminQuizTrashRestore,
   adminQuizTransfer,
 } from './apiRequests';
 
 import {
   adminQuizRemove,
   adminQuizTrashView,
-  // adminQuizTrashRestore,
+  adminQuizTrashRestore,
   adminQuizTrashEmpty,
 } from './apiRequests';
 
@@ -774,7 +773,7 @@ describe('adminQuizTransfer Response Tests', () => {
     const quiz1 = adminQuizCreate(user1SessionId1String, 'quiz1namebyUser1', 'quiz1description');
     expect(quiz1.statusCode).toStrictEqual(200);
     const user1Quiz1IdNumber = quiz1.bodyObj.quizId;
-    console.log(user1Quiz1IdNumber);
+    //* console.log(user1Quiz1IdNumber);
     //   console.log(user1SessionId1String);
 
     // Transfer Quiz1 owned by User1 to User 2
@@ -795,13 +794,15 @@ describe('adminQuizTransfer Response Tests', () => {
         }
       ]
     });
-    console.log(quizListUser2);
-    console.log(quizListUser2.bodyObj.quizzes[0]);
+    //* console.log(quizListUser2);
+    //* console.log(quizListUser2.bodyObj.quizzes[0]);
   });
   test('Error Case: Invalid user - Response Code 400', () => {
-    const token1 = adminAuthRegister('valid@unsw.com', 'Password1', 'Taew', 'Yun').bodyObj.token;
+    const token = adminAuthRegister('valid@unsw.com', 'Password1', 'Taew', 'Yun');
+    expect(token.statusCode).toBe(200);
+    const token1 = token.bodyObj.token;
     const quizId = adminQuizCreate(token1, 'Good Quiz', 'abcd').bodyObj.quizId;
-    const transfer = adminQuizTransfer(token1, quizId, 'invalid@unsw.com');
+    const transfer = adminQuizTransfer(quizId, token1, 'invalid@unsw.com');
     expect(transfer.statusCode).toBe(400);
     expect(transfer.bodyObj).toStrictEqual({ error: expect.any(String) });
   });
@@ -830,7 +831,7 @@ describe('adminQuizTransfer Response Tests', () => {
     const quizId: number = adminQuizCreate(token1, 'Good Quiz', '').bodyObj.quizId;
     const result = adminQuizTransfer(quizId, ' ', 'valid@unsw.com');
     expect(result.statusCode).toBe(401);
-    console.log(result.bodyObj);
+    //* console.log(result.bodyObj);
   });
 
   test('Error Case: Quiz ID is invalid or user does not own the quiz - Response Code 403', () => {

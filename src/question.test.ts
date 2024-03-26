@@ -10,7 +10,7 @@ const BAD_REQUEST = 400;
 const UNAUTHORIZED = 401;
 const FORBIDDEN = 403;
 // =============================================================================
-// =========================    adminQuestionCreate   ==============================
+// =========================    adminQuestionCreate   ==========================
 // =============================================================================
 
 describe('test question create', () => {
@@ -760,7 +760,7 @@ describe('test question Update', () => {
 });
 
 // =============================================================================
-// =========================    adminQuestionRemove   ==============================
+// =========================    adminQuestionRemove   ==========================
 // =============================================================================
 
 describe('test question remove', () => {
@@ -898,7 +898,7 @@ describe('test question remove', () => {
   });
 });
 // =============================================================================
-// =========================    adminQuestionMove   ==============================
+// =========================    adminQuestionMove   ============================
 // =============================================================================
 
 describe('test question move', () => {
@@ -1161,8 +1161,8 @@ describe('test question Duplicate', () => {
     const questionid2 = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body1).bodyObj.questionId;
     const questionDuplicate = adminQuestionDuplicate(sessionId, quiz.bodyObj.quizId, questionid);
     const info = adminQuizInfo(sessionId, quiz.bodyObj.quizId);
-    console.log('Duplicate test from ash');
-    console.log(info.bodyObj.questions);
+    // console.log('Duplicate test from ash');
+    // console.log(info.bodyObj.questions);
     expect(info.bodyObj).toStrictEqual({
       quizId: quiz.bodyObj.quizId,
       name: 'quiz1',
