@@ -129,7 +129,6 @@ export function adminAuthLogin(email: string, password: string): { token: string
  * @param {string} token  -  user sessionId
  * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}}
  */
-// helper functions for adminUserDetails
 export function adminUserDetails(token: string): UserDetailsReturn | ErrorObject {
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
@@ -138,10 +137,8 @@ export function adminUserDetails(token: string): UserDetailsReturn | ErrorObject
   const validToken = findSessionId(sessionId);
   if (!validToken) return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
 
-  const user = findUserId(validToken.userId);
-  if (!user) return { error: 'User not found', status: 401 };
-
   // Success 200
+  const user = findUserId(validToken.userId);
   return {
     user: {
       userId: user.userId,
@@ -178,14 +175,13 @@ export function adminUserDetailsUpdate(
   if (!validToken) {
     return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
   }
-  const user = findUserId(validToken.userId);
-  if (!user) return { error: 'User not found', status: 401 };
 
   // 2.Error 400
   if (!email || !nameFirst || !nameLast) return { error: 'One or more missing parameters', status: 400 };
   if (!String(email).trim() || !String(nameFirst).trim() || !String(nameLast).trim()) {
     return { error: 'One or more missing parameters', status: 400 };
   }
+  const user = findUserId(validToken.userId);
   if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== user.userId)) {
     return {
       error: 'Email is currently used by another user, choose another email!', status: 400
@@ -234,14 +230,13 @@ export function adminUserPasswordUpdate(
   }
   const validToken = findSessionId(sessionId);
   if (!validToken) return { error: 'token is empty or invalid', status: 401 };
-  const user = findUserId(validToken.userId);
-  if (!user) return { error: 'User not found', status: 401 };
 
   // 2.Error 400
   const data: DataStore = getData();
   if (!oldPassword || !newPassword || !String(oldPassword).trim() || !String(newPassword).trim()) {
     return { error: 'One or more missing parameters', status: 400 };
   }
+  const user = findUserId(validToken.userId);
   if (user.password !== oldPassword) return { error: 'The old password is wrong.', status: 400 };
   if (oldPassword === newPassword) return { error: 'The new password is the same as the old password.', status: 400 };
   if (user.oldPasswords.some(passwordObj => passwordObj.password === newPassword)) {
