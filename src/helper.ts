@@ -18,7 +18,7 @@ export function findSessionId(sessionId: number): Tokens | undefined {
  * Helper Function used in auth.js, quiz.js
  * Checks if the provided AuthUserId does not correspond to any existing user.
  *
- * @param {integer} authUserId - The user ID to be validated.
+ * @param {number} authUserId - The user ID to be validated.
  * @returns {boolean} Returns true if the AuthUserId does not match any existing user's userId
  */
 export function findUserId(authUserId: number): Users | undefined {
@@ -120,7 +120,7 @@ export function invalidQuizName(name: string): boolean {
  * Helper Function used in quiz.js
  * Checks if the provided quizId corresponds to any existing quiz.
  *
- * @param {integer} quizId - The quizId to be validated.
+ * @param {number} quizId - The quizId to be validated.
  * @returns {boolean} Returns true if the QuizId does not match any existing quizId.
  */
 export function findQuizId(quizId: number): Quizzes | undefined {
@@ -132,8 +132,8 @@ export function findQuizId(quizId: number): Quizzes | undefined {
  * Helper Function used in quiz.js
  * Checks if the provided Quiz ID does not refer to a quiz that this user owns.
  *
- * @param {integer} UserId - A valid User ID.
- * @param {integer} quizId - A valid Quiz ID.
+ * @param {number} UserId - A valid User ID.
+ * @param {number} quizId - A valid Quiz ID.
  * @returns {boolean} Returns false if the QuizId does not match any existing authUserId.
  */
 export function matchQuizIdAndAuthor(UserId: number, quizId: number): Quizzes | undefined {
@@ -145,7 +145,7 @@ export function matchQuizIdAndAuthor(UserId: number, quizId: number): Quizzes | 
  * Helper Function used in quiz.js
  * Checks if the provided Quiz ID is in the trashbin.
  *
- * @param {integer} quizId - A valid Quiz ID.
+ * @param {number} quizId - A valid Quiz ID.
  * @returns {boolean} Returns false if the provided Quiz ID is in the trashbin.
  */
 export function checkQuizInTrash(quizId: number): boolean | undefined {
@@ -195,7 +195,7 @@ export function checkQuestionPoints(points: number): boolean {
  * Helper Function used in question.ts
  * Checks if the provided question has number of answers with in the given parameter
  *
- * @param {string} answers - Answers for the question
+ * @param {answer[]} answers - Answers for the question
  * @returns {boolean} Returns false if the provided number of answers for the question is out of the given parameter.
  */
 export function checkAnswerNum(answers: answer[]): boolean {
@@ -221,7 +221,7 @@ export function checkQuestionDurationSum(quizId:number, duration: number): boole
  * Helper Function used in question.ts
  * Checks if the provided answers have length with in the given parameter
  *
- * @param {string} answers - Answers for the question
+ * @param {answer[]} answers - Answers for the question
  * @returns {boolean} Returns false if the provided answers have a length that is out of the given parameter.
  */
 export function checkAnswerLength(answers: answer[]): boolean {
@@ -235,7 +235,7 @@ export function checkAnswerLength(answers: answer[]): boolean {
  * Helper Function used in question.ts
  * Checks if the provided answer has a duplicate
  *
- * @param {string} answers - Answers for the question
+ * @param {answer[]} answers - Answers for the question
  * @returns {boolean} Returns false if the provided  answers for the question has a duplicate with in the question.
  */
 export function checkAnswerDuplicate(answers: answer[]): boolean {
