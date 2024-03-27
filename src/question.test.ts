@@ -62,11 +62,11 @@ describe('test question create', () => {
       points: 5,
       answers: answers
     };
-    //inserts an invalid number as the token
+    // inserts an invalid number as the token
     const question = adminQuestionCreate('999999', quiz.bodyObj.quizId, body);
     expect(question.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(question.statusCode).toStrictEqual(UNAUTHORIZED);
-    //token is passed as a string instead of number
+    // token is passed as a string instead of number
     const question2 = adminQuestionCreate('happy', quiz.bodyObj.quizId, body);
     expect(question2.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
@@ -421,7 +421,7 @@ describe('test question Update', () => {
     const questionUpdate = adminQuestionUpdate(wrongtoken, quiz, question, body1);
     expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(UNAUTHORIZED);
-    //token passed in as a string
+    // token passed in as a string
     const question2 = adminQuestionUpdate('happy', quiz, question, body);
     expect(question2.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
@@ -607,7 +607,7 @@ describe('test question Update', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const sessionId = decodeURIComponent(token1.bodyObj.token);
     const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz').bodyObj.quizId;
-    //creating first question
+    // creating first question
     const answers1 = [answerObj1, answerObj2];
     const body1 : QuestionBody = {
       question: 'this is a test',
@@ -616,7 +616,7 @@ describe('test question Update', () => {
       answers: answers1
     };
     const questionid = adminQuestionCreate(sessionId, quiz, body1).bodyObj.questionId;
-    //creating second question
+    // creating second question
     const answers2 = [answerObj2, answerObj1];
     const body2 : QuestionBody = {
       question: 'this is a test too',
@@ -625,7 +625,7 @@ describe('test question Update', () => {
       answers: answers2
     };
     const questionid2 = adminQuestionCreate(sessionId, quiz, body2).bodyObj.questionId;
-    //updating the questions
+    // updating the questions
     const answers3 = [answerObj1, answerObj4];
     const body3 : QuestionBody = {
       question: 'this is a test three',
@@ -633,7 +633,7 @@ describe('test question Update', () => {
       points: 5,
       answers: answers3
     };
-    
+
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body1);
     const questionUpdate2 = adminQuestionUpdate(sessionId, quiz, questionid2, body3);
     expect(questionUpdate2.bodyObj).toStrictEqual({ error: expect.any(String) });
@@ -825,7 +825,6 @@ describe('test question remove', () => {
   const answerObj1: answer = { answer: answer1, correct: true };
   const answerObj2: answer = { answer: answer2, correct: false };
   test('correctly removes the given question', () => {
-
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const token = token1.bodyObj.token;
     const quiz = adminQuizCreate(token, 'quiz1', 'first quiz');
@@ -842,12 +841,12 @@ describe('test question remove', () => {
       points: 5,
       answers: answers
     };
-    //creating two questions
+    // creating two questions
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const questionid2 = adminQuestionCreate(token, quiz.bodyObj.quizId, body2);
     const id1 = questionid1.bodyObj.questionId;
     const id2 = questionid2.bodyObj.questionId;
-    //removing one of the two questions and matching expected behavior
+    // removing one of the two questions and matching expected behavior
     adminQuestionRemove(quiz.bodyObj.quizId, id1, token);
     expect(adminQuizInfo(token, quiz.bodyObj.quizId).bodyObj).toStrictEqual({
       quizId: quiz.bodyObj.quizId,
@@ -875,7 +874,7 @@ describe('test question remove', () => {
       }],
       duration: 15
     });
-    //if that succeeds, then removes the last remaining question and checking for empty question
+    // if that succeeds, then removes the last remaining question and checking for empty question
     const obj = adminQuestionRemove(quiz.bodyObj.quizId, id2, token);
     const info = adminQuizInfo(token, quiz.bodyObj.quizId);
     expect(info.bodyObj).toStrictEqual({
@@ -904,7 +903,7 @@ describe('test question remove', () => {
     };
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const id1 = questionid1.bodyObj.questionId;
-    //inputs invalid question id by doing (id + 1) to the only valid id
+    // inputs invalid question id by doing (id + 1) to the only valid id
     const obj = adminQuestionRemove(quiz.bodyObj.quizId, id1 + 1, token);
     expect(obj.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj.statusCode).toStrictEqual(400);
@@ -914,7 +913,7 @@ describe('test question remove', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const token = token1.bodyObj.token;
     const quiz = adminQuizCreate(token, 'quiz1', 'first quiz');
-    //encodes a non-existent token by adding 1 to the only valid session id
+    // encodes a non-existent token by adding 1 to the only valid session id
     const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
     const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
 
@@ -930,7 +929,7 @@ describe('test question remove', () => {
     const obj = adminQuestionRemove(quiz.bodyObj.quizId, id1, wrongtoken);
     expect(obj.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj.statusCode).toStrictEqual(401);
-    //token is passed as a string instead of number
+    // token is passed as a string instead of number
     const question2 = adminQuestionRemove(quiz.bodyObj.quizId, id1, 'happy');
     expect(question2.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
@@ -1004,7 +1003,7 @@ describe('test question move', () => {
     const questionid1 = adminQuestionCreate(token, quizId, body2).bodyObj.questionId;
     const questionid2 = adminQuestionCreate(token, quizId, body3).bodyObj.questionId;
     const questionid3 = adminQuestionCreate(token, quizId, body4).bodyObj.questionId;
-    //moving a question and verifying the resultant question indexes to the expected behavior
+    // moving a question and verifying the resultant question indexes to the expected behavior
     const res = adminQuestionMove(quizId, questionid2, token, 0);
     expect(res.statusCode).toStrictEqual(OK);
     let QuizInfo = adminQuizInfo(token, quizId);
@@ -1014,7 +1013,7 @@ describe('test question move', () => {
     expect(questions[1].questionId).toStrictEqual(questionid0);
     expect(questions[2].questionId).toStrictEqual(questionid1);
     expect(questions[3].questionId).toStrictEqual(questionid3);
-    //performs another move and doing another verification
+    // performs another move and doing another verification
     const status = adminQuestionMove(quizId, questionid3, token, 2);
     QuizInfo = adminQuizInfo(token, quizId);
     questions = QuizInfo.bodyObj.questions;
@@ -1048,15 +1047,15 @@ describe('test question move', () => {
     const questionid0 = adminQuestionCreate(token, quizId, body1).bodyObj.questionId;
     const questionid1 = adminQuestionCreate(token, quizId, body2).bodyObj.questionId;
     const questionid2 = adminQuestionCreate(token, quizId, body3).bodyObj.questionId;
-    //attempting to move it to outside the index
+    // attempting to move it to outside the index
     let res = adminQuestionMove(quizId, questionid1, token, 4);
     expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
-    //attempting to move it to a negative index
+    // attempting to move it to a negative index
     res = adminQuestionMove(quizId, questionid0, token, -1);
     expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
-    //attempt to move it to its original position
+    // attempt to move it to its original position
     res = adminQuestionMove(quizId, questionid2, token, 2);
     expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
@@ -1074,7 +1073,7 @@ describe('test question move', () => {
     };
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const id1 = questionid1.bodyObj.questionId;
-    //inputs an invalid question id by adding 1 to the only valid question id
+    // inputs an invalid question id by adding 1 to the only valid question id
     const obj = adminQuestionMove(quiz.bodyObj.quizId, id1 + 1, token, 0);
     expect(obj.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj.statusCode).toStrictEqual(400);
@@ -1096,11 +1095,11 @@ describe('test question move', () => {
     };
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const id1 = questionid1.bodyObj.questionId;
-    //passes in a wrong token by adding 1 to the only valid session id
+    // passes in a wrong token by adding 1 to the only valid session id
     const obj = adminQuestionMove(quiz.bodyObj.quizId, id1, wrongtoken, 0);
     expect(obj.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj.statusCode).toStrictEqual(401);
-    //token is passed as a string instead of number
+    // token is passed as a string instead of number
     const question2 = adminQuestionMove(quiz.bodyObj.quizId, id1, 'happy', 0);
     expect(question2.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
@@ -1119,12 +1118,12 @@ describe('test question move', () => {
     };
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const id1 = questionid1.bodyObj.questionId;
-    //inputting a valid quizId but not one corresponding to the given user's quizzes
+    // inputting a valid quizId but not one corresponding to the given user's quizzes
     const obj = adminQuestionMove(quiz.bodyObj.quizId, id1, token2.bodyObj.token, 0);
     expect(obj.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj.statusCode).toStrictEqual(403);
-    //inputting an invalid quizId by making it negative
-    const obj1 = adminQuestionMove(quiz.bodyObj.quizId*(-1), id1, token1.bodyObj.token, 0);
+    // inputting an invalid quizId by making it negative
+    const obj1 = adminQuestionMove(quiz.bodyObj.quizId * (-1), id1, token1.bodyObj.token, 0);
     expect(obj1.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj1.statusCode).toStrictEqual(403);
   });
@@ -1160,7 +1159,7 @@ describe('test question Duplicate', () => {
     const duplicate = adminQuestionDuplicate(wrongtoken, quiz.bodyObj.quizId, question.bodyObj.questionId);
     expect(duplicate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(duplicate.statusCode).toStrictEqual(UNAUTHORIZED);
-    //token is passed as a string instead of number
+    // token is passed as a string instead of number
     const question2 = adminQuestionDuplicate('happy', quiz.bodyObj.quizId, question.bodyObj.questionId);
     expect(question2.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
