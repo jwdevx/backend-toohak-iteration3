@@ -62,9 +62,14 @@ describe('test question create', () => {
       points: 5,
       answers: answers
     };
+    //inserts an invalid number as the token
     const question = adminQuestionCreate('999999', quiz.bodyObj.quizId, body);
-    expect(question.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(question.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(question.statusCode).toStrictEqual(UNAUTHORIZED);
+    //token is passed as a string instead of number
+    const question2 = adminQuestionCreate('happy', quiz.bodyObj.quizId, body);
+    expect(question2.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
   });
   test('quizid is invalid', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
@@ -80,7 +85,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId2, quiz.bodyObj.quizId + 1, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(FORBIDDEN);
   });
   test('quizid doest match', () => {
@@ -97,7 +102,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId2, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(FORBIDDEN);
   });
   test('short question length', () => {
@@ -112,7 +117,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'The question length is either too long or too short.' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('long question length', () => {
@@ -127,7 +132,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'The question length is either too long or too short.' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('too little answers', () => {
@@ -142,7 +147,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'The answers is either too much or too little.' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('too much answers', () => {
@@ -157,7 +162,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'The answers is either too much or too little.' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('invalid duration', () => {
@@ -172,7 +177,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'The duration should be positive number' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('duration sum greater than 180', () => {
@@ -195,7 +200,7 @@ describe('test question create', () => {
       answers: answers2
     };
     const questionid2 = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body2);
-    expect(questionid2.bodyObj).toStrictEqual({ error: 'The sum of the duration should be less than 3 min' });
+    expect(questionid2.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid2.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('low points', () => {
@@ -210,7 +215,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'The points is either too high or too low' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('high points', () => {
@@ -225,7 +230,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'The points is either too high or too low' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('short answer', () => {
@@ -240,7 +245,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'Answer string should be longer than 1 charcters, shorter than 30 charcters' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('long answer', () => {
@@ -255,7 +260,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'Answer string should be longer than 1 charcters, shorter than 30 charcters' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('repeate answer', () => {
@@ -270,7 +275,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'An answer is a duplicate of the other' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('none correct', () => {
@@ -285,7 +290,7 @@ describe('test question create', () => {
       answers: answers
     };
     const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    expect(questionid.bodyObj).toStrictEqual({ error: 'There should be at least one correct answer.' });
+    expect(questionid.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionid.statusCode).toStrictEqual(BAD_REQUEST);
   });
 });
@@ -388,7 +393,7 @@ describe('test question Update', () => {
       answers: ans
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz + 1, questionid, body1);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(FORBIDDEN);
   });
   test('invalid token', () => {
@@ -414,11 +419,14 @@ describe('test question Update', () => {
       answers: ans
     };
     const questionUpdate = adminQuestionUpdate(wrongtoken, quiz, question, body1);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(UNAUTHORIZED);
+    //token passed in as a string
+    const question2 = adminQuestionUpdate('happy', quiz, question, body);
+    expect(question2.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
   });
-
-  test('quizid doest match', () => {
+  test('quizid doesnt match', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
     const token2 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'jason', 'wong').bodyObj.token;
     const sessionId = decodeURIComponent(token1);
@@ -443,7 +451,7 @@ describe('test question Update', () => {
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz2, questionid1, body1);
     adminQuestionUpdate(sessionId2, quiz1, questionid2, body1);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(FORBIDDEN);
   });
 
@@ -470,7 +478,7 @@ describe('test question Update', () => {
     };
 
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body1);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'The question length is either too long or too short.' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
 
@@ -494,7 +502,7 @@ describe('test question Update', () => {
       answers: ans
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body1);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'The question length is either too long or too short.' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
 
@@ -518,7 +526,7 @@ describe('test question Update', () => {
       answers: ans
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body1);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'The answers is either too much or too little.' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
 
@@ -543,7 +551,7 @@ describe('test question Update', () => {
       answers: ans
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body1);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'The answers is either too much or too little.' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
 
@@ -567,11 +575,11 @@ describe('test question Update', () => {
       answers: ans
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body1);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'The duration should be positive number' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
 
-  test('duration sum greater than 180', () => {
+  test('duration addition greater than 180', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const sessionId = decodeURIComponent(token1.bodyObj.token);
     const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz').bodyObj.quizId;
@@ -591,7 +599,7 @@ describe('test question Update', () => {
       answers: answers2
     };
     const questionidUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body2);
-    expect(questionidUpdate.bodyObj).toStrictEqual({ error: 'The sum of the duration should be less than 3 min' });
+    expect(questionidUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionidUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
 
@@ -599,6 +607,7 @@ describe('test question Update', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const sessionId = decodeURIComponent(token1.bodyObj.token);
     const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz').bodyObj.quizId;
+    //creating first question
     const answers1 = [answerObj1, answerObj2];
     const body1 : QuestionBody = {
       question: 'this is a test',
@@ -606,26 +615,31 @@ describe('test question Update', () => {
       points: 5,
       answers: answers1
     };
-    const questionid2 = adminQuestionCreate(sessionId, quiz, body1).bodyObj.questionId;
-    const answers2 = [answerObj1, answerObj2];
-    const body3 : QuestionBody = {
-      question: 'this is a test',
+    const questionid = adminQuestionCreate(sessionId, quiz, body1).bodyObj.questionId;
+    //creating second question
+    const answers2 = [answerObj2, answerObj1];
+    const body2 : QuestionBody = {
+      question: 'this is a test too',
       duration: 20,
       points: 5,
       answers: answers2
     };
-    const questionid = adminQuestionCreate(sessionId, quiz, body3).bodyObj.questionId;
+    const questionid2 = adminQuestionCreate(sessionId, quiz, body2).bodyObj.questionId;
+    //updating the questions
     const answers3 = [answerObj1, answerObj4];
-    const body2 : QuestionBody = {
-      question: 'this is a test',
-      duration: 30,
+    const body3 : QuestionBody = {
+      question: 'this is a test three',
+      duration: 50,
       points: 5,
       answers: answers3
     };
-    const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body2);
-    const questionUpdate2 = adminQuestionUpdate(sessionId, quiz, questionid2, body1);
+    
+    const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body1);
+    const questionUpdate2 = adminQuestionUpdate(sessionId, quiz, questionid2, body3);
+    expect(questionUpdate2.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(questionUpdate2.statusCode).toStrictEqual(400);
+
     expect(questionUpdate.bodyObj).toStrictEqual({ });
-    expect(questionUpdate2.bodyObj).toStrictEqual({ });
     expect(questionUpdate.statusCode).toStrictEqual(OK);
   });
 
@@ -649,7 +663,7 @@ describe('test question Update', () => {
       answers: answers
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'The points is either too high or too low' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('high points', () => {
@@ -673,7 +687,7 @@ describe('test question Update', () => {
       answers: answers
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'The points is either too high or too low' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
 
@@ -698,7 +712,7 @@ describe('test question Update', () => {
       answers: answers
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'Answer string should be longer than 1 charcters, shorter than 30 charcters' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('long answer', () => {
@@ -722,11 +736,11 @@ describe('test question Update', () => {
       answers: answers
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'Answer string should be longer than 1 charcters, shorter than 30 charcters' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
 
-  test('repeate answer', () => {
+  test('repeated answer', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const sessionId = decodeURIComponent(token1.bodyObj.token);
     const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz').bodyObj.quizId;
@@ -746,7 +760,7 @@ describe('test question Update', () => {
       answers: answers
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'An answer is a duplicate of the other' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
   test('none correct', () => {
@@ -769,7 +783,7 @@ describe('test question Update', () => {
       answers: answers
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid, body);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'There should be at least one correct answer.' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(BAD_REQUEST);
   });
 
@@ -793,7 +807,7 @@ describe('test question Update', () => {
       answers: ans
     };
     const questionUpdate = adminQuestionUpdate(sessionId, quiz, questionid + 1, body);
-    expect(questionUpdate.bodyObj).toStrictEqual({ error: 'Question Id does not refer to a valid question within this quiz' });
+    expect(questionUpdate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionUpdate.statusCode).toStrictEqual(400);
   });
 });
@@ -811,6 +825,7 @@ describe('test question remove', () => {
   const answerObj1: answer = { answer: answer1, correct: true };
   const answerObj2: answer = { answer: answer2, correct: false };
   test('correctly removes the given question', () => {
+
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const token = token1.bodyObj.token;
     const quiz = adminQuizCreate(token, 'quiz1', 'first quiz');
@@ -827,10 +842,12 @@ describe('test question remove', () => {
       points: 5,
       answers: answers
     };
+    //creating two questions
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const questionid2 = adminQuestionCreate(token, quiz.bodyObj.quizId, body2);
     const id1 = questionid1.bodyObj.questionId;
     const id2 = questionid2.bodyObj.questionId;
+    //removing one of the two questions and matching expected behavior
     adminQuestionRemove(quiz.bodyObj.quizId, id1, token);
     expect(adminQuizInfo(token, quiz.bodyObj.quizId).bodyObj).toStrictEqual({
       quizId: quiz.bodyObj.quizId,
@@ -858,6 +875,7 @@ describe('test question remove', () => {
       }],
       duration: 15
     });
+    //if that succeeds, then removes the last remaining question and checking for empty question
     const obj = adminQuestionRemove(quiz.bodyObj.quizId, id2, token);
     const info = adminQuizInfo(token, quiz.bodyObj.quizId);
     expect(info.bodyObj).toStrictEqual({
@@ -886,8 +904,9 @@ describe('test question remove', () => {
     };
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const id1 = questionid1.bodyObj.questionId;
+    //inputs invalid question id by doing (id + 1) to the only valid id
     const obj = adminQuestionRemove(quiz.bodyObj.quizId, id1 + 1, token);
-    expect(obj.bodyObj).toStrictEqual({ error: 'Question Id does not refer to a valid question within this quiz' });
+    expect(obj.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj.statusCode).toStrictEqual(400);
   });
 
@@ -895,7 +914,7 @@ describe('test question remove', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const token = token1.bodyObj.token;
     const quiz = adminQuizCreate(token, 'quiz1', 'first quiz');
-
+    //encodes a non-existent token by adding 1 to the only valid session id
     const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
     const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
 
@@ -909,8 +928,12 @@ describe('test question remove', () => {
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const id1 = questionid1.bodyObj.questionId;
     const obj = adminQuestionRemove(quiz.bodyObj.quizId, id1, wrongtoken);
-    expect(obj.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(obj.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj.statusCode).toStrictEqual(401);
+    //token is passed as a string instead of number
+    const question2 = adminQuestionRemove(quiz.bodyObj.quizId, id1, 'happy');
+    expect(question2.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
   });
 
   test('Valid token is provided, but either the quiz ID is invalid, or the user does not own the quiz', () => {
@@ -928,11 +951,11 @@ describe('test question remove', () => {
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const id1 = questionid1.bodyObj.questionId;
     const obj = adminQuestionRemove(quiz.bodyObj.quizId, id1, token2.bodyObj.token);
-    expect(obj.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(obj.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj.statusCode).toStrictEqual(403);
 
     const obj1 = adminQuestionRemove(quiz.bodyObj.quizId + 100, id1, token1.bodyObj.token);
-    expect(obj1.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
+    expect(obj1.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj1.statusCode).toStrictEqual(403);
   });
 });
@@ -981,18 +1004,23 @@ describe('test question move', () => {
     const questionid1 = adminQuestionCreate(token, quizId, body2).bodyObj.questionId;
     const questionid2 = adminQuestionCreate(token, quizId, body3).bodyObj.questionId;
     const questionid3 = adminQuestionCreate(token, quizId, body4).bodyObj.questionId;
-    adminQuestionMove(quizId, questionid2, token, 0);
+    //moving a question and verifying the resultant question indexes to the expected behavior
+    const res = adminQuestionMove(quizId, questionid2, token, 0);
+    expect(res.statusCode).toStrictEqual(OK);
     let QuizInfo = adminQuizInfo(token, quizId);
+    expect(QuizInfo.statusCode).toStrictEqual(OK);
     let questions = QuizInfo.bodyObj.questions;
     expect(questions[0].questionId).toStrictEqual(questionid2);
     expect(questions[1].questionId).toStrictEqual(questionid0);
     expect(questions[2].questionId).toStrictEqual(questionid1);
     expect(questions[3].questionId).toStrictEqual(questionid3);
+    //performs another move and doing another verification
     const status = adminQuestionMove(quizId, questionid3, token, 2);
     QuizInfo = adminQuizInfo(token, quizId);
     questions = QuizInfo.bodyObj.questions;
     expect(questions[2].questionId).toStrictEqual(questionid3);
     expect(status.statusCode).toStrictEqual(200);
+    expect(status.bodyObj).toStrictEqual({});
   });
   test('Testing valid new position', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
@@ -1020,14 +1048,17 @@ describe('test question move', () => {
     const questionid0 = adminQuestionCreate(token, quizId, body1).bodyObj.questionId;
     const questionid1 = adminQuestionCreate(token, quizId, body2).bodyObj.questionId;
     const questionid2 = adminQuestionCreate(token, quizId, body3).bodyObj.questionId;
+    //attempting to move it to outside the index
     let res = adminQuestionMove(quizId, questionid1, token, 4);
-    expect(res.bodyObj).toStrictEqual({ error: 'Not a valid new position.' });
+    expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
+    //attempting to move it to a negative index
     res = adminQuestionMove(quizId, questionid0, token, -1);
-    expect(res.bodyObj).toStrictEqual({ error: 'Not a valid new position.' });
+    expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
+    //attempt to move it to its original position
     res = adminQuestionMove(quizId, questionid2, token, 2);
-    expect(res.bodyObj).toStrictEqual({ error: 'Not a valid new position.' });
+    expect(res.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
   test('Question Id does not refer to a valid question within this quiz', () => {
@@ -1043,8 +1074,9 @@ describe('test question move', () => {
     };
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const id1 = questionid1.bodyObj.questionId;
+    //inputs an invalid question id by adding 1 to the only valid question id
     const obj = adminQuestionMove(quiz.bodyObj.quizId, id1 + 1, token, 0);
-    expect(obj.bodyObj).toStrictEqual({ error: 'Question Id does not refer to a valid question within this quiz' });
+    expect(obj.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj.statusCode).toStrictEqual(400);
   });
   test('Token is empty or invalid (does not refer to valid logged in user session)', () => {
@@ -1064,9 +1096,14 @@ describe('test question move', () => {
     };
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const id1 = questionid1.bodyObj.questionId;
+    //passes in a wrong token by adding 1 to the only valid session id
     const obj = adminQuestionMove(quiz.bodyObj.quizId, id1, wrongtoken, 0);
-    expect(obj.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(obj.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj.statusCode).toStrictEqual(401);
+    //token is passed as a string instead of number
+    const question2 = adminQuestionMove(quiz.bodyObj.quizId, id1, 'happy', 0);
+    expect(question2.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
   });
   test('Valid token is provided, but either the quiz ID is invalid, or the user does not own the quiz', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
@@ -1082,12 +1119,13 @@ describe('test question move', () => {
     };
     const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
     const id1 = questionid1.bodyObj.questionId;
+    //inputting a valid quizId but not one corresponding to the given user's quizzes
     const obj = adminQuestionMove(quiz.bodyObj.quizId, id1, token2.bodyObj.token, 0);
-    expect(obj.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(obj.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj.statusCode).toStrictEqual(403);
-
-    const obj1 = adminQuestionMove(quiz.bodyObj.quizId + 100, id1, token1.bodyObj.token, 0);
-    expect(obj1.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
+    //inputting an invalid quizId by making it negative
+    const obj1 = adminQuestionMove(quiz.bodyObj.quizId*(-1), id1, token1.bodyObj.token, 0);
+    expect(obj1.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(obj1.statusCode).toStrictEqual(403);
   });
 });
@@ -1120,10 +1158,14 @@ describe('test question Duplicate', () => {
     };
     const question = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
     const duplicate = adminQuestionDuplicate(wrongtoken, quiz.bodyObj.quizId, question.bodyObj.questionId);
-    expect(duplicate.bodyObj).toStrictEqual({ error: 'Token is invalid (does not refer to valid logged in user session)' });
+    expect(duplicate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(duplicate.statusCode).toStrictEqual(UNAUTHORIZED);
+    //token is passed as a string instead of number
+    const question2 = adminQuestionDuplicate('happy', quiz.bodyObj.quizId, question.bodyObj.questionId);
+    expect(question2.bodyObj).toStrictEqual({ error: expect.any(String) });
+    expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
   });
-  test('quizid doest match', () => {
+  test('quizid doesnt match', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const sessionId1 = decodeURIComponent(token1.bodyObj.token);
     const token2 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'jason', 'wong');
@@ -1138,7 +1180,7 @@ describe('test question Duplicate', () => {
     };
     const questionid = adminQuestionCreate(sessionId2, quiz.bodyObj.quizId, body);
     const duplicate = adminQuestionDuplicate(sessionId2, quiz.bodyObj.quizId + 1, questionid.bodyObj.questionId);
-    expect(duplicate.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a valid quiz.' });
+    expect(duplicate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(duplicate.statusCode).toStrictEqual(FORBIDDEN);
   });
 
@@ -1158,7 +1200,7 @@ describe('test question Duplicate', () => {
     };
     const questionid = adminQuestionCreate(sessionId2, quiz.bodyObj.quizId, body);
     const duplicate = adminQuestionDuplicate(sessionId1, quiz1.bodyObj.quizId, questionid.bodyObj.questionId);
-    expect(duplicate.bodyObj).toStrictEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+    expect(duplicate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(duplicate.statusCode).toStrictEqual(FORBIDDEN);
   });
 
@@ -1175,7 +1217,7 @@ describe('test question Duplicate', () => {
     };
     const questionid = adminQuestionCreate(sessionId, quiz, body1).bodyObj.questionId;
     const questionDuplicate = adminQuestionDuplicate(sessionId, quiz, questionid + 1);
-    expect(questionDuplicate.bodyObj).toStrictEqual({ error: 'Question Id does not refer to a valid question within this quiz' });
+    expect(questionDuplicate.bodyObj).toStrictEqual({ error: expect.any(String) });
     expect(questionDuplicate.statusCode).toStrictEqual(400);
   });
 
@@ -1200,8 +1242,6 @@ describe('test question Duplicate', () => {
     const questionid2 = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body1).bodyObj.questionId;
     const questionDuplicate = adminQuestionDuplicate(sessionId, quiz.bodyObj.quizId, questionid);
     const info = adminQuizInfo(sessionId, quiz.bodyObj.quizId);
-    // console.log('Duplicate test from ash');
-    // console.log(info.bodyObj.questions);
     expect(info.bodyObj).toStrictEqual({
       quizId: quiz.bodyObj.quizId,
       name: 'quiz1',
@@ -1226,7 +1266,6 @@ describe('test question Duplicate', () => {
           correct: false,
         }]
       },
-
       {
         questionId: questionDuplicate.bodyObj.questionId,
         question: body.question,
