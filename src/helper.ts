@@ -158,22 +158,58 @@ export function checkQuizInTrash(quizId: number): boolean | undefined {
 // ==========================   QUESTION.TS  ===================================
 // =============================================================================
 
+/**
+ * Helper Function used in question.ts
+ * Checks if the provided question string length is with in the given parameter
+ *
+ * @param {string} question - A question string
+ * @returns {boolean} Returns false if the provided question string is out of the given parameter.
+ */
 export function checkQuestionLength(question: string): boolean {
   return question.length < 5 || question.length > 50;
 }
 
+/**
+ * Helper Function used in question.ts
+ * Checks if the provided duration is a positive number
+ *
+ * @param {number} duration - A question duration
+ * @returns {boolean} Returns false if the provided duration is not a positive number.
+ */
 export function checkQuestionDuration(duration: number): boolean {
   return duration <= 0;
 }
 
+/**
+ * Helper Function used in question.ts
+ * Checks if the provided question point is with in the given parameter
+ *
+ * @param {number} points - A question points
+ * @returns {boolean} Returns false if the provided question point is out of the given parameter.
+ */
 export function checkQuestionPoints(points: number): boolean {
   return points < 1 || points > 10;
 }
 
+/**
+ * Helper Function used in question.ts
+ * Checks if the provided question has number of answers with in the given parameter
+ *
+ * @param {string} answers - Answers for the question
+ * @returns {boolean} Returns false if the provided number of answers for the question is out of the given parameter.
+ */
 export function checkAnswerNum(answers: answer[]): boolean {
   return answers.length < 2 || answers.length > 6;
 }
 
+/**
+ * Helper Function used in question.ts
+ * Checks if the provided question string length is with in the given parameter
+ *
+ * @param {number} quizId - A valid Quiz ID.
+ * @param {string} duration - A question string
+ * @returns {boolean} Returns false if the provided quiz has a total duration which is out of the given parameter.
+ */
 export function checkQuestionDurationSum(quizId:number, duration: number): boolean {
   const data: DataStore = getData();
   const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
@@ -181,6 +217,13 @@ export function checkQuestionDurationSum(quizId:number, duration: number): boole
   return quiz.duration + duration > 180;
 }
 
+/**
+ * Helper Function used in question.ts
+ * Checks if the provided answers have length with in the given parameter
+ *
+ * @param {string} answers - Answers for the question
+ * @returns {boolean} Returns false if the provided answers have a length that is out of the given parameter.
+ */
 export function checkAnswerLength(answers: answer[]): boolean {
   for (const answer of answers) {
     if (answer.answer.length < 1 || answer.answer.length > 30) return true;
@@ -188,6 +231,13 @@ export function checkAnswerLength(answers: answer[]): boolean {
   return false;
 }
 
+/**
+ * Helper Function used in question.ts
+ * Checks if the provided answer has a duplicate
+ *
+ * @param {string} answers - Answers for the question
+ * @returns {boolean} Returns false if the provided  answers for the question has a duplicate with in the question.
+ */
 export function checkAnswerDuplicate(answers: answer[]): boolean {
   const uniqueAnswers = new Set<string>();
   for (const answer of answers) {
@@ -199,16 +249,35 @@ export function checkAnswerDuplicate(answers: answer[]): boolean {
   return false;
 }
 
+/**
+ * Helper Function used in question.ts
+ * Checks if the provided answers have a correct answer amidst them
+ *
+ * @param {string} answers - Answers for the question
+ * @returns {boolean} Returns false if the provided  answers has no correct answer amidst them.
+ */
 export function checkAnswerCorrect(answers: answer[]) : boolean {
   const found = answers.find(answer => answer.correct === true);
   if (found) return false;
   return true;
 }
 
+/**
+ * Helper Function used in question.ts
+ * This function generates a random ID everytime it is called
+ *
+ * @returns {number} Returns a random ID.
+ */
 export function randomIdGenertor() : number {
   return Math.floor(Math.random() * Math.floor(10000));
 }
 
+/**
+ * Helper Function used in question.ts
+ * This function provides the current time
+ *
+ * @returns {number} Returns a current time.
+ */
 export function getNow() : number {
   return Math.floor(Date.now() / 1000);
 }
