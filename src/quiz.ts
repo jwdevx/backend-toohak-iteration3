@@ -385,7 +385,7 @@ export function adminQuizTrashEmpty(token: string, quizIds: string): Record<stri
   }
   for (const quizId of QuizIdsArray) {
     const quiz = findQuizId(quizId);
-    if (quiz.owner !== validToken.userId) {
+    if (!quiz || quiz.owner !== validToken.userId) {
       return { error: 'Valid token is provided, but one or more of the Quiz IDs is not Quiz owner', status: 403 };
     }
   }
