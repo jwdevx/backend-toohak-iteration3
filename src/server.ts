@@ -156,6 +156,7 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const response = adminUserDetails(req.query.token as string);
   if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
   res.status(200).json(response);
 });
 
@@ -204,6 +205,7 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const { token } = req.query;
   const response = adminQuizList(String(token));
   if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
   res.json(response);
 });
 
@@ -222,6 +224,7 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   const quizIds = req.query.quizIds as string;
   const response = adminQuizTrashEmpty(token, quizIds);
   if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
   res.json(response);
 });
 
@@ -235,6 +238,7 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const response = adminQuizInfo(token, quizId);
   if ('error' in response) return res.status(response.status).json({ error: response.error });
+  saveData();
   res.json(response);
 });
 
