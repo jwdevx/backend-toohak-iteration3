@@ -141,19 +141,6 @@ export function matchQuizIdAndAuthor(UserId: number, quizId: number): Quizzes | 
   return data.quizzes.find(quiz => quiz.quizId === quizId && quiz.owner === UserId);
 }
 
-/**
- * Helper Function used in quiz.js
- * Checks if the provided Quiz ID is in the trashbin.
- *
- * @param {number} quizId - A valid Quiz ID.
- * @returns {boolean} Returns false if the provided Quiz ID is in the trashbin.
- */
-export function checkQuizInTrash(quizId: number): boolean | undefined {
-  const quiz: Quizzes | undefined = findQuizId(quizId);
-  if (!quiz) return undefined;
-  return quiz.intrash;
-}
-
 // =============================================================================
 // ==========================   QUESTION.TS  ===================================
 // =============================================================================
