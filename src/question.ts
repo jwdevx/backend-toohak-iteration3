@@ -341,7 +341,8 @@ export function adminQuestionDuplicate(
     question: Question.question,
     duration: Question.duration,
     points: Question.points,
-    answers: answers
+    answers: answers,
+    thumbnailURL: Question.thumbnailURL
   };
 
   // Update Quiz
