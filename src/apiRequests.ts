@@ -19,6 +19,8 @@ export const clear = () => {
 // =============================================================================
 // ============================     USERS        ===============================
 // =============================================================================
+
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminAuthRegister = (
   email: string, password: string, nameFirst: string, nameLast: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/register', {
@@ -36,6 +38,7 @@ export const adminAuthRegister = (
   };
 };
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminAuthLogin = (
   email: string, password: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/login', {
@@ -51,16 +54,7 @@ export const adminAuthLogin = (
   };
 };
 
-export const adminUserDetails = (sessionId: string) => {
-  const res = request('GET', SERVER_URL + '/v1/admin/user/details', {
-    qs: { token: sessionId }, timeout: 100
-  });
-  return {
-    bodyObj: JSON.parse(res.body as string),
-    statusCode: res.statusCode
-  };
-};
-
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminUserDetailsUpdate = (
   token: string, email: string, nameFirst: string, nameLast: string) => {
   const res = request('PUT', SERVER_URL + '/v1/admin/user/details', {
@@ -78,7 +72,7 @@ export const adminUserDetailsUpdate = (
   };
 };
 
-// TODO adminUserPasswordUpdate here ---->>>>
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminUserPasswordUpdate = (
   token: string, oldPassword: string, newPassword: string) => {
   const res = request('PUT', SERVER_URL + '/v1/admin/user/password', {
@@ -94,21 +88,91 @@ export const adminUserPasswordUpdate = (
     statusCode: res.statusCode
   };
 };
-// TODO adminAuthLogout here ---->>>>
 
-export const adminAuthLogout = (sessionId: string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/auth/logout', {
-    json: { token: sessionId }, timeout: 100
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
+export const adminUserDetails = (token: string) => {
+  const res = request('GET', SERVER_URL + '/v1/admin/user/details', {
+    qs: { token: token }, timeout: 100
   });
   return {
     bodyObj: JSON.parse(res.body as string),
     statusCode: res.statusCode
   };
 };
+
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
+export const adminAuthLogout = (token: string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/auth/logout', {
+    json: { token: token }, timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
+
 // =============================================================================
-// ===========================     QUIZZES        ==============================
+// ===========================     USERS V2        =============================
 // =============================================================================
 
+export const adminAuthLogoutV2 = (token: string) => {
+  const res = request('POST', SERVER_URL + '/v2/admin/auth/logout', {
+    headers: { token: token }, timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
+
+export const adminUserDetailsV2 = (token: string) => {
+  const res = request('GET', SERVER_URL + '/v2/admin/user/details', {
+    headers: { token: token }, timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
+
+export const adminUserDetailsUpdateV2 = (
+  token: string, email: string, nameFirst: string, nameLast: string) => {
+  const res = request('PUT', SERVER_URL + '/v2/admin/user/details', {
+    json: {
+      email: email,
+      nameFirst: nameFirst,
+      nameLast: nameLast
+    },
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
+
+export const adminUserPasswordUpdateV2 = (
+  token: string, oldPassword: string, newPassword: string) => {
+  const res = request('PUT', SERVER_URL + '/v2/admin/user/password', {
+    json: {
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    },
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
+
+// =============================================================================
+// ===================   Quiz Management (General v1)    =======================
+// =============================================================================
+
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminQuizCreate = (
   token: string, name: string, description: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/quiz/', {
@@ -125,6 +189,7 @@ export const adminQuizCreate = (
   };
 };
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminQuizList = (token: string) => {
   const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', {
     qs: { token: token },
@@ -136,6 +201,86 @@ export const adminQuizList = (token: string) => {
   };
 };
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
+export const adminQuizTrashView = (token: string) => {
+  const res = request('GET', SERVER_URL + '/v1/admin/quiz/trash', {
+    qs: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
+export const adminQuizTrashEmpty = (token: string, quizIds: string) => {
+  const res = request('DELETE', SERVER_URL + '/v1/admin/quiz/trash/empty', {
+    qs: { token: token, quizIds: quizIds },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+// =============================================================================
+// ===================   Quiz Management (General v2)    =======================
+// =============================================================================
+
+export const adminQuizCreateV2 = (
+  token: string, name: string, description: string) => {
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz/', {
+    json: { name: name, description: description },
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+export const adminQuizListV2 = (token: string) => {
+  const res = request('GET', SERVER_URL + '/v2/admin/quiz/list', {
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+export const adminQuizTrashViewV2 = (token: string) => {
+  const res = request('GET', SERVER_URL + '/v2/admin/quiz/trash', {
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+export const adminQuizTrashEmptyV2 = (token: string, quizIds: string) => {
+  const res = request('DELETE', SERVER_URL + '/v2/admin/quiz/trash/empty', {
+    qs: { quizIds: quizIds },
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+// =============================================================================
+// =====================    Quiz-Specific Routes (v1)     ======================
+// =============================================================================
+
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminQuizInfo = (token: string, quizId: number) => {
   const res = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, {
     qs: { token: token },
@@ -147,7 +292,19 @@ export const adminQuizInfo = (token: string, quizId: number) => {
   };
 };
 
-// TODO adminQuizNameUpdate
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
+export const adminQuizRemove = (token: string, quizId: number) => {
+  const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}`, {
+    qs: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminQuizNameUpdate = (quizId:number, token: string, name: string) => {
   const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/name`, {
     json: {
@@ -162,7 +319,7 @@ export const adminQuizNameUpdate = (quizId:number, token: string, name: string) 
   };
 };
 
-// TODO adminQuizDescriptionUpdate
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminQuizDescriptionUpdate = (
   quizId:number, token: string, description: string) => {
   const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/description`, {
@@ -178,6 +335,19 @@ export const adminQuizDescriptionUpdate = (
   };
 };
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
+export const adminQuizTrashRestore = (token: string, quizId: number) => {
+  const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/restore`, {
+    json: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminQuizTransfer = (quizId: number, token: string, userEmail: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/quiz/' + quizId + '/transfer', {
     json: {
@@ -193,12 +363,12 @@ export const adminQuizTransfer = (quizId: number, token: string, userEmail: stri
 };
 
 // =============================================================================
-// ========================     QUIZZES TRASH        ===========================
+// =====================    Quiz-Specific Routes (v2)     ======================
 // =============================================================================
 
-export const adminQuizRemove = (token: string, quizId: number) => {
-  const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}`, {
-    qs: { token: token },
+export const adminQuizInfoV2 = (token: string, quizId: number) => {
+  const res = request('GET', SERVER_URL + `/v2/admin/quiz/${quizId}`, {
+    headers: { token: token },
     timeout: 100
   });
   return {
@@ -207,9 +377,9 @@ export const adminQuizRemove = (token: string, quizId: number) => {
   };
 };
 
-export const adminQuizTrashView = (token: string) => {
-  const res = request('GET', SERVER_URL + '/v1/admin/quiz/trash', {
-    qs: { token: token },
+export const adminQuizRemoveV2 = (token: string, quizId: number) => {
+  const res = request('DELETE', SERVER_URL + `/v2/admin/quiz/${quizId}`, {
+    headers: { token: token },
     timeout: 100
   });
   return {
@@ -218,9 +388,34 @@ export const adminQuizTrashView = (token: string) => {
   };
 };
 
-export const adminQuizTrashRestore = (token: string, quizId: number) => {
-  const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/restore`, {
-    json: { token: token },
+export const adminQuizNameUpdateV2 = (quizId:number, token: string, name: string) => {
+  const res = request('PUT', SERVER_URL + `/v2/admin/quiz/${quizId}/name`, {
+    json: { name: name },
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
+
+export const adminQuizDescriptionUpdateV2 = (
+  quizId:number, token: string, description: string) => {
+  const res = request('PUT', SERVER_URL + `/v2/admin/quiz/${quizId}/description`, {
+    json: { description: description },
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode
+  };
+};
+
+export const adminQuizTrashRestoreV2 = (token: string, quizId: number) => {
+  const res = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/restore`, {
+    headers: { token: token },
     timeout: 100
   });
   return {
@@ -229,9 +424,10 @@ export const adminQuizTrashRestore = (token: string, quizId: number) => {
   };
 };
 
-export const adminQuizTrashEmpty = (token: string, quizIds: string) => {
-  const res = request('DELETE', SERVER_URL + '/v1/admin/quiz/trash/empty', {
-    qs: { token: token, quizIds: quizIds },
+export const adminQuizTransferV2 = (quizId: number, token: string, userEmail: string) => {
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz/' + quizId + '/transfer', {
+    json: { userEmail: userEmail },
+    headers: { token: token },
     timeout: 100
   });
   return {
@@ -241,9 +437,10 @@ export const adminQuizTrashEmpty = (token: string, quizIds: string) => {
 };
 
 // =============================================================================
-// ==========================     QUESTIONS        =============================
+// ===================   Question-Specific Routes (v1)   =======================
 // =============================================================================
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminQuestionCreate = (
   token: string, quizId: number, questionBody: QuestionBody) => {
   const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question`, {
@@ -258,7 +455,22 @@ export const adminQuestionCreate = (
     statusCode: res.statusCode,
   };
 };
-
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
+export const adminQuestionUpdate = (
+  token: string, quizId: number, questionId:number, questionBody: QuestionBody) => {
+  const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}`, {
+    json: {
+      token: token,
+      questionBody: questionBody
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminQuestionRemove = (
   quizId: number, questionId: number, token: string) => {
   const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}`, {
@@ -270,7 +482,7 @@ export const adminQuestionRemove = (
     statusCode: res.statusCode,
   };
 };
-
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminQuestionMove = (
   quizId: number, questionId: number, token: string, newPosition: number) => {
   const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/move`, {
@@ -286,21 +498,7 @@ export const adminQuestionMove = (
   };
 };
 
-export const adminQuestionUpdate = (
-  token: string, quizId: number, questionId:number, questionBody: QuestionBody) => {
-  const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}`, {
-    json: {
-      token: token,
-      questionBody: questionBody
-    },
-    timeout: 100
-  });
-  return {
-    bodyObj: JSON.parse(res.body as string),
-    statusCode: res.statusCode,
-  };
-};
-
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 export const adminQuestionDuplicate = (
   token: string, quizId: number, questionId:number) => {
   const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, {
@@ -314,3 +512,108 @@ export const adminQuestionDuplicate = (
     statusCode: res.statusCode,
   };
 };
+
+// =============================================================================
+// ===================    Question-Specific Routes V2    =======================
+// =============================================================================
+
+export const adminQuestionCreateV2 = (
+  token: string, quizId: number, questionBody: QuestionBody) => {
+  const res = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/question`, {
+    json: { questionBody: questionBody },
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+export const adminQuestionUpdateV2 = (
+  token: string, quizId: number, questionId:number, questionBody: QuestionBody) => {
+  const res = request('PUT', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}`, {
+    json: { questionBody: questionBody },
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+export const adminQuestionRemoveV2 = (
+  quizId: number, questionId: number, token: string) => {
+  const res = request('DELETE', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}`, {
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+export const adminQuestionMoveV2 = (
+  quizId: number, questionId: number, token: string, newPosition: number) => {
+  const res = request('PUT', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}/move`, {
+    json: { newPosition: newPosition },
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+export const adminQuestionDuplicateV2 = (
+  token: string, quizId: number, questionId:number) => {
+  const res = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}/duplicate`, {
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
+
+// =============================================================================
+// =================   Starting Quiz and Session Management   ==================
+// =============================================================================
+
+// TODO adminQuizThumbnailUpdate
+
+// TODO adminQuizViewSessions
+
+// TODO adminQuizSessionStart
+
+// TODO adminQuizSessionStateUpdate
+
+// TODO adminQuizSessionGetStatus
+
+// TODO adminQuizSessionGetResults
+
+// TODO adminQuizSessionGetResultsCSV
+
+// =============================================================================
+// ================   Player Interaction and Real-time Features   ==============
+// =============================================================================
+
+// TODO playerJoin
+
+// TODO playerStatus
+
+// TODO playerQuestionPositionInfo
+
+// TODO playerQuestionAnswerSubmit
+
+// TODO playerQuestionResults
+
+// TODO playerFinalResults
+
+// TODO playerReturnAllChat
+
+// TODO playerSendChat
