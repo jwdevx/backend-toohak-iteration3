@@ -79,7 +79,8 @@ export function adminQuestionCreate(
     question: questionBody.question,
     duration: questionBody.duration,
     points: questionBody.points,
-    answers: answers
+    answers: answers,
+    thumbnailURL: ''
   };
   quiz.duration += questionBody.duration;
   quiz.timeLastEdited = getNow();
@@ -340,7 +341,8 @@ export function adminQuestionDuplicate(
     question: Question.question,
     duration: Question.duration,
     points: Question.points,
-    answers: answers
+    answers: answers,
+    thumbnailURL: Question.thumbnailURL
   };
 
   // Update Quiz
