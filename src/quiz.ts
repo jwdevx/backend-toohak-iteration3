@@ -53,7 +53,8 @@ export function adminQuizCreate(
     numQuestions: 0,
     questions: [],
     intrash: false,
-    duration: 0
+    duration: 0,
+    thumbnailURL: ''
   };
   data.quizzes.push(quiz);
   setData(data);

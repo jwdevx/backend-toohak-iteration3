@@ -79,7 +79,8 @@ export function adminQuestionCreate(
     question: questionBody.question,
     duration: questionBody.duration,
     points: questionBody.points,
-    answers: answers
+    answers: answers,
+    thumbnailURL: ''
   };
   quiz.duration += questionBody.duration;
   quiz.timeLastEdited = getNow();
