@@ -1,7 +1,7 @@
 import validator from 'validator';
 import { getData, answer } from './dataStore';
 import { Users, DataStore, Tokens, Quizzes } from './dataStore';
-
+import HTTPError from 'http-errors';
 /**
  * Helper Function used in auth.js,
  * Checks if the provided Token is invalid (does not refer to valid logged in user session)
@@ -267,4 +267,16 @@ export function randomIdGenertor() : number {
  */
 export function getNow() : number {
   return Math.floor(Date.now() / 1000);
+}
+
+export function checkToken(token: string) : Tokens {
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    throw HTTPError(401, 'Token is empty or not provided');
+  }
+  const validToken = findSessionId(sessionId);
+  if (!validToken) {
+    throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
+  }
+  return validToken;
 }
