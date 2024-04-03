@@ -142,6 +142,12 @@ export function adminQuizInfo(token: string, quizId: number): {
   return quizInfo;
 }
 
+export function adminQuizInfoV2(token: string, quizId: number): Record<string, never> {
+    //TODO update typescript return types 
+  return {};
+}
+  
+
 /**
 *Update the name of the relevant quiz.
 *
@@ -293,6 +299,12 @@ export function adminQuizRemove(token: string, quizId: number): Record<string, n
   quiz.intrash = true;
   return {};
 }
+
+export function adminQuizRemoveV2(token: string, quizId: number): Record<string, never> {
+    //TODO update typescript return types
+  return {};
+}
+  
 
 /**
  * View the quizzes in trash
