@@ -92,7 +92,7 @@ export function adminQuestionCreateV2(
   token: string,
   quizId: number,
   questionBody: QuestionBody) : Record<string, never> {
-  //TODO update typescript return types
+  // TODO update typescript return types
   return { };
 }
 
@@ -187,13 +187,12 @@ export function adminQuestionUpdate(
   return {};
 }
 
-
 export function adminQuestionUpdateV2(
   token: string,
   quizId: number,
   questionId:number,
   questionBody: QuestionBody) : Record<string, never> {
-  //TODO update typescript return types
+  // TODO update typescript return types
   return {};
 }
 

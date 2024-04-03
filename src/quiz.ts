@@ -143,10 +143,9 @@ export function adminQuizInfo(token: string, quizId: number): {
 }
 
 export function adminQuizInfoV2(token: string, quizId: number): Record<string, never> {
-    //TODO update typescript return types 
+  // TODO update typescript return types
   return {};
 }
-  
 
 /**
 *Update the name of the relevant quiz.
@@ -301,10 +300,9 @@ export function adminQuizRemove(token: string, quizId: number): Record<string, n
 }
 
 export function adminQuizRemoveV2(token: string, quizId: number): Record<string, never> {
-    //TODO update typescript return types
+  // TODO update typescript return types
   return {};
 }
-  
 
 /**
  * View the quizzes in trash
