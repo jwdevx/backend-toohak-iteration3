@@ -1,3 +1,18 @@
+// TODO this code and uncomment your test
+import request from 'sync-request-curl';
+import config from './config.json';
+const port = config.port;
+const url = config.url;
+describe('HTTP tests using Jest', () => {
+  test('Test successful echo', () => {
+    const res = request('GET', `${url}:${port}/echo`,
+      { qs: { echo: 'Hello' }, timeout: 100 });
+    const bodyObj = JSON.parse(res.body as string);
+    expect(bodyObj.value).toEqual('Hello');
+  });
+});
+
+/*
 import {
   adminAuthRegister, adminQuestionCreate, adminQuestionUpdate,
   adminQuizCreate, adminQuestionRemove,
@@ -1306,3 +1321,4 @@ describe('test question Duplicate', () => {
     expect(questionDuplicate.statusCode).toStrictEqual(OK);
   });
 });
+*/

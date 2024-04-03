@@ -88,6 +88,14 @@ export function adminQuestionCreate(
   return { questionId: quesiton.questionId };
 }
 
+export function adminQuestionCreateV2(
+  token: string,
+  quizId: number,
+  questionBody: QuestionBody) : Record<string, never> {
+  // TODO update typescript return types
+  return { };
+}
+
 /**
  * Moves a quiz question.
  * @param {number} quizId - the authenticated quiz ID
@@ -176,6 +184,15 @@ export function adminQuestionUpdate(
   // Update Quiz
   quiz.duration = possibleNewDuration;
   quiz.timeLastEdited = getNow();
+  return {};
+}
+
+export function adminQuestionUpdateV2(
+  token: string,
+  quizId: number,
+  questionId:number,
+  questionBody: QuestionBody) : Record<string, never> {
+  // TODO update typescript return types
   return {};
 }
 

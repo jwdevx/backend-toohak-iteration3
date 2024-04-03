@@ -142,6 +142,11 @@ export function adminQuizInfo(token: string, quizId: number): {
   return quizInfo;
 }
 
+export function adminQuizInfoV2(token: string, quizId: number): Record<string, never> {
+  // TODO update typescript return types
+  return {};
+}
+
 /**
 *Update the name of the relevant quiz.
 *
@@ -294,6 +299,11 @@ export function adminQuizRemove(token: string, quizId: number): Record<string, n
   return {};
 }
 
+export function adminQuizRemoveV2(token: string, quizId: number): Record<string, never> {
+  // TODO update typescript return types
+  return {};
+}
+
 /**
  * View the quizzes in trash
  */
@@ -385,7 +395,7 @@ export function adminQuizTrashEmpty(token: string, quizIds: string): Record<stri
   }
   for (const quizId of QuizIdsArray) {
     const quiz = findQuizId(quizId);
-    if (quiz.owner !== validToken.userId) {
+    if (!quiz || quiz.owner !== validToken.userId) {
       return { error: 'Valid token is provided, but one or more of the Quiz IDs is not Quiz owner', status: 403 };
     }
   }
