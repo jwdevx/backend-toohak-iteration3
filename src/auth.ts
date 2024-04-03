@@ -1,19 +1,9 @@
+import HTTPError from 'http-errors';
+import { Users, Tokens, ErrorObject, DataStore } from './dataStore';
+import { getData, setData } from './dataStore';
 import {
-  Users,
-  Tokens,
-  ErrorObject,
-  DataStore
-} from './dataStore';
-import {
-  getData,
-  setData
-} from './dataStore';
-import {
-  findSessionId,
-  findUserId,
-  invalidEmail,
-  invalidUserName,
-  invalidNameLength,
+  findSessionId, findUserId, invalidEmail, invalidUserName,
+  invalidNameLength, randomIdGenertor
 } from './helper';
 
 interface UserDetails {
@@ -26,6 +16,7 @@ interface UserDetails {
 interface UserDetailsReturn {
   user: UserDetails;
 }
+import crypto from 'crypto';
 
 /**
  * Register a user with an email, password, and names, then returns their
@@ -42,48 +33,50 @@ export function adminAuthRegister(
   password: string,
   nameFirst: string,
   nameLast: string
-): { token: string} | ErrorObject {
+): { token: string } | ErrorObject {
   // 1.Error 400 - ensure parameters are not undefined, null, or empty ("")
+  if (!email || !password || !nameFirst || !nameLast ||
+    !String(email).trim() || !String(password).trim() ||
+    !String(nameFirst).trim() || !String(nameLast).trim()) {
+    throw HTTPError(400, 'One or more missing parameters');
+  }
   const data: DataStore = getData();
-  if (!email || !password || !nameFirst || !nameLast) return { error: 'One or more missing parameters', status: 400 };
-  // Ensure parameters are not just whitespace
-  if (!String(email).trim() || !String(password).trim() || !String(nameFirst).trim() || !String(nameLast).trim()) {
-    return { error: 'One or more missing parameters', status: 400 };
-  }
   if (data.users.some(existingUser => existingUser.email === email)) {
-    return { error: 'Email address is used by another user', status: 400 };
+    throw HTTPError(400, 'Email address is used by another user');
   }
-  if (invalidEmail(email)) return { error: 'Invalid email address: email is not a string', status: 400 };
-  if (invalidUserName(nameFirst)) return { error: 'First name contains invalid characters', status: 400 };
-  if (invalidNameLength(nameFirst)) return { error: 'First name must be between 2 and 20 characters long', status: 400 };
-  if (invalidUserName(nameLast)) return { error: 'Last name contains invalid characters', status: 400 };
-  if (invalidNameLength(nameLast)) return { error: 'Last name must be between 2 and 20 characters long', status: 400 };
-  if (password.length < 8) return { error: 'Password must be at least 8 characters long', status: 400 };
+  if (invalidEmail(email)) throw HTTPError(400, 'Invalid email address: email is not a string');
+  if (invalidUserName(nameFirst)) throw HTTPError(400, 'First name contains invalid characters');
+  if (invalidNameLength(nameFirst)) throw HTTPError(400, 'First name must be between 2 and 20 characters long');
+  if (invalidUserName(nameLast)) throw HTTPError(400, 'Last name contains invalid characters');
+  if (invalidNameLength(nameLast)) throw HTTPError(400, 'Last name must be between 2 and 20 characters long');
+  if (password.length < 8) throw HTTPError(400, 'Password must be at least 8 characters long');
   if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(password)) {
-    return { error: 'Password must contain at least one letter and one number', status: 400 };
+    throw HTTPError(400, 'Password must contain at least one letter and one number');
   }
   // Success 200
-  const sessionId: number = Math.floor(Math.random() * Date.now());
+  const id = randomIdGenertor();
+  const hash = crypto.createHash('sha256').update(password).digest('hex');
   const newUser: Users = {
-    userId: data.users.length + 1,
+    userId: id,
     nameFirst: nameFirst,
     nameLast: nameLast,
     name: `${nameFirst} ${nameLast}`,
     email: email,
-    password: password,
+    password: hash,
     oldPasswords: [],
     numSuccessfulLogins: 1,
     numFailedPasswordsSinceLastLogin: 0,
   };
-  data.users.push(newUser);
+  const sessionId: number = Math.floor(Math.random() * Date.now());
   const newToken: Tokens = {
     sessionId: sessionId,
     userId: newUser.userId,
   };
+  data.users.push(newUser);
   data.tokens.push(newToken);
   setData(data);
   return {
-    token: encodeURIComponent(sessionId.toString()),
+    token: encodeURIComponent(sessionId.toString())
   };
 }
 
@@ -132,11 +125,13 @@ export function adminAuthLogin(email: string, password: string): { token: string
 export function adminUserDetails(token: string): UserDetailsReturn | ErrorObject {
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
-  if (!token || !String(token).trim() || isNaN(sessionId)) return { error: 'Token is empty or not provided', status: 401 };
-
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    throw HTTPError(401, 'Token is empty or not provided');
+  }
   const validToken = findSessionId(sessionId);
-  if (!validToken) return { error: 'Token is invalid (does not refer to valid logged in user session)', status: 401 };
-
+  if (!validToken) {
+    throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
+  }
   // Success 200
   const user = findUserId(validToken.userId);
   return {
@@ -202,7 +197,6 @@ export function adminUserDetailsUpdate(
   if (invalidNameLength(nameLast)) {
     return { error: 'Last name must be between 2 and 20 characters long', status: 400 };
   }
-
   // Success 200
   user.nameFirst = nameFirst;
   user.nameLast = nameLast;
@@ -246,7 +240,6 @@ export function adminUserPasswordUpdate(
   if (!/(?=.*[0-9])(?=.*[a-zA-Z])/.test(newPassword)) {
     return { error: 'Password must contain at least one letter and one number', status: 400 };
   }
-
   // Success 200
   user.oldPasswords.push({ password: oldPassword });
   user.password = newPassword;
