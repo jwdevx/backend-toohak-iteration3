@@ -10,10 +10,8 @@ import { QuestionBody, answer } from './dataStore';
 describe('create session', () => {
   const answer1 = 'this is answer1';
   const answer2 = 'this is answer2';
-  const answer3 = 'this is answer3';
   const answerObj1: answer = { answer: answer1, correct: true };
   const answerObj2: answer = { answer: answer2, correct: false };
-  const answerObj3: answer = { answer: answer3, correct: false };
   beforeEach(() => {
     clear();
   });
@@ -53,7 +51,7 @@ describe('create session', () => {
     const quizSession = adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
     expect(quizSession.statusCode).toStrictEqual(400);
     expect(quizSession.bodyObj).toStrictEqual({ error: 'The quiz does not have any questions.' });
-  })
+  });
   test('quiz is in trash', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const Quiz1 = adminQuizCreate(token1.bodyObj.token, 'tests', 'autotesting');
@@ -94,7 +92,7 @@ describe('create session', () => {
     const quizSession = adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
     expect(quizSession.statusCode).toStrictEqual(400);
     expect(quizSession.bodyObj).toStrictEqual({ error: 'There are more than 10 session runing at the moment' });
-  })
+  });
   test('successful start', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const Quiz1 = adminQuizCreate(token1.bodyObj.token, 'tests', 'autotesting');
