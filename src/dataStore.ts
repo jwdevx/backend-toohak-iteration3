@@ -7,6 +7,7 @@
 // =============================================================================
 // ========================= INTERFACE FOR USERS ===============================
 // =============================================================================
+
 export interface ErrorObject {
   error: string;
   status: number;
@@ -33,22 +34,11 @@ export interface Tokens {
   userId: number;
 }
 
-export interface DataStore {
-  users: Users[];
-  quizzes: Quizzes[];
-  tokens: Tokens[];
-}
-
-let data: DataStore = {
-  users: [],
-  quizzes: [],
-  tokens: [],
-};
-
 // =============================================================================
 // ======================== INTERFACE FOR QUIZZES ==============================
 // =============================================================================
 
+// Specific for iteration 2
 export interface Quizzes {
   quizId: number;
   name: string;
@@ -60,20 +50,20 @@ export interface Quizzes {
   questions: Questions[];
   intrash: boolean;
   duration: number;
+  thumbnailURL: string;
 }
 
-// =============================================================================
-// ======================== INTERFACE FOR QUESTIONS ============================
-// =============================================================================
-
+// Specific for iteration 2
 export interface Questions {
   questionId: number
   question: string;
   duration: number;
   points: number;
   answers: Answer[];
+  thumbnailURL: string;
 }
 
+// Specific for iteration 2, input parameter
 export interface QuestionBody {
   question: string;
   duration: number;
@@ -92,6 +82,130 @@ export interface answer {
   answer: string;
   correct: boolean;
 }
+
+// =============================================================================
+// ======================== SPECIFIC FOR ITERATION 3 ===========================
+// =============================================================================
+
+// Specific for iteration 3, input parameter
+export interface QuestionBodyV2 {
+  question: string;
+  duration: number;
+  points: number;
+  answers: answer[];
+  thumbnailURL: string;
+}
+
+// =============================================================================
+// ========================= INTERFACE FOR ENUM ================================
+// =============================================================================
+
+export enum state {
+  LOBBY = 'LOBBY',
+  QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
+  QUESTION_OPEN = 'QUESTION_OPEN',
+  QUESTION_CLOSE = 'QUESTION_CLOSE',
+  ANSWER_SHOW = 'ANSWER_SHOW',
+  FINAL_RESULTS = 'FINAL_RESULTS',
+  END = 'END'
+}
+
+export enum action {
+  NEXT_QUESTION = 'NEXT_QUESTION',
+  SKIP_COUNTDOWN = 'SKIP_COUNTDOWN',
+  GO_TO_ANSWER = 'GO_TO_ANSWER',
+  GO_TO_FINAL_RESULTS = 'GO_TO_FINAL_RESULTS',
+  END = 'END'
+}
+
+// =============================================================================
+// ======================= INTERFACE FOR SESSION ===============================
+// =============================================================================
+
+export interface Session {
+  quizId: number,
+  sessionId: number,
+  owner: number,
+  autoStartNum: number;
+
+  // State
+  startTime: number,
+  state: state,
+  atQuestion: number,
+
+  // Adding players and recording answers
+  players: player[],
+  numPlayers: number,
+  metadata: Quizzes,
+
+  // Recording Results of each question
+  questionResults: questionResults[],
+  messages: chat[],
+}
+
+// Specific only for return type
+export interface usersRankedByScore {
+  name: string,
+  score: number,
+}
+
+export interface questionResults {
+  questionId: number,
+  playersCorrectList: string[],
+  averageAnswerTime: number,
+  percentCorrect: number,
+}
+
+// =============================================================================
+// ========================= INTERFACE FOR CHATS ===============================
+// =============================================================================
+
+// Specific only for return type for playerSendChat function
+export interface message {
+  messageBody: string;
+}
+
+export interface chat {
+  messageBody: string,
+  playerId: number,
+  playerName: string,
+  timeSent: number,
+}
+
+// =============================================================================
+// ======================== INTERFACE FOR PLAYERS ==============================
+// =============================================================================
+
+export interface player {
+  playerId: number,
+  playerName: string,
+  totalScore: number,
+  answers: playerAnswers[],
+}
+
+export interface playerAnswers {
+  correct: boolean,
+  answerTime: number,
+  score: number,
+  answerId: number,
+}
+
+// =============================================================================
+// ======================= INTERFACE FOR DATASTORE =============================
+// =============================================================================
+export interface DataStore {
+  users: Users[];
+  quizzes: Quizzes[];
+  tokens: Tokens[];
+  sessions: Session[];
+}
+
+let data: DataStore = {
+  users: [],
+  quizzes: [],
+  tokens: [],
+  sessions: [],
+};
 
 // =============================================================================
 // ======  YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1 ======

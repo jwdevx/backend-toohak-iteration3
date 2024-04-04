@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import HTTPError from 'http-errors';
 import { ErrorObject, Quizzes, DataStore, Questions, Users } from './dataStore';
+=======
+import { ErrorObject, Quizzes, Questions, DataStore, Users } from './dataStore';
+>>>>>>> 75212f3f80bde6158e6038048a74234226a869c4
 import { setData, getData } from './dataStore';
 import {
   findSessionId, findUserId, getNow, randomIdGenertor,
@@ -54,7 +58,8 @@ export function adminQuizCreate(
     numQuestions: 0,
     questions: [],
     intrash: false,
-    duration: 0
+    duration: 0,
+    thumbnailURL: '',
   };
   data.quizzes.push(quiz);
   setData(data);
@@ -63,6 +68,7 @@ export function adminQuizCreate(
   };
 }
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 interface QuizSummary {
   quizId: number;
   name: string;
@@ -143,11 +149,14 @@ export function adminQuizInfo(token: string, quizId: number): {
   return quizInfo;
 }
 
+//! ---------------------   ITERATION 3 SPECIFIC  ------------------------------
+
 export function adminQuizInfoV2(token: string, quizId: number): Record<string, never> {
   // TODO update typescript return types
   return {};
 }
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
 *Update the name of the relevant quiz.
 *
@@ -191,6 +200,7 @@ export function adminQuizNameUpdate(
   return {};
 }
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
 *Update the description of the relevant quiz.
 *
@@ -229,6 +239,7 @@ export function adminQuizDescriptionUpdate(
   return {};
 }
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
  * Transfer ownership of a quiz to a different user based on their email
  */
@@ -305,6 +316,7 @@ if(!isValidUrl(imgUrl)){throw HTTPError(400,'File type or Url is invalid)};
 // ============================ QUIZ TRASH =====================================
 // =============================================================================
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
  * Send a quiz to trash
  * @param {token} string - a valid sessionId
@@ -332,11 +344,13 @@ export function adminQuizRemove(token: string, quizId: number): Record<string, n
   return {};
 }
 
+//! ---------------------   ASKING ON FORUM IF WE NEED TO  ---------------------
 export function adminQuizRemoveV2(token: string, quizId: number): Record<string, never> {
   // TODO update typescript return types
   return {};
 }
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
  * View the quizzes in trash
  */
@@ -365,6 +379,7 @@ export function adminQuizTrashView(token: string): {quizzes: QuizSummary[]} | Er
   return { quizzes: quizzes };
 }
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
  * Restore a quiz from trash
  */
@@ -399,6 +414,7 @@ export function adminQuizTrashRestore(token: string, quizId: number): Record<str
   return {};
 }
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
  * Purpose: Empty the trash
  *
