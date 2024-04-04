@@ -127,7 +127,6 @@ describe('View Sessions: /v1/admin/quiz/:quizid/sessions', () => {
 // ======================    adminQuizSessionStart   ===========================
 // =============================================================================
 
-
 describe('create session', () => {
   const answer1 = 'this is answer1';
   const answer2 = 'this is answer2';
@@ -231,7 +230,6 @@ describe('create session', () => {
     expect(quizSession.statusCode).toStrictEqual(200);
   });
 });
-
 
 // =============================================================================
 // ===================    adminQuizSessionStateUpdate   ========================
