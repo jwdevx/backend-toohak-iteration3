@@ -38,7 +38,6 @@ export interface Tokens {
 // ======================== INTERFACE FOR QUIZZES ==============================
 // =============================================================================
 
-// Specific for iteration 2
 export interface Quizzes {
   quizId: number;
   name: string;
@@ -53,7 +52,6 @@ export interface Quizzes {
   thumbnailURL: string;
 }
 
-// Specific for iteration 2
 export interface Questions {
   questionId: number
   question: string;
