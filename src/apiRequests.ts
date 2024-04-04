@@ -1,6 +1,6 @@
 import request from 'sync-request-curl';
 import config from './config.json';
-import { QuestionBody } from './dataStore';
+import { QuestionBody, QuestionBodyV2 } from './dataStore';
 const port = config.port;
 const url = config.url;
 const SERVER_URL = `${url}:${port}`;
@@ -517,8 +517,9 @@ export const adminQuestionDuplicate = (
 // ===================    Question-Specific Routes V2    =======================
 // =============================================================================
 
+//! becareful QuestionBodyV2
 export const adminQuestionCreateV2 = (
-  token: string, quizId: number, questionBody: QuestionBody) => {
+  token: string, quizId: number, questionBody: QuestionBodyV2) => {
   const res = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/question`, {
     json: { questionBody: questionBody },
     headers: { token: token },
@@ -530,8 +531,9 @@ export const adminQuestionCreateV2 = (
   };
 };
 
+//! becareful QuestionBodyV2
 export const adminQuestionUpdateV2 = (
-  token: string, quizId: number, questionId:number, questionBody: QuestionBody) => {
+  token: string, quizId: number, questionId:number, questionBody: QuestionBodyV2) => {
   const res = request('PUT', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}`, {
     json: { questionBody: questionBody },
     headers: { token: token },
@@ -584,9 +586,30 @@ export const adminQuestionDuplicateV2 = (
 // =================   Starting Quiz and Session Management   ==================
 // =============================================================================
 
-// TODO adminQuizThumbnailUpdate
+export const adminQuizThumbnailUpdate = (
+  token: string, quizId: number, imgUrl: string) => {
+  const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/thumbnail`, {
+    headers: { token: token },
+    json: { imgUrl: imgUrl },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO adminQuizViewSessions
+export const adminQuizViewSessions = (
+  token: string, quizId: number) => {
+  const res = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}/sessions`, {
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
 export const adminQuizSessionStart = (
   token: string, quizId: number, autoStartNum: number) => {
@@ -601,30 +624,142 @@ export const adminQuizSessionStart = (
   };
 };
 
-// TODO adminQuizSessionStateUpdate
+export const adminQuizSessionStateUpdate = (
+  token: string, quizId: number, sessionId: number, action: string) => {
+  const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}`, {
+    headers: { token: token },
+    json: { action: action },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO adminQuizSessionGetStatus
+export const adminQuizSessionGetStatus = (
+  token: string, quizId: number, sessionId: number) => {
+  const res = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}`, {
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO adminQuizSessionGetResults
+export const adminQuizSessionGetResults = (
+  token: string, quizId: number, sessionId: number) => {
+  const res = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}/results`, {
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO adminQuizSessionGetResultsCSV
+export const adminQuizSessionGetResultsCSV = (
+  token: string, quizId: number, sessionId: number) => {
+  const res = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}/results/csv`, {
+    headers: { token: token },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
 // =============================================================================
 // ================   Player Interaction and Real-time Features   ==============
 // =============================================================================
 
-// TODO playerJoin
+export const playerJoin = (sessionId: number, name: string) => {
+  const res = request('POST', SERVER_URL + '/v1/player/join', {
+    json: {
+      sessionId: sessionId,
+      name: name,
+    },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO playerStatus
+export const playerStatus = (playerId: number) => {
+  const res = request('GET', SERVER_URL + `/v1/player/${playerId}`, {
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO playerQuestionPositionInfo
+export const playerQuestionPositionInfo = (playerId: number, questionPosition: number) => {
+  const res = request('GET', SERVER_URL + `/v1/player/${playerId}/question/${questionPosition}`, {
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO playerQuestionAnswerSubmit
+export const playerQuestionAnswerSubmit = (playerId: number, questionPosition: number, answerIds: number[]) => {
+  const res = request('PUT', SERVER_URL + `/v1/player/${playerId}/question/${questionPosition}/answer`, {
+    json: { answerIds: answerIds },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO playerQuestionResults
+export const playerQuestionResults = (playerId: number, questionPosition: number) => {
+  const res = request('GET', SERVER_URL + `/v1/player/${playerId}/question/${questionPosition}/results`, {
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO playerFinalResults
+export const playerFinalResults = (playerId: number) => {
+  const res = request('GET', SERVER_URL + `/v1/player/${playerId}/results`, {
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO playerReturnAllChat
+export const playerReturnAllChat = (playerId: number) => {
+  const res = request('GET', SERVER_URL + `/v1/player/${playerId}/chat`, {
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
-// TODO playerSendChat
+import { message } from './dataStore';
+export const playerSendChat = (playerid: number, message: message) => {
+  const res = request('POST', SERVER_URL + `/v1/player/${playerid}/chat`, {
+    json: { message: message },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
