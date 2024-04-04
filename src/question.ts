@@ -1,5 +1,6 @@
 const Colour = ['red', 'blue', 'green', 'yellow', 'purple', 'brown', 'orange'];
 import { Questions, ErrorObject, Answer, QuestionBody } from './dataStore';
+import { QuestionBodyV2 } from './dataStore';
 import {
   findSessionId, checkQuestionLength, findQuizId, matchQuizIdAndAuthor,
   checkQuestionDuration, checkQuestionPoints, checkAnswerLength,
@@ -7,6 +8,7 @@ import {
   checkAnswerCorrect, randomIdGenertor, getNow
 } from './helper';
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
  * creates a quiz question.
  * @param {string} token - a valid sessionId
@@ -80,7 +82,7 @@ export function adminQuestionCreate(
     duration: questionBody.duration,
     points: questionBody.points,
     answers: answers,
-    thumbnailURL: ''
+    thumbnailURL: '',
   };
   quiz.duration += questionBody.duration;
   quiz.timeLastEdited = getNow();
@@ -89,14 +91,7 @@ export function adminQuestionCreate(
   return { questionId: quesiton.questionId };
 }
 
-export function adminQuestionCreateV2(
-  token: string,
-  quizId: number,
-  questionBody: QuestionBody) : Record<string, never> {
-  // TODO update typescript return types
-  return { };
-}
-
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
  * Moves a quiz question.
  * @param {number} quizId - the authenticated quiz ID
@@ -188,15 +183,7 @@ export function adminQuestionUpdate(
   return {};
 }
 
-export function adminQuestionUpdateV2(
-  token: string,
-  quizId: number,
-  questionId:number,
-  questionBody: QuestionBody) : Record<string, never> {
-  // TODO update typescript return types
-  return {};
-}
-
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
  * deletes a quiz question.
  * @param {number} quizId - the authenticated user ID
@@ -241,6 +228,7 @@ export function adminQuestionRemove(
   return {};
 }
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
  * Moves a quiz question.
  * @param {number} quizId - the authenticated quiz ID
@@ -288,6 +276,7 @@ export function adminQuestionMove(
   return {};
 }
 
+//! ---------------------   WARNING DO NOT MODIFY  -----------------------------
 /**
  * creates a quiz question.
  * @param {string} token - a valid sessionId
@@ -342,7 +331,7 @@ export function adminQuestionDuplicate(
     duration: Question.duration,
     points: Question.points,
     answers: answers,
-    thumbnailURL: Question.thumbnailURL
+    thumbnailURL: Question.thumbnailURL,
   };
 
   // Update Quiz
@@ -355,4 +344,25 @@ export function adminQuestionDuplicate(
   quiz.questions.splice(sourceIndex + 1, 0, quesiton);
 
   return { questionId: quesiton.questionId };
+}
+
+// =============================================================================
+// ==================   ITERATION 3 SPECIFIC ROUTES  ===========================
+// =============================================================================
+
+export function adminQuestionCreateV2(
+  token: string,
+  quizId: number,
+  questionBody: QuestionBodyV2) : Record<string, never> {
+  // TODO update typescript return types
+  return { };
+}
+
+export function adminQuestionUpdateV2(
+  token: string,
+  quizId: number,
+  questionId:number,
+  questionBody: QuestionBodyV2) : Record<string, never> {
+  // TODO update typescript return types
+  return {};
 }

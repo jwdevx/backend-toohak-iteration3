@@ -54,6 +54,7 @@ export interface Tokens {
 // ======================== INTERFACE FOR QUIZZES ==============================
 // =============================================================================
 
+// Specific for iteration 2
 export interface Quizzes {
   quizId: number;
   name: string;
@@ -68,10 +69,7 @@ export interface Quizzes {
   thumbnailURL: string;
 }
 
-// =============================================================================
-// ======================== INTERFACE FOR QUESTIONS ============================
-// =============================================================================
-
+// Specific for iteration 2
 export interface Questions {
   questionId: number
   question: string;
@@ -81,6 +79,7 @@ export interface Questions {
   thumbnailURL: string;
 }
 
+// Specific for iteration 2, input parameter
 export interface QuestionBody {
   question: string;
   duration: number;
@@ -98,6 +97,19 @@ export interface Answer {
 export interface answer {
   answer: string;
   correct: boolean;
+}
+
+// =============================================================================
+// ======================== SPECIFIC FOR ITERATION 3 ===========================
+// =============================================================================
+
+// Specific for iteration 3, input parameter
+export interface QuestionBodyV2 {
+  question: string;
+  duration: number;
+  points: number;
+  answers: answer[];
+  thumbnailURL: string;
 }
 
 // =============================================================================
@@ -147,6 +159,12 @@ export interface Session {
   messages: chat[],
 }
 
+// Specific only for return type
+export interface usersRankedByScore {
+  name: string,
+  score: number,
+}
+
 export interface questionResults {
   questionId: number,
   playersCorrectList: string[],
@@ -157,6 +175,11 @@ export interface questionResults {
 // =============================================================================
 // ========================= INTERFACE FOR CHATS ===============================
 // =============================================================================
+
+// Specific only for return type for playerSendChat function
+export interface message {
+  messageBody: string;
+}
 
 export interface chat {
   messageBody: string,
