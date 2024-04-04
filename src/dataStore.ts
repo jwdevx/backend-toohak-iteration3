@@ -3,22 +3,7 @@
  * H17B_CRUNCHIE 1531 24T1
  * dataStore.ts - stores all interface and database
  */
-// =============================================================================
-// ======================= INTERFACE FOR DATASTORE =============================
-// =============================================================================
-export interface DataStore {
-  users: Users[];
-  quizzes: Quizzes[];
-  tokens: Tokens[];
-  sessions: Session[];
-}
 
-let data: DataStore = {
-  users: [],
-  quizzes: [],
-  tokens: [],
-  sessions: []
-};
 
 // =============================================================================
 // ========================= INTERFACE FOR USERS ===============================
@@ -175,12 +160,30 @@ export interface player {
   totalScore: number,
   answers: playerAnswers[],
 }
+
 export interface playerAnswers {
   correct: boolean,
   answerTime: number,
   score: number,
   answerId: number,
 }
+
+// =============================================================================
+// ======================= INTERFACE FOR DATASTORE =============================
+// =============================================================================
+export interface DataStore {
+  users: Users[];
+  quizzes: Quizzes[];
+  tokens: Tokens[];
+  sessions: Session[];
+}
+
+let data: DataStore = {
+  users: [],
+  quizzes: [],
+  tokens: [],
+  sessions: [],
+};
 
 // =============================================================================
 // ======  YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1 ======
