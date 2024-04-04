@@ -588,7 +588,18 @@ export const adminQuestionDuplicateV2 = (
 
 // TODO adminQuizViewSessions
 
-// TODO adminQuizSessionStart
+export const adminQuizSessionStart = (
+  token: string, quizId: number, autoStartNum: number) => {
+  const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/session/start`, {
+    headers: { token: token },
+    json: { autoStartNum: autoStartNum },
+    timeout: 100
+  });
+  return {
+    bodyObj: JSON.parse(res.body as string),
+    statusCode: res.statusCode,
+  };
+};
 
 // TODO adminQuizSessionStateUpdate
 
