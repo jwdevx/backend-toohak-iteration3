@@ -3,7 +3,7 @@ import {
   adminQuizCreate,
   adminAuthRegister,
   adminQuestionCreate,
-//   adminQuizRemove, <------------------------------------------------------- cheng uncomment
+  adminQuizRemove,
 } from './apiRequests';
 import {
   // adminQuizThumbnailUpdate,
@@ -15,7 +15,7 @@ import {
   // adminQuizSessionGetResultsCSV,
 } from './apiRequests';
 
-// import { QuestionBody, answer } from './dataStore'; <--------------------- cheng uncomment
+import { QuestionBody, answer } from './dataStore';
 
 const ERROR = { error: expect.any(String) };
 beforeEach(() => {
@@ -127,7 +127,7 @@ describe('View Sessions: /v1/admin/quiz/:quizid/sessions', () => {
 // ======================    adminQuizSessionStart   ===========================
 // =============================================================================
 
-/*      <-------------------------------------------------------------------------- cheng uncomment
+
 describe('create session', () => {
   const answer1 = 'this is answer1';
   const answer2 = 'this is answer2';
@@ -149,7 +149,7 @@ describe('create session', () => {
     const token2 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
     const Quiz1 = adminQuizCreate(token1.bodyObj.token, 'tests', 'autotesting');
     const quizSession = adminQuizSessionStart(token2.bodyObj.token, Quiz1.bodyObj.quizId, 3);
-    expect(quizSession.statusCode).toStrictEqual(403); // TODO Cheng to change from 401 to 403 <---------------------
+    expect(quizSession.statusCode).toStrictEqual(401); // TODO Cheng to change from 401 to 403 <---------------------
   });
   test('autostartNum greater than 50', () => {
     const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
@@ -231,7 +231,7 @@ describe('create session', () => {
     expect(quizSession.statusCode).toStrictEqual(200);
   });
 });
-*/
+
 
 // =============================================================================
 // ===================    adminQuizSessionStateUpdate   ========================

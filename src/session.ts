@@ -1,12 +1,12 @@
 import HTTPError from 'http-errors';
 import { checkToken, matchQuizIdAndAuthor, randomIdGenertor } from './helper';
-import { DataStore, Quizzes, Session, getData, state, ErrorObject } from './dataStore';
+import { DataStore, Quizzes, Session, getData, state } from './dataStore';
 interface sessionSummary {
   activeSessions: number[];
   inactiveSessions: number[];
 }
 
-export function adminQuizThumbnailUpdate(token: string, quizId: number, imgUrl:string): Record<string, never> | ErrorObject {
+export function adminQuizThumbnailUpdate(token: string, quizId: number, imgUrl:string): Record<string, never>  {
   // TODO update typescript return types
 
   // 1.Error 401
@@ -30,7 +30,7 @@ export function adminQuizThumbnailUpdate(token: string, quizId: number, imgUrl:s
  * @returns {sessionSummary | ErrorObjec}
  *    An object containing active and inactive sessions or errorObject
  */
-export function adminQuizViewSessions(token: string, quizId: number): sessionSummary | ErrorObject {
+export function adminQuizViewSessions(token: string, quizId: number): sessionSummary  {
   // 1.Error 401
   const validToken = checkToken(token);
   // 2.Error 403
@@ -56,7 +56,7 @@ export function adminQuizViewSessions(token: string, quizId: number): sessionSum
 export function adminQuizSessionStart(
   token: string,
   quizId: number,
-  autoStartNum: number): { sessionId: number }| ErrorObject {
+  autoStartNum: number): { sessionId: number } {
   // 1.Error 401
   const validToken = checkToken(token);
 
@@ -121,7 +121,7 @@ export function adminQuizSessionStart(
 /**
  * Comments todo
  */
-export function adminQuizSessionStateUpdate(token: string, quizId: number, sessionId: number, action: string): Record<string, never> | ErrorObject {
+export function adminQuizSessionStateUpdate(token: string, quizId: number, sessionId: number, action: string): Record<string, never>  {
   // TODO update typescript return types
   // 1.Error 401
 
@@ -137,7 +137,7 @@ export function adminQuizSessionStateUpdate(token: string, quizId: number, sessi
 /**
  * Comments todo
  */
-export function adminQuizSessionGetStatus(token: string, quizId: number, sessionId: number): Record<string, never> | ErrorObject {
+export function adminQuizSessionGetStatus(token: string, quizId: number, sessionId: number): Record<string, never>  {
   // TODO update typescript return types
   // 1.Error 401
 
@@ -153,7 +153,7 @@ export function adminQuizSessionGetStatus(token: string, quizId: number, session
 /**
  * Comments todo
  */
-export function adminQuizSessionGetResults(token: string, quizId: number, sessionId: number): Record<string, never> | ErrorObject {
+export function adminQuizSessionGetResults(token: string, quizId: number, sessionId: number): Record<string, never>  {
   // TODO, find a small dog and update typescript return types
   // 1.Error 401
 
@@ -169,7 +169,7 @@ export function adminQuizSessionGetResults(token: string, quizId: number, sessio
 /**
  * Comments todo
  */
-export function adminQuizSessionGetResultsCSV(token: string, quizId: number, sessionId: number): Record<string, never> | ErrorObject {
+export function adminQuizSessionGetResultsCSV(token: string, quizId: number, sessionId: number): Record<string, never>  {
   // TODO update typescript return types
   // 1.Error 401
 
