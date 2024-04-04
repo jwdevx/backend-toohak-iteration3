@@ -1,3 +1,4 @@
+import { message } from './dataStore';
 
 export function playerJoin(sessionId: number, name: string): Record<string, never> {
   // TODO update typescript return types
@@ -34,9 +35,6 @@ export function playerReturnAllChat(playerId: number): Record<string, never> {
   return {};
 }
 
-export interface message {
-    messageBody: string;
-  }
 export function playerSendChat(playerId: number, message: message): Record<string, never> {
   // TODO update typescript return types
   return {};

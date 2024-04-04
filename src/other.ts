@@ -5,6 +5,7 @@ export function clear(): Record<string, never> {
     users: [],
     quizzes: [],
     tokens: [],
+    sessions: [],
   } as DataStore);
   return {};
 }

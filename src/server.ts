@@ -50,8 +50,8 @@ import {
 
   adminQuestionRemove, // TODO throw error
   adminQuestionMove, //! throw error and add END state error
-  adminQuestionDuplicate, // TODO throw error
 
+  adminQuestionDuplicate, // TODO throw error
 } from './question';
 import {
   adminQuizThumbnailUpdate, adminQuizViewSessions, adminQuizSessionStart,
