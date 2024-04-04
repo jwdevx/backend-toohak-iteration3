@@ -141,6 +141,26 @@ export function matchQuizIdAndAuthor(UserId: number, quizId: number): Quizzes | 
   return data.quizzes.find(quiz => quiz.quizId === quizId && quiz.owner === UserId);
 }
 
+
+/**
+ * Helper Function used in quiz.js
+ * Checks if the provided imgUrl is valid.
+ *
+ * @param {string} imgUrl- A valid User ID.
+ * @returns {boolean} Returns false if the  imgUrl does not end with one of the valid filetypes or
+ * The imgUrl does not begin with 'http://' or 'https://'.
+ */
+export function isValidUrl(imgUrl: string): boolean {
+  const fileTypeRegex=/\.(jpg|jpeg|png)$/i;
+  if(!(fileTypeRegex.test(imgUrl))){
+    return false;
+  }
+  if(!(imgUrl.startsWith('http://')) && !(imgUrl.startsWith('https://'))){
+    return false;
+  }
+  return true;
+}
+
 // =============================================================================
 // ==========================   QUESTION.TS  ===================================
 // =============================================================================
