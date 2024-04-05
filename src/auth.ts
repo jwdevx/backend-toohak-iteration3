@@ -1,21 +1,11 @@
 import HTTPError from 'http-errors';
-import { Users, Tokens, ErrorObject, DataStore } from './dataStore';
+import { Users, Tokens, DataStore } from './dataStore';
 import { getData, setData } from './dataStore';
 import {
   findSessionId, findUserId, invalidEmail, invalidUserName,
   invalidNameLength, randomIdGenertor
 } from './helper';
 
-interface UserDetails {
-  userId: number;
-  name: string;
-  email: string;
-  numSuccessfulLogins: number;
-  numFailedPasswordsSinceLastLogin: number;
-}
-interface UserDetailsReturn {
-  user: UserDetails;
-}
 import crypto from 'crypto';
 
 /**
@@ -33,7 +23,7 @@ export function adminAuthRegister(
   password: string,
   nameFirst: string,
   nameLast: string
-): { token: string } | ErrorObject {
+): { token: string } {
   // 1.Error 400 - ensure parameters are not undefined, null, or empty ("")
   if (!email || !password || !nameFirst || !nameLast ||
     !String(email).trim() || !String(password).trim() ||
@@ -87,7 +77,7 @@ export function adminAuthRegister(
  * @param {string} password - The password for the user
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
-export function adminAuthLogin(email: string, password: string): { token: string } | ErrorObject {
+export function adminAuthLogin(email: string, password: string): { token: string } {
   // 1.Error 400
   if (!email || !password || !String(email).trim() || !String(password).trim()) {
     return { error: 'One or more missing parameters', status: 400 };
@@ -115,6 +105,16 @@ export function adminAuthLogin(email: string, password: string): { token: string
   };
 }
 
+interface UserDetails {
+  userId: number;
+  name: string;
+  email: string;
+  numSuccessfulLogins: number;
+  numFailedPasswordsSinceLastLogin: number;
+}
+interface UserDetailsReturn {
+  user: UserDetails;
+}
 /**
  * Given an admin user's authUserId, return details about the user.
  *  "name" is the first and last name concatenated with a single space between them.
@@ -122,7 +122,7 @@ export function adminAuthLogin(email: string, password: string): { token: string
  * @param {string} token  -  user sessionId
  * @returns {user: {userId: ,name: ,email: ,numSuccessfulLogins: ,numFailedPasswordsSinceLastLogin: ,}}
  */
-export function adminUserDetails(token: string): UserDetailsReturn | ErrorObject {
+export function adminUserDetails(token: string): UserDetailsReturn  {
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
@@ -159,7 +159,7 @@ export function adminUserDetailsUpdate(
   token: string,
   email: string,
   nameFirst: string,
-  nameLast: string): ErrorObject | Record<string, never> {
+  nameLast: string): Record<string, never> {
   // 1.Error 401
   const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));
@@ -216,7 +216,7 @@ export function adminUserDetailsUpdate(
 export function adminUserPasswordUpdate(
   token: string,
   oldPassword: string,
-  newPassword: string): ErrorObject | Record<string, never> {
+  newPassword: string): Record<string, never> {
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
@@ -254,7 +254,7 @@ export function adminUserPasswordUpdate(
  * @param {string} token - the sessionId of the user in the Token array
  * @returns {Object} empty objects indicating success OR an object with an error: string message
  */
-export function adminAuthLogout(token: string): ErrorObject | Record<string, never> {
+export function adminAuthLogout(token: string): Record<string, never> {
   // 1.Error 401
   const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));
