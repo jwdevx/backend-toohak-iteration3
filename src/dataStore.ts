@@ -1,4 +1,3 @@
-
 /**
  * H17B_CRUNCHIE 1531 24T1
  * dataStore.ts - stores all interface and database
@@ -8,15 +7,9 @@
 // ========================= INTERFACE FOR USERS ===============================
 // =============================================================================
 
-export interface ErrorObject {
-  error: string;
-  status: number;
-}
-
 export interface oldPasswords {
   password: string;
 }
-
 export interface Users {
   userId: number;
   nameFirst: string;
@@ -28,7 +21,6 @@ export interface Users {
   numSuccessfulLogins: number;
   numFailedPasswordsSinceLastLogin: number;
 }
-
 export interface Tokens {
   sessionId: number;
   userId: number;
@@ -38,7 +30,6 @@ export interface Tokens {
 // ======================== INTERFACE FOR QUIZZES ==============================
 // =============================================================================
 
-// Specific for iteration 2
 export interface Quizzes {
   quizId: number;
   name: string;
@@ -50,18 +41,30 @@ export interface Quizzes {
   questions: Questions[];
   intrash: boolean;
   duration: number;
-  thumbnailURL: string;
+  thumbnailUrl: string;
 }
-
-// Specific for iteration 2
 export interface Questions {
   questionId: number
   question: string;
   duration: number;
   points: number;
   answers: Answer[];
-  thumbnailURL: string;
+  thumbnailUrl: string;
 }
+export interface Answer {
+  answerId: number;
+  answer: string;
+  correct: boolean;
+  colour: string;
+}
+export interface answer {
+  answer: string;
+  correct: boolean;
+}
+
+// =============================================================================
+// ======================== SPECIFIC FOR INPUT TYPE ============================
+// =============================================================================
 
 // Specific for iteration 2, input parameter
 export interface QuestionBody {
@@ -71,29 +74,13 @@ export interface QuestionBody {
   answers: answer[];
 }
 
-export interface Answer {
-  answerId: number;
-  answer: string;
-  correct: boolean;
-  colour: string;
-}
-
-export interface answer {
-  answer: string;
-  correct: boolean;
-}
-
-// =============================================================================
-// ======================== SPECIFIC FOR ITERATION 3 ===========================
-// =============================================================================
-
 // Specific for iteration 3, input parameter
 export interface QuestionBodyV2 {
   question: string;
   duration: number;
   points: number;
   answers: answer[];
-  thumbnailURL: string;
+  thumbnailUrl: string;
 }
 
 // =============================================================================
@@ -109,7 +96,6 @@ export enum state {
   FINAL_RESULTS = 'FINAL_RESULTS',
   END = 'END'
 }
-
 export enum action {
   NEXT_QUESTION = 'NEXT_QUESTION',
   SKIP_COUNTDOWN = 'SKIP_COUNTDOWN',
@@ -148,7 +134,6 @@ export interface usersRankedByScore {
   name: string,
   score: number,
 }
-
 export interface questionResults {
   questionId: number,
   playersCorrectList: string[],
@@ -164,7 +149,6 @@ export interface questionResults {
 export interface message {
   messageBody: string;
 }
-
 export interface chat {
   messageBody: string,
   playerId: number,
@@ -182,24 +166,23 @@ export interface player {
   totalScore: number,
   answers: playerAnswers[],
 }
-
 export interface playerAnswers {
   correct: boolean,
-  answerTime: number,
   score: number,
-  answerId: number,
+  answerIds: number[],
+  answerTime: number,
 }
 
 // =============================================================================
 // ======================= INTERFACE FOR DATASTORE =============================
 // =============================================================================
+
 export interface DataStore {
   users: Users[];
   quizzes: Quizzes[];
   tokens: Tokens[];
   sessions: Session[];
 }
-
 let data: DataStore = {
   users: [],
   quizzes: [],

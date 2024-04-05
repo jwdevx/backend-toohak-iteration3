@@ -2,12 +2,13 @@ test('Remove this test and uncomment the tests below', () => {
   expect(1 + 1).toStrictEqual(2);
 });
 
+// TODO VENUS
 /*
 import {
   adminAuthRegister,
   adminUserDetails,
   clear
-} from './apiRequests';
+} from './apiRequestsIter3';
 const ERROR = { error: expect.any(String) };
 
 describe('Testing the clear function', () => {
