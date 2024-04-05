@@ -1,14 +1,14 @@
 test('Remove this test and uncomment the tests below', () => {
   expect(1 + 1).toStrictEqual(2);
 });
-
+/*
 import {
   adminAuthRegister,
-  //   adminAuthLogin,
+  adminAuthLogin,
   adminUserDetails,
-  //   adminUserDetailsUpdate,
-  //   adminUserPasswordUpdate,
-  //   adminAuthLogout,
+  adminUserDetailsUpdate,
+  adminUserPasswordUpdate,
+  adminAuthLogout,
   clear
 } from './apiRequests';
 const ERROR = { error: expect.any(String) };
@@ -149,7 +149,7 @@ describe('Test for adminAuthRegister', () => {
   });
 });
 
-/*
+
 // =============================================================================
 // ============================= adminAuthLogin ================================
 // =============================================================================
@@ -198,7 +198,7 @@ describe('Test for adminAuthLogin', () => {
     expect(loginRes.bodyObj).toStrictEqual(ERROR);
   });
 });
-*/
+
 
 // =============================================================================
 // ============================ adminUserDetails ===============================
@@ -235,7 +235,7 @@ describe('Test for adminUserDetails', () => {
   });
 });
 
-/*
+
 // =============================================================================
 // =========================== adminUserDetailsUpdate ==========================
 // =============================================================================
