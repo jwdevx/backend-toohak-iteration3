@@ -269,6 +269,11 @@ export function getNow() : number {
   return Math.floor(Date.now() / 1000);
 }
 
+// =============================================================================
+// ============================   SESSION.TS  ==================================
+// =============================================================================
+
+
 export function checkToken(token: string) : Tokens {
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
@@ -279,4 +284,23 @@ export function checkToken(token: string) : Tokens {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
   return validToken;
+}
+
+// =============================================================================
+// ============================   PLAYER.TS  ===================================
+// =============================================================================
+
+/**
+ * Given a playerId, find the Session they are in
+ */
+export function findQuizSession(playerId: number): Session | undefined {
+  const data: DataStore = getData();
+  return data.sessions.find(session => session.players.some(p => p.playerId === playerId));
+}
+
+/**
+ * Find at Question metadata
+ */
+export function findAtQuestionMetadata(session: Session, questionPosition: number): Questions | undefined {
+  return session.metadata.questions[questionPosition - 1];  
 }
