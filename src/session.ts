@@ -27,7 +27,7 @@ export function adminQuizThumbnailUpdate(token: string, quizId: number, imgUrl:s
  *      Inactive sessions are sessions in the END state.
  * @param {number} token - an encoded session ID of the user
  * @param {number} quizId - the authenticated quiz ID.
- * @returns {sessionSummary | ErrorObjec}
+ * @returns {sessionSummary} - summary of the quiz view sessions
  *    An object containing active and inactive sessions or errorObject
  */
 export function adminQuizViewSessions(token: string, quizId: number): sessionSummary {

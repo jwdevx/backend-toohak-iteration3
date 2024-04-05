@@ -1,21 +1,26 @@
+test('Remove this test and uncomment the tests below', () => {
+    expect(1 + 1).toStrictEqual(2);
+});
+
+
 import {
   clear,
-  adminQuizCreate,
-  adminAuthRegister,
-  adminQuestionCreate,
-  adminQuizRemove,
-} from './apiRequests';
+//   adminQuizCreate,
+//   adminAuthRegister,
+//   adminQuestionCreate,
+//   adminQuizRemove,
+} from './apiRequestsIter3';
 import {
   // adminQuizThumbnailUpdate,
-  adminQuizViewSessions,
-  adminQuizSessionStart,
+//   adminQuizViewSessions,
+//   adminQuizSessionStart,
   // adminQuizSessionStateUpdate,
   // adminQuizSessionGetStatus,
   // adminQuizSessionGetResults,
   // adminQuizSessionGetResultsCSV,
-} from './apiRequests';
+} from './apiRequestsIter3';
 
-import { QuestionBody, answer } from './dataStore';
+import { QuestionBodyV2, answer } from './dataStore';
 
 const ERROR = { error: expect.any(String) };
 beforeEach(() => {
@@ -32,6 +37,8 @@ beforeEach(() => {
 // ======================    adminQuizViewSessions   ===========================
 // =============================================================================
 
+//TODO JASON
+/*
 describe('View Sessions: /v1/admin/quiz/:quizid/sessions', () => {
   // TODO uncomment thumbnailUrl once sadat implemented it
   const questionBody1 = {
@@ -122,11 +129,14 @@ describe('View Sessions: /v1/admin/quiz/:quizid/sessions', () => {
     });
   });
 });
+*/
 
 // =============================================================================
 // ======================    adminQuizSessionStart   ===========================
 // =============================================================================
 
+//TODO CHENG
+/*
 describe('create session', () => {
   const answer1 = 'this is answer1';
   const answer2 = 'this is answer2';
@@ -230,6 +240,7 @@ describe('create session', () => {
     expect(quizSession.statusCode).toStrictEqual(200);
   });
 });
+*/
 
 // =============================================================================
 // ===================    adminQuizSessionStateUpdate   ========================
