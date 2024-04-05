@@ -11,6 +11,10 @@ beforeEach(() => {
   clear();
 });
 
+//TODO VENUS authV1.test.ts 
+//TODO VENUS authV2.test.ts   - duplicate authV1.test.ts and change functioname to V2
+//TODO VENUS otherV1.test.ts  - change to throw
+
 // =============================================================================
 // ========================== adminAuthRegister ================================
 // =============================================================================
