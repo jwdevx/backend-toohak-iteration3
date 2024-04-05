@@ -1,4 +1,3 @@
-
 /**
  * H17B_CRUNCHIE 1531 24T1
  * dataStore.ts - stores all interface and database
@@ -12,11 +11,9 @@ export interface ErrorObject {
   error: string;
   status: number;
 }
-
 export interface oldPasswords {
   password: string;
 }
-
 export interface Users {
   userId: number;
   nameFirst: string;
@@ -28,7 +25,6 @@ export interface Users {
   numSuccessfulLogins: number;
   numFailedPasswordsSinceLastLogin: number;
 }
-
 export interface Tokens {
   sessionId: number;
   userId: number;
@@ -51,16 +47,24 @@ export interface Quizzes {
   duration: number;
   thumbnailURL: string;
 }
-
 export interface Questions {
   questionId: number
   question: string;
   duration: number;
   points: number;
   answers: Answer[];
-  thumbnailURL: string;
+  thumbnailURL: string;  
 }
-
+export interface Answer {
+  answerId: number;
+  answer: string;
+  correct: boolean;
+  colour: string;
+}
+export interface answer {
+  answer: string;
+  correct: boolean;
+}
 // Specific for iteration 2, input parameter
 export interface QuestionBody {
   question: string;
@@ -68,19 +72,6 @@ export interface QuestionBody {
   points: number;
   answers: answer[];
 }
-
-export interface Answer {
-  answerId: number;
-  answer: string;
-  correct: boolean;
-  colour: string;
-}
-
-export interface answer {
-  answer: string;
-  correct: boolean;
-}
-
 // =============================================================================
 // ======================== SPECIFIC FOR ITERATION 3 ===========================
 // =============================================================================
@@ -107,7 +98,6 @@ export enum state {
   FINAL_RESULTS = 'FINAL_RESULTS',
   END = 'END'
 }
-
 export enum action {
   NEXT_QUESTION = 'NEXT_QUESTION',
   SKIP_COUNTDOWN = 'SKIP_COUNTDOWN',
@@ -146,7 +136,6 @@ export interface usersRankedByScore {
   name: string,
   score: number,
 }
-
 export interface questionResults {
   questionId: number,
   playersCorrectList: string[],
@@ -162,7 +151,6 @@ export interface questionResults {
 export interface message {
   messageBody: string;
 }
-
 export interface chat {
   messageBody: string,
   playerId: number,
@@ -180,24 +168,23 @@ export interface player {
   totalScore: number,
   answers: playerAnswers[],
 }
-
 export interface playerAnswers {
   correct: boolean,
-  answerTime: number,
   score: number,
-  answerId: number,
+  answerIds: number[],
+  answerTime: number,    
 }
 
 // =============================================================================
 // ======================= INTERFACE FOR DATASTORE =============================
 // =============================================================================
+
 export interface DataStore {
   users: Users[];
   quizzes: Quizzes[];
   tokens: Tokens[];
   sessions: Session[];
 }
-
 let data: DataStore = {
   users: [],
   quizzes: [],
