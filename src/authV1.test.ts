@@ -1,19 +1,16 @@
-import request, { HttpVerb } from 'sync-request-curl';
-import { IncomingHttpHeaders } from 'http';
 import HTTPError from 'http-errors';
 
 import {
   adminAuthRegister,
   clear
 } from './apiRequestsIter3';
-const ERROR = { error: expect.any(String) };
 beforeEach(() => {
   clear();
 });
 
-//TODO VENUS authV1.test.ts 
-//TODO VENUS authV2.test.ts   - duplicate authV1.test.ts and change functioname to V2
-//TODO VENUS otherV1.test.ts  - change to throw
+// TODO VENUS authV1.test.ts
+// TODO VENUS authV2.test.ts   - duplicate authV1.test.ts and change functioname to V2
+// TODO VENUS otherV1.test.ts  - change to throw
 
 // =============================================================================
 // ========================== adminAuthRegister ================================
@@ -24,14 +21,14 @@ describe('Test for adminAuthRegister', () => {
     clear();
   });
   test('200 check successful registration', () => {
-    expect(adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith')).toStrictEqual({ token: expect.any(String) });   
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith')).toStrictEqual({ token: expect.any(String) });
   });
   test('400 - Null or emptystring', () => {
     expect(() => adminAuthRegister('', '1234abcd', 'Hayden', 'Smith')).toThrow(HTTPError[400]);
     expect(() => adminAuthRegister('     ', '1234abcd', 'Hayden', 'Smith')).toThrow(HTTPError[400]);
     expect(() => adminAuthRegister('hayden.smith@unsw.edu.au', '', 'Hayden', 'Smith')).toThrow(HTTPError[400]);
-    expect(() => adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', '', 'Smith')).toThrow(HTTPError[400]);      
-    expect(() => adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', '')).toThrow(HTTPError[400]);       
+    expect(() => adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', '', 'Smith')).toThrow(HTTPError[400]);
+    expect(() => adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', '')).toThrow(HTTPError[400]);
   });
   test(' 400 check for duplicate existing email', () => {
     adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith');
@@ -45,7 +42,7 @@ describe('Test for adminAuthRegister', () => {
     ['hayden@@gmail.com', '1234abcd', 'Hayden', 'Smith'],
     ['hay?den@[192.168.1.1]', '1234abcd', 'Hayden', 'Smith']
   ])('("%s") does not satify validator.isEmail function', (email, password, nameFirst, nameLast) => {
-    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);   
+    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);
   });
   test.each([
     ['hayden1.smith@unsw.edu.au', '1234abcd', 'Ha*yden', 'Smith'],
@@ -53,13 +50,13 @@ describe('Test for adminAuthRegister', () => {
     ['hayden3.smith@unsw.edu.au', '1234abcd', 'Hayden&Smith', 'Smith'],
     ['hayden4.smith@unsw.edu.au', '1234abcd', 'H@yden', 'Smith'],
   ])('Check error message for invalid characters on NameFirst', (email, password, nameFirst, nameLast) => {
-    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);   
+    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);
   });
   test.each([
     ['hayden1.smith@unsw.edu.au', '1234abcd', 'H', 'Smith'],
     ['hayden2.smith@unsw.edu.au', '1234abcd', 'Haydenhaydenhaydenhayden', 'Smith'],
   ])('Check error message for NameFirst > 2 || < 20 characters', (email, password, nameFirst, nameLast) => {
-    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);   
+    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);
   });
   test.each([
     ['hayden1.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Sm_ith'],
@@ -67,13 +64,13 @@ describe('Test for adminAuthRegister', () => {
     ['hayden3.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith3'],
     ['hayden4.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Sm!th'],
   ])('Check error message for invalid characters on NameLast', (email, password, nameFirst, nameLast) => {
-    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);   
+    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);
   });
   test.each([
     ['hayden1@gmail.com', '1234abcd', 'Hayden', 's'],
     ['hayden2@gmail.com', '1234abcd', 'Hayden', 'Smithsmithsmithsmithsmith'],
   ])('Check error message for NameLast > 2 || < 20 characters', (email, password, nameFirst, nameLast) => {
-    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);   
+    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);
   });
   test.each([
     ['hayden1@gmail.com', '1', 'Hayden', 'Smith'],
@@ -81,41 +78,40 @@ describe('Test for adminAuthRegister', () => {
     ['hayden3@gmail.com', 'abcd', 'Hayden', 'Smith'],
     ['hayden4@gmail.com', '123abcd', 'Hayden', 'Smith'],
   ])('Check error message for Password is less than 8 characters', (email, password, nameFirst, nameLast) => {
-    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);   
+    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);
   });
   test.each([
     ['hayden1@gmail.com', '12341234', 'Hayden', 'Smith'],
     ['hayden2@gmail.com', 'abcdabcd', 'Hayden', 'Smith'],
   ])('Check for Password not contain at one number and one letter', (email, password, nameFirst, nameLast) => {
-    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);   
+    expect(() => adminAuthRegister(email, password, nameFirst, nameLast)).toThrow(HTTPError[400]);
   });
-
 });
 
 // =============================================================================
 // ============================= adminAuthLogin ================================
 // =============================================================================
 
-//TODO
+// TODO
 // =============================================================================
 // ============================ adminUserDetails ===============================
 // =============================================================================
 
-//TODO
+// TODO
 
 // =============================================================================
 // =========================== adminUserDetailsUpdate ==========================
 // =============================================================================
 
-//TODO
+// TODO
 // =============================================================================
 // ========================== adminUserPasswordUpdate ==========================
 // =============================================================================
 
-//TODO
+// TODO
 
 // =============================================================================
 // ============================= adminAuthLogout ===============================
 // =============================================================================
 
-//TODO
+// TODO

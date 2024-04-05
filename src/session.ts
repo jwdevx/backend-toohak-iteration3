@@ -98,7 +98,7 @@ export function adminQuizSessionStart(
     questions: quiz.questions,
     intrash: quiz.intrash,
     duration: quiz.duration,
-    thumbnailURL: quiz.thumbnailURL
+    thumbnailUrl: quiz.thumbnailUrl
   };
   const newsession : Session = {
     quizId: quiz.quizId,

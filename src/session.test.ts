@@ -1,7 +1,6 @@
 test('Remove this test and uncomment the tests below', () => {
-    expect(1 + 1).toStrictEqual(2);
+  expect(1 + 1).toStrictEqual(2);
 });
-
 
 import {
   clear,
@@ -11,18 +10,18 @@ import {
 //   adminQuizRemove,
 } from './apiRequestsIter3';
 import {
-  // adminQuizThumbnailUpdate,
+// adminQuizThumbnailUpdate,
 //   adminQuizViewSessions,
 //   adminQuizSessionStart,
-  // adminQuizSessionStateUpdate,
-  // adminQuizSessionGetStatus,
-  // adminQuizSessionGetResults,
-  // adminQuizSessionGetResultsCSV,
+// adminQuizSessionStateUpdate,
+// adminQuizSessionGetStatus,
+// adminQuizSessionGetResults,
+// adminQuizSessionGetResultsCSV,
 } from './apiRequestsIter3';
 
-import { QuestionBodyV2, answer } from './dataStore';
+// import { QuestionBodyV2, answer } from './dataStore';
 
-const ERROR = { error: expect.any(String) };
+// const ERROR = { error: expect.any(String) };
 beforeEach(() => {
   clear();
 });
@@ -37,7 +36,7 @@ beforeEach(() => {
 // ======================    adminQuizViewSessions   ===========================
 // =============================================================================
 
-//TODO JASON
+// TODO JASON
 /*
 describe('View Sessions: /v1/admin/quiz/:quizid/sessions', () => {
   // TODO uncomment thumbnailUrl once sadat implemented it
@@ -135,7 +134,7 @@ describe('View Sessions: /v1/admin/quiz/:quizid/sessions', () => {
 // ======================    adminQuizSessionStart   ===========================
 // =============================================================================
 
-//TODO CHENG
+// TODO CHENG
 /*
 describe('create session', () => {
   const answer1 = 'this is answer1';

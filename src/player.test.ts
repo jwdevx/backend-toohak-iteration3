@@ -3,36 +3,36 @@ test('Remove this test and uncomment the tests below', () => {
 });
 
 import {
-  clear,
-  // adminQuizCreate,
-  // adminAuthRegister,
-  // adminQuestionCreate,
-  // adminQuizRemove,
+//   clear,
+// adminQuizCreate,
+// adminAuthRegister,
+// adminQuestionCreate,
+// adminQuizRemove,
 } from './apiRequestsIter3';
 import {
-  // adminQuizThumbnailUpdate,
-  // adminQuizViewSessions,
-  // adminQuizSessionStart,
-  // adminQuizSessionStateUpdate,
-  // adminQuizSessionGetStatus,
-  // adminQuizSessionGetResults,
-  // adminQuizSessionGetResultsCSV,
+// adminQuizThumbnailUpdate,
+// adminQuizViewSessions,
+// adminQuizSessionStart,
+// adminQuizSessionStateUpdate,
+// adminQuizSessionGetStatus,
+// adminQuizSessionGetResults,
+// adminQuizSessionGetResultsCSV,
 } from './apiRequestsIter3';
 import {
-  // playerJoin,
-  // playerStatus,
-  // playerQuestionPositionInfo,
-  // playerQuestionAnswerSubmit,
-  // playerQuestionResults,
-  // playerFinalResults,
-  // playerReturnAllChat,
-  // playerSendChat
+// playerJoin,
+// playerStatus,
+// playerQuestionPositionInfo,
+// playerQuestionAnswerSubmit,
+// playerQuestionResults,
+// playerFinalResults,
+// playerReturnAllChat,
+// playerSendChat
 } from './apiRequestsIter3';
 
-const ERROR = { error: expect.any(String) };
-beforeEach(() => {
-  clear();
-});
+// const ERROR = { error: expect.any(String) };
+// beforeEach(() => {
+//   clear();
+// });
 
 // =============================================================================
 // ====================          playerJoin           ==========================
@@ -40,16 +40,11 @@ beforeEach(() => {
 
 // TODO VENUS
 
-
-
 // =============================================================================
 // ====================        playerStatus           ==========================
 // =============================================================================
 
-
-
 // TODO VENUS
-
 
 // =============================================================================
 // ===============        playerQuestionPositionInfo          ==================
@@ -57,8 +52,8 @@ beforeEach(() => {
 
 // TODO proper test, awaiting Venus to finish her function before i can properly test
 
+/*
 describe('Complete Test for playerQuestionPositionInfo', () => {
-
   beforeEach(() => {
     clear();
   });
@@ -90,19 +85,20 @@ describe('Complete Test for playerQuestionPositionInfo', () => {
   });
   test('Session is in LOBBY, QUESTION_COUNTDOWN, or END state', () => {
 
-  });    
+  });
   // 3.Success 200
   test('Success 200', () => {
 
   });
 });
+*/
 
 // =============================================================================
 // ================        playerQuestionAnswerSubmit           ================
 // =============================================================================
 
 // TODO proper test, awaiting Venus to finish her function before i can properly test
-
+/*
 describe('Complete Test for playerQuestionAnswerSubmit', () => {
   const invalidAnswerIds = [-4, 0];
   beforeEach(() => {
@@ -119,19 +115,19 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
   });
   test('400 if session is not yet up to this question', () => {
 
-  });    
+  });
 
   test('400 if answer IDs are not valid for this particular question', () => {
 
-  });    
+  });
 
   test('400 if there are duplicate answer IDs provided', () => {
 
-  });    
+  });
 
   test('400 if less than 1 answer ID was submitted', () => {
 
-  });    
+  });
   // 3.Success 200
   test('Success 200', () => {
 
@@ -140,36 +136,23 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
 
   });
 });
-
+*/
 
 // =============================================================================
 // =================          playerReturnAllChat          =====================
 // =============================================================================
 
-
 // TODO ASH
-
-
 
 // =============================================================================
 // ===============          playerFinalResults           =======================
 // =============================================================================
 
-
 // TODO ASH
-
-
-
 
 // =============================================================================
 // ================          playerQuestionResults          ====================
 // =============================================================================
-
-
-
-
-
-
 
 // =============================================================================
 // ==================          playerSendChat           ========================

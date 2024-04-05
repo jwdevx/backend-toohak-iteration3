@@ -7,10 +7,6 @@
 // ========================= INTERFACE FOR USERS ===============================
 // =============================================================================
 
-export interface ErrorObject {
-  error: string;
-  status: number;
-}
 export interface oldPasswords {
   password: string;
 }
@@ -45,7 +41,7 @@ export interface Quizzes {
   questions: Questions[];
   intrash: boolean;
   duration: number;
-  thumbnailURL: string;
+  thumbnailUrl: string;
 }
 export interface Questions {
   questionId: number
@@ -53,7 +49,7 @@ export interface Questions {
   duration: number;
   points: number;
   answers: Answer[];
-  thumbnailURL: string;  
+  thumbnailUrl: string;
 }
 export interface Answer {
   answerId: number;
@@ -65,6 +61,11 @@ export interface answer {
   answer: string;
   correct: boolean;
 }
+
+// =============================================================================
+// ======================== SPECIFIC FOR INPUT TYPE ============================
+// =============================================================================
+
 // Specific for iteration 2, input parameter
 export interface QuestionBody {
   question: string;
@@ -72,9 +73,6 @@ export interface QuestionBody {
   points: number;
   answers: answer[];
 }
-// =============================================================================
-// ======================== SPECIFIC FOR ITERATION 3 ===========================
-// =============================================================================
 
 // Specific for iteration 3, input parameter
 export interface QuestionBodyV2 {
@@ -82,7 +80,7 @@ export interface QuestionBodyV2 {
   duration: number;
   points: number;
   answers: answer[];
-  thumbnailURL: string;
+  thumbnailUrl: string;
 }
 
 // =============================================================================
@@ -172,7 +170,7 @@ export interface playerAnswers {
   correct: boolean,
   score: number,
   answerIds: number[],
-  answerTime: number,    
+  answerTime: number,
 }
 
 // =============================================================================
