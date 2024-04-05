@@ -1,6 +1,6 @@
 import validator from 'validator';
 import { getData, answer } from './dataStore';
-import { Users, DataStore, Tokens, Quizzes } from './dataStore';
+import { Users, DataStore, Tokens, Quizzes ,Session,state} from './dataStore';
 import HTTPError from 'http-errors';
 /**
  * Helper Function used in auth.js,
@@ -156,6 +156,15 @@ export function isValidUrl(imgUrl: string): boolean {
     return false;
   }
   if(!(imgUrl.startsWith('http://')) && !(imgUrl.startsWith('https://'))){
+    return false;
+  }
+  return true;
+}
+
+export function EndState(quizId: number): boolean {
+  const data: DataStore = getData();
+  const session = data.sessions.find(session => session.quizId === quizId);
+  if (session.state !== state.END) {
     return false;
   }
   return true;
