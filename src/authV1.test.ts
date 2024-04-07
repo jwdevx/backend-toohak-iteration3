@@ -22,7 +22,7 @@ describe('Test for adminAuthRegister', () => {
     clear();
   });
   test('200 check successful registration', () => {
-    const token1 = (adminAuthRegister('iloveemails@gmail.com', 'iloveemail1234', 'Ilove', 'Emails').jsonBody as UserCreateReturn).token;
+    const token1 = (adminAuthRegister('iloveemails@gmail.com', 'iloveemail1234', 'Ilove', 'Emails').bodyObj as UserCreateReturn).token;
     expect(token1).toStrictEqual(expect.any(String));
   });
   test('400 - Null or emptystring', () => {
