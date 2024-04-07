@@ -171,11 +171,8 @@ export function adminUserDetailsUpdate(
   }
 
   // 2.Error 400
-  if (!email || !nameFirst || !nameLast) {
-    throw HTTPError(400, 'One or more missing parameters');
-  }
-  if (!email || !nameFirst || !nameLast) throw HTTPError(400, 'One or more missing parameters');
-  if (!String(email).trim() || !String(nameFirst).trim() || !String(nameLast).trim()) {
+  if (!email || !nameFirst || !nameLast ||
+    !String(email).trim() || !String(nameFirst).trim() || !String(nameLast).trim()) {
     throw HTTPError(400, 'One or more missing parameters');
   }
   const user = findUserId(validToken.userId);
