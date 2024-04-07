@@ -4,6 +4,7 @@ import {
   adminAuthRegister,
   clear
 } from './apiRequestsIter3';
+import { UserCreateReturn } from './returnInterfaces';
 beforeEach(() => {
   clear();
 });
@@ -21,7 +22,8 @@ describe('Test for adminAuthRegister', () => {
     clear();
   });
   test('200 check successful registration', () => {
-    expect(adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith')).toStrictEqual({ token: expect.any(String) });
+    const token1 = (adminAuthRegister('iloveemails@gmail.com', 'iloveemail1234', 'Ilove', 'Emails').jsonBody as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String))
   });
   test('400 - Null or emptystring', () => {
     expect(() => adminAuthRegister('', '1234abcd', 'Hayden', 'Smith')).toThrow(HTTPError[400]);
