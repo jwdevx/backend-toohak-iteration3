@@ -79,7 +79,7 @@ const requestHelper = (
   // const res = request(method, url, { qs, json, headers, timeout: 20000 });
   // const bodyString = res.body.toString();
   // let responseBody: RequestHelperReturnType;
- 
+
   // try {
   //   responseBody = {
   //     jsonBody: JSON.parse(bodyString)
@@ -94,7 +94,7 @@ const requestHelper = (
   //     error: JSON.parse(bodyString)
   //   };
   // }
-  
+
   const errorMessage = `[${res.statusCode}] ` + responseBody?.error || responseBody || 'No message specified!';
 
   // NOTE: the error is rethrown in the test below. This is useful becasuse the

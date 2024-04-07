@@ -23,7 +23,7 @@ describe('Test for adminAuthRegister', () => {
   });
   test('200 check successful registration', () => {
     const token1 = (adminAuthRegister('iloveemails@gmail.com', 'iloveemail1234', 'Ilove', 'Emails').jsonBody as UserCreateReturn).token;
-    expect(token1).toStrictEqual(expect.any(String))
+    expect(token1).toStrictEqual(expect.any(String));
   });
   test('400 - Null or emptystring', () => {
     expect(() => adminAuthRegister('', '1234abcd', 'Hayden', 'Smith')).toThrow(HTTPError[400]);
