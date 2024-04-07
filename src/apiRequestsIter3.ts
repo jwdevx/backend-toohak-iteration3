@@ -11,6 +11,7 @@ import {
   // TODO
   EmptyObject,
   ErrorObject,
+  SessionId,
 } from './returnInterfaces';
 
 // interface Payload {
@@ -32,10 +33,11 @@ import {
 //   // data?: T;
 // }
 // ========================================================================= //
-interface RequestHelperReturnType {
-  jsonBody?: UserCreateReturn |
-  // TODO
-  EmptyObject|
+export interface RequestHelperReturnType {
+  bodyObj?: UserCreateReturn |
+  SessionId |
+  // // TODO
+  EmptyObject |
   ErrorObject;
   error?: string;
 }
@@ -61,7 +63,9 @@ const requestHelper = (
   let responseBody: RequestHelperReturnType;
 
   try {
-    responseBody = JSON.parse(res.body.toString());
+    responseBody = {
+      bodyObj: JSON.parse(res.body.toString())
+    };
   } catch (err) {
     if (res.statusCode === 200) {
       throw HTTPError(500,
@@ -70,6 +74,26 @@ const requestHelper = (
     }
     responseBody = { error: `Failed to parse JSON: '${err.message}'` };
   }
+
+  // const url = SERVER_URL + path;
+  // const res = request(method, url, { qs, json, headers, timeout: 20000 });
+  // const bodyString = res.body.toString();
+  // let responseBody: RequestHelperReturnType;
+
+  // try {
+  //   responseBody = {
+  //     jsonBody: JSON.parse(bodyString)
+  //   };
+  // } catch (err) {
+  //   if (res.statusCode === 200) {
+  //     throw HTTPError(500,
+  //       `Non-jsonifiable body despite code 200: '${res.body}'.\nCheck that you are not doing res.json(undefined) instead of res.json({}), e.g. in '/clear'`
+  //     );
+  //   }
+  //   responseBody = {
+  //     error: JSON.parse(bodyString)
+  //   };
+  // }
 
   const errorMessage = `[${res.statusCode}] ` + responseBody?.error || responseBody || 'No message specified!';
 
