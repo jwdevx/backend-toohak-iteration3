@@ -1,6 +1,7 @@
 import HTTPError from 'http-errors';
 
 import {
+  adminAuthLogin,
   adminAuthRegister,
   clear
 } from './apiRequestsIter3';
@@ -93,7 +94,30 @@ describe('Test for adminAuthRegister', () => {
 // =============================================================================
 // ============================= adminAuthLogin ================================
 // =============================================================================
-
+describe('Test for adminAuthLogin', () => {
+  beforeEach(() => {
+    clear();
+  });
+  test('200 check successful login', () => {
+    const token1 = (adminAuthRegister('iloveemails@gmail.com', 'iloveemail1234', 'Ilove', 'Emails').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const token2 = (adminAuthLogin('iloveemails@gmail.com', 'iloveemail1234').bodyObj as UserCreateReturn).token;
+  });
+  test('400 - Null or emptystring', () => {
+    expect(() => adminAuthLogin('', '1234abcd')).toThrow(HTTPError[400]);
+    expect(() => adminAuthLogin('     ', '1234abcd')).toThrow(HTTPError[400]);
+    expect(() => adminAuthLogin('hayden.smith@unsw.edu.au', '     ')).toThrow(HTTPError[400]);
+    expect(() => adminAuthLogin('hayden.smith@unsw.edu.au', '')).toThrow(HTTPError[400]);
+  });
+  test(' 400 check for existing email', () => {
+    expect(() => adminAuthLogin('hayden.smith@unsw.edu.au', '1234abcd')).toThrow(HTTPError[400]);
+  });
+  test(' 400 right email wrong password', () => {
+    const token1 = (adminAuthRegister('iloveemails@gmail.com', 'iloveemail1234', 'Ilove', 'Emails').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    expect(() => adminAuthLogin('hayden.smith@unsw.edu.au', '1230abcd')).toThrow(HTTPError[400]);
+  });
+});
 // TODO
 // =============================================================================
 // ============================ adminUserDetails ===============================
