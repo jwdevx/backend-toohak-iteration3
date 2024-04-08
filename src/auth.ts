@@ -12,14 +12,14 @@ import {
   // TODO
 } from './returnInterfaces';
 
-interface UserDetails {
+export interface UserDetails {
   userId: number;
   name: string;
   email: string;
   numSuccessfulLogins: number;
   numFailedPasswordsSinceLastLogin: number;
 }
-interface UserDetailsReturn {
+export interface UserDetailsReturn {
   user: UserDetails;
 }
 import crypto from 'crypto';

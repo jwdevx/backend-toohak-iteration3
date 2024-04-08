@@ -3,9 +3,11 @@ import HTTPError from 'http-errors';
 import {
   adminAuthLogin,
   adminAuthRegister,
+  adminUserDetails,
   clear
 } from './apiRequestsIter3';
 import { UserCreateReturn } from './returnInterfaces';
+import { UserDetails, UserDetailsReturn } from './auth';
 beforeEach(() => {
   clear();
 });
@@ -122,6 +124,32 @@ describe('Test for adminAuthLogin', () => {
 // =============================================================================
 // ============================ adminUserDetails ===============================
 // =============================================================================
+describe('Test for adminUserDetails', () => {
+  beforeEach(() => {
+    clear();
+  });
+  test('200 Success case', () => {
+    const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const result = adminUserDetails(token1).bodyObj;
+    expect(result).toEqual({
+      user: {
+        userId: expect.any(Number),
+        name: 'Hayden Smith',
+        email: 'hayden2@gmail.com',
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0
+      },
+    });
+  });
+  test(' 400 empty token', () => {
+    expect(() => adminUserDetails('')).
+    toThrow(HTTPError[401]);
+  });
+  test(' 400 invalid token', () => {
+    expect(() => adminUserDetails('99999999')).
+    toThrow(HTTPError[401]);
+  });
+});
 
 // TODO
 
