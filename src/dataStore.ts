@@ -134,6 +134,19 @@ export interface usersRankedByScore {
   name: string,
   score: number,
 }
+
+export interface metaData {
+  quizId: number;
+  name: string;
+  timeCreated: number;
+  timeLastEdited: number;
+  description: string;
+  numQuestions: number;
+  questions : Questions[];
+  duration: number;
+  thumbnailURL: string;
+}
+
 export interface questionResults {
   questionId: number,
   playersCorrectList: string[],
