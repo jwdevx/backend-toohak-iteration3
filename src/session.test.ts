@@ -1,8 +1,14 @@
 test('Remove this test and uncomment the tests below', () => {
   expect(1 + 1).toStrictEqual(2);
 });
-
+import HTTPError from 'http-errors';
 import {
+  adminAuthRegister,
+  adminQuestionCreate,
+  adminQuizCreate,
+  adminQuizRemove,
+  adminQuizSessionGetStatus,
+  adminQuizSessionStart,
   clear,
 //   adminQuizCreate,
 //   adminAuthRegister,
@@ -18,6 +24,8 @@ import {
 // adminQuizSessionGetResults,
 // adminQuizSessionGetResultsCSV,
 } from './apiRequestsIter3';
+import { QuestionBody, answer } from './dataStore';
+import { QuizCreateReturn, SessionCreateReturn, SessionStatusReturn, UserCreateReturn } from './returnInterfaces';
 
 // import { QuestionBodyV2, answer } from './dataStore';
 
@@ -135,7 +143,7 @@ describe('View Sessions: /v1/admin/quiz/:quizid/sessions', () => {
 // =============================================================================
 
 // TODO CHENG
-/*
+
 describe('create session', () => {
   const answer1 = 'this is answer1';
   const answer2 = 'this is answer2';
@@ -146,86 +154,19 @@ describe('create session', () => {
   });
 
   test('Check invalid token', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const Quiz1 = adminQuizCreate(token1.bodyObj.token, 'tests', 'autotesting');
-    const quizSession = adminQuizSessionStart('99999999', Quiz1.bodyObj.quizId, 3);
-    expect(quizSession.statusCode).toStrictEqual(401);
-    expect(quizSession.bodyObj).toStrictEqual(ERROR);
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    expect(() => adminQuizSessionStart('99999999', Quiz1, 3)).toThrow(HTTPError[401]);
   });
   test('quiz owner doesnt match', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const token2 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const Quiz1 = adminQuizCreate(token1.bodyObj.token, 'tests', 'autotesting');
-    const quizSession = adminQuizSessionStart(token2.bodyObj.token, Quiz1.bodyObj.quizId, 3);
-    expect(quizSession.statusCode).toStrictEqual(401); // TODO Cheng to change from 401 to 403 <---------------------
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const token2 = (adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    expect(() => adminQuizSessionStart(token2, Quiz1, 3)).toThrow(HTTPError[403]);
   });
   test('autostartNum greater than 50', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const Quiz1 = adminQuizCreate(token1.bodyObj.token, 'tests', 'autotesting');
-
-    const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
-      question: 'this is a test',
-      duration: 10,
-      points: 5,
-      answers: answers
-    };
-    adminQuestionCreate(token1.bodyObj.token, Quiz1.bodyObj.quizId, body);
-    const quizSession = adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 51);
-    expect(quizSession.statusCode).toStrictEqual(400);
-    expect(quizSession.bodyObj).toStrictEqual(ERROR);
-  });
-  test('quiz has no questions', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const Quiz1 = adminQuizCreate(token1.bodyObj.token, 'tests', 'autotesting');
-    const quizSession = adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    expect(quizSession.statusCode).toStrictEqual(400);
-    expect(quizSession.bodyObj).toStrictEqual(ERROR);
-  });
-  test('quiz is in trash', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const Quiz1 = adminQuizCreate(token1.bodyObj.token, 'tests', 'autotesting');
-    const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
-      question: 'this is a test',
-      duration: 10,
-      points: 5,
-      answers: answers
-    };
-    adminQuestionCreate(token1.bodyObj.token, Quiz1.bodyObj.quizId, body);
-    adminQuizRemove(token1.bodyObj.token, Quiz1.bodyObj.quizId);
-    const quizSession = adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    expect(quizSession.statusCode).toStrictEqual(400);
-    expect(quizSession.bodyObj).toStrictEqual(ERROR);
-  });
-  test('more than 10 opening sessions', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const Quiz1 = adminQuizCreate(token1.bodyObj.token, 'tests', 'autotesting');
-    const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
-      question: 'this is a test',
-      duration: 10,
-      points: 5,
-      answers: answers
-    };
-    adminQuestionCreate(token1.bodyObj.token, Quiz1.bodyObj.quizId, body);
-    adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    const quizSession = adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    expect(quizSession.statusCode).toStrictEqual(400);
-    expect(quizSession.bodyObj).toStrictEqual(ERROR);
-  });
-  test('successful start', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const Quiz1 = adminQuizCreate(token1.bodyObj.token, 'tests', 'autotesting');
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
     const body : QuestionBody = {
       question: 'this is a test',
@@ -234,12 +175,69 @@ describe('create session', () => {
       answers: answers
     };
     // TODO adminQuestionCreateV2
-    adminQuestionCreate(token1.bodyObj.token, Quiz1.bodyObj.quizId, body);
-    const quizSession = adminQuizSessionStart(token1.bodyObj.token, Quiz1.bodyObj.quizId, 4);
-    expect(quizSession.statusCode).toStrictEqual(200);
+    adminQuestionCreate(token1, Quiz1, body);
+    expect(() => adminQuizSessionStart(token1, Quiz1, 51)).toThrow(HTTPError[400]);
+  });
+  test('quiz has no questions', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    expect(() => adminQuizSessionStart(token1, Quiz1, 4)).toThrow(HTTPError[400]);
+  });
+  test('quiz is in trash', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    // TODO adminQuestionCreateV2
+    adminQuestionCreate(token1, Quiz1, body);
+    adminQuizRemove(token1, Quiz1);
+    expect(() => adminQuizSessionStart(token1, Quiz1, 4)).toThrow(HTTPError[400]);
+  });
+  test('more than 10 opening sessions', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    // TODO adminQuestionCreateV2
+    adminQuestionCreate(token1, Quiz1, body);
+    adminQuizSessionStart(token1, Quiz1, 4);
+    adminQuizSessionStart(token1, Quiz1, 4);
+    adminQuizSessionStart(token1, Quiz1, 4);
+    adminQuizSessionStart(token1, Quiz1, 4);
+    adminQuizSessionStart(token1, Quiz1, 4);
+    adminQuizSessionStart(token1, Quiz1, 4);
+    adminQuizSessionStart(token1, Quiz1, 4);
+    adminQuizSessionStart(token1, Quiz1, 4);
+    adminQuizSessionStart(token1, Quiz1, 4);
+    adminQuizSessionStart(token1, Quiz1, 4);
+    expect(() => adminQuizSessionStart(token1, Quiz1, 4)).toThrow(HTTPError[400]);
+  });
+  test('successful start', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    // TODO adminQuestionCreateV2
+    adminQuestionCreate(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(session).toStrictEqual(expect.any(Number));
   });
 });
-*/
 
 // =============================================================================
 // ===================    adminQuizSessionStateUpdate   ========================
@@ -251,7 +249,99 @@ describe('create session', () => {
 // ====================    adminQuizSessionGetStatus   =========================
 // =============================================================================
 
-// TODO CHENG
+describe('get status', () => {
+  beforeEach(() => {
+    clear();
+  });
+  const answer1 = 'this is answer1';
+  const answer2 = 'this is answer2';
+  const answerObj1: answer = { answer: answer1, correct: true };
+  const answerObj2: answer = { answer: answer2, correct: false };
+  test('invalid userid', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    // TODO adminQuestionCreateV2
+    adminQuestionCreate(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(() => adminQuizSessionGetStatus('9999999', Quiz1, session)).toThrow(HTTPError[401]);
+  });
+  test('invalid sessionid', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    // TODO adminQuestionCreateV2
+    adminQuestionCreate(token1, Quiz1, body);
+    adminQuizSessionStart(token1, Quiz1, 4);
+    expect(() => adminQuizSessionGetStatus(token1, Quiz1, 99999)).toThrow(HTTPError[403]);
+  });
+  test('the user doesnt match', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const token2 = (adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    // TODO adminQuestionCreateV2
+    adminQuestionCreate(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(() => adminQuizSessionGetStatus(token2, Quiz1, session)).toThrow(HTTPError[403]);
+  });
+  test('quizid doesnt match', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz2 = (adminQuizCreate(token1, 'second tests', 'second autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    // TODO adminQuestionCreateV2
+    adminQuestionCreate(token1, Quiz1, body);
+    adminQuestionCreate(token1, Quiz2, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(() => adminQuizSessionGetStatus(token1, Quiz2, session)).toThrow(HTTPError[400]);
+  });
+  test('successful check', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    // TODO adminQuestionCreateV2
+    adminQuestionCreate(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
+    const status = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
+    expect(status).toEqual({
+      state: expect.any(String),
+      atQuestion: expect.any(Number),
+      players: [],
+      metadata: expect.any(Object)
+    });
+  });
+});
 
 // =============================================================================
 // ===================    adminQuizSessionGetResults   =========================

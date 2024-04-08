@@ -11,7 +11,10 @@ import {
   // TODO
   EmptyObject,
   ErrorObject,
-  SessionId,
+  SessionStatusReturn,
+  QuizCreateReturn,
+  QuestionCreateReturn,
+  SessionCreateReturn,
 } from './returnInterfaces';
 
 // interface Payload {
@@ -35,7 +38,10 @@ import {
 // ========================================================================= //
 export interface RequestHelperReturnType {
   bodyObj?: UserCreateReturn |
-  SessionId |
+  SessionCreateReturn |
+  SessionStatusReturn |
+  QuizCreateReturn |
+  QuestionCreateReturn |
   // // TODO
   EmptyObject |
   ErrorObject;
