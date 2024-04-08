@@ -1,12 +1,12 @@
 import HTTPError from 'http-errors';
-import { Quizzes, DataStore, Questions, Users, QuestionV1 } from './dataStore';
+import { Quizzes, DataStore, Users, QuestionV1 } from './dataStore';
 import { setData, getData } from './dataStore';
 import {
   findSessionId, findUserId, getNow, randomIdGenertor,
   invalidQuizName, invalidQuizNameLength, UsedQuizName,
   invalidDescriptionLength, findQuizId, matchQuizIdAndAuthor, EndState,
 } from './helper';
-import {QuizCreateReturn, quizListReturn, quizInfoV1Return, quizInfoV2Return} from './returnInterfaces';
+import { QuizCreateReturn, quizListReturn, quizInfoV1Return, quizInfoV2Return } from './returnInterfaces';
 /**
 * Given basic details about a new quiz, create one for the logged in user.
 *
@@ -112,14 +112,14 @@ export function adminQuizInfo(token: string, quizId: number): quizInfoV1Return {
     throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
   }
   const questions : QuestionV1[] = [];
-  for (let question of quiz.questions) {
+  for (const question of quiz.questions) {
     questions.push({
       questionId: question.questionId,
       question: question.question,
       duration: question.duration,
       points: question.points,
       answers: question.answers
-  })
+    });
   }
   // Success 200
   const quizInfo = {

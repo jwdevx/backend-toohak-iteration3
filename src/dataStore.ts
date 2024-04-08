@@ -82,7 +82,13 @@ export interface QuestionBodyV2 {
   answers: answer[];
   thumbnailUrl: string;
 }
-
+export interface QuestionV1 {
+  questionId: number
+  question: string;
+  duration: number;
+  points: number;
+  answers: Answer[];
+}
 // =============================================================================
 // ========================= INTERFACE FOR ENUM ================================
 // =============================================================================
