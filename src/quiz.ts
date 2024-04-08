@@ -1,12 +1,12 @@
 import HTTPError from 'http-errors';
-import { Quizzes, DataStore, Questions, Users } from './dataStore';
+import { Quizzes, DataStore, Questions, Users, QuestionV1 } from './dataStore';
 import { setData, getData } from './dataStore';
 import {
   findSessionId, findUserId, getNow, randomIdGenertor,
   invalidQuizName, invalidQuizNameLength, UsedQuizName,
   invalidDescriptionLength, findQuizId, matchQuizIdAndAuthor, EndState,
 } from './helper';
-
+import {QuizCreateReturn, quizListReturn, quizInfoV1Return, quizInfoV2Return} from './returnInterfaces';
 /**
 * Given basic details about a new quiz, create one for the logged in user.
 *
@@ -15,7 +15,7 @@ import {
 * @param {string} description - the description of the quiz
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
-export function adminQuizCreate(token: string, name: string, description: string): { quizId: number } {
+export function adminQuizCreate(token: string, name: string, description: string): QuizCreateReturn {
   // 1.Error 401
   const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));
@@ -59,10 +59,6 @@ export function adminQuizCreate(token: string, name: string, description: string
   return { quizId: quiz.quizId };
 }
 
-interface quizListReturn {
-  quizId: number;
-  name: string;
-}
 /**
  * Provide a list of all quizzes that are owned by the currently logged in user.
  * @param {string} token -
@@ -92,15 +88,6 @@ export function adminQuizList(token: string): { quizzes: quizListReturn[] } {
   return { quizzes: quizarray };
 }
 
-interface quizInfoV1Return {
-  quizId: number,
-  name: string
-  timeCreated: number,
-  timeLastEdited: number,
-  description: string,
-  numQuestions: number,
-  questions: Questions[]
-}
 /**
  * provides information on the quiz
  *
@@ -124,6 +111,16 @@ export function adminQuizInfo(token: string, quizId: number): quizInfoV1Return {
   if (isNaN(quizId) || !quiz || quiz.intrash === true) {
     throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
   }
+  const questions : QuestionV1[] = [];
+  for (let question of quiz.questions) {
+    questions.push({
+      questionId: question.questionId,
+      question: question.question,
+      duration: question.duration,
+      points: question.points,
+      answers: question.answers
+  })
+  }
   // Success 200
   const quizInfo = {
     quizId: quiz.quizId,
@@ -132,22 +129,10 @@ export function adminQuizInfo(token: string, quizId: number): quizInfoV1Return {
     timeLastEdited: quiz.timeLastEdited,
     description: quiz.description,
     numQuestions: quiz.numQuestions,
-    questions: quiz.questions,
+    questions: questions,
     duration: quiz.duration
   };
   return quizInfo;
-}
-
-interface quizInfoV2Return {
-  quizId: number,
-  name: string
-  timeCreated: number,
-  timeLastEdited: number,
-  description: string,
-  numQuestions: number,
-  questions: Questions[]
-  duration: number,
-  thumbnailUrl:string,
 }
 
 export function adminQuizInfoV2(token: string, quizId: number): quizInfoV2Return {
