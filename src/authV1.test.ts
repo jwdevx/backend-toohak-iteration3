@@ -145,8 +145,7 @@ describe('Test for adminUserDetails', () => {
     expect(() => adminUserDetails('')).toThrow(HTTPError[401]);
   });
   test(' 400 invalid token', () => {
-    expect(() => adminUserDetails('99999999')).
-    toThrow(HTTPError[401]);
+    expect(() => adminUserDetails('99999999')).toThrow(HTTPError[401]);
   });
 });
 
