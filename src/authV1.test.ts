@@ -115,7 +115,7 @@ describe('Test for adminAuthLogin', () => {
     expect(() => adminAuthLogin('hayden.smith@unsw.edu.au', '1234abcd')).toThrow(HTTPError[400]);
   });
   test(' 400 right email wrong password', () => {
-    const token1 = (adminAuthRegister('iloveemails@gmail.com', 'iloveemail1234', 'Ilove', 'Emails').bodyObj as UserCreateReturn).token;
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', 'iloveemail1234', 'Ilove', 'Emails').bodyObj as UserCreateReturn).token;
     expect(token1).toStrictEqual(expect.any(String));
     expect(() => adminAuthLogin('hayden.smith@unsw.edu.au', '1230abcd')).toThrow(HTTPError[400]);
   });
