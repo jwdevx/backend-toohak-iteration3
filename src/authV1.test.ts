@@ -7,7 +7,6 @@ import {
   clear
 } from './apiRequestsIter3';
 import { UserCreateReturn } from './returnInterfaces';
-import { UserDetails, UserDetailsReturn } from './auth';
 beforeEach(() => {
   clear();
 });
@@ -104,6 +103,7 @@ describe('Test for adminAuthLogin', () => {
     const token1 = (adminAuthRegister('iloveemails@gmail.com', 'iloveemail1234', 'Ilove', 'Emails').bodyObj as UserCreateReturn).token;
     expect(token1).toStrictEqual(expect.any(String));
     const token2 = (adminAuthLogin('iloveemails@gmail.com', 'iloveemail1234').bodyObj as UserCreateReturn).token;
+    expect(token2).toStrictEqual(expect.any(String));
   });
   test('400 - Null or emptystring', () => {
     expect(() => adminAuthLogin('', '1234abcd')).toThrow(HTTPError[400]);
@@ -142,8 +142,7 @@ describe('Test for adminUserDetails', () => {
     });
   });
   test(' 400 empty token', () => {
-    expect(() => adminUserDetails('')).
-    toThrow(HTTPError[401]);
+    expect(() => adminUserDetails('')).toThrow(HTTPError[401]);
   });
   test(' 400 invalid token', () => {
     expect(() => adminUserDetails('99999999')).
