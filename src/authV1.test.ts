@@ -1,7 +1,9 @@
 import HTTPError from 'http-errors';
 
 import {
+  adminAuthLogin,
   adminAuthRegister,
+  adminUserDetails,
   clear
 } from './apiRequestsIter3';
 import { UserCreateReturn } from './returnInterfaces';
@@ -93,11 +95,59 @@ describe('Test for adminAuthRegister', () => {
 // =============================================================================
 // ============================= adminAuthLogin ================================
 // =============================================================================
-
+describe('Test for adminAuthLogin', () => {
+  beforeEach(() => {
+    clear();
+  });
+  test('200 check successful login', () => {
+    const token1 = (adminAuthRegister('iloveemails@gmail.com', 'iloveemail1234', 'Ilove', 'Emails').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const token2 = (adminAuthLogin('iloveemails@gmail.com', 'iloveemail1234').bodyObj as UserCreateReturn).token;
+    expect(token2).toStrictEqual(expect.any(String));
+  });
+  test('400 - Null or emptystring', () => {
+    expect(() => adminAuthLogin('', '1234abcd')).toThrow(HTTPError[400]);
+    expect(() => adminAuthLogin('     ', '1234abcd')).toThrow(HTTPError[400]);
+    expect(() => adminAuthLogin('hayden.smith@unsw.edu.au', '     ')).toThrow(HTTPError[400]);
+    expect(() => adminAuthLogin('hayden.smith@unsw.edu.au', '')).toThrow(HTTPError[400]);
+  });
+  test(' 400 check for existing email', () => {
+    expect(() => adminAuthLogin('hayden.smith@unsw.edu.au', '1234abcd')).toThrow(HTTPError[400]);
+  });
+  test(' 400 right email wrong password', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', 'iloveemail1234', 'Ilove', 'Emails').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    expect(() => adminAuthLogin('hayden.smith@unsw.edu.au', '1230abcd')).toThrow(HTTPError[400]);
+  });
+});
 // TODO
 // =============================================================================
 // ============================ adminUserDetails ===============================
 // =============================================================================
+describe('Test for adminUserDetails', () => {
+  beforeEach(() => {
+    clear();
+  });
+  test('200 Success case', () => {
+    const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const result = adminUserDetails(token1).bodyObj;
+    expect(result).toEqual({
+      user: {
+        userId: expect.any(Number),
+        name: 'Hayden Smith',
+        email: 'hayden2@gmail.com',
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0
+      },
+    });
+  });
+  test(' 400 empty token', () => {
+    expect(() => adminUserDetails('')).toThrow(HTTPError[401]);
+  });
+  test(' 400 invalid token', () => {
+    expect(() => adminUserDetails('99999999')).toThrow(HTTPError[401]);
+  });
+});
 
 // TODO
 
