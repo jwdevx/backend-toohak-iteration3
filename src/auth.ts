@@ -7,18 +7,19 @@ import {
 } from './helper';
 
 import {
+  EmptyObject,
   UserCreateReturn,
   // TODO
 } from './returnInterfaces';
 
-interface UserDetails {
+export interface UserDetails {
   userId: number;
   name: string;
   email: string;
   numSuccessfulLogins: number;
   numFailedPasswordsSinceLastLogin: number;
 }
-interface UserDetailsReturn {
+export interface UserDetailsReturn {
   user: UserDetails;
 }
 import crypto from 'crypto';
@@ -31,7 +32,7 @@ import crypto from 'crypto';
  * @param {string} password - The password for the user
  * @param {string} nameFirst - The first name of the user
  * @param {string} nameLast - The last name of the user
- * @returns {{token: string} | {error: string}} An object: sessionId or an error msg.
+ * @returns {UserCreateReturn  | {error: string}} An object: sessionId or an error msg.
  */
 export function adminAuthRegister(
   email: string, password: string, nameFirst: string, nameLast: string): UserCreateReturn {
@@ -88,7 +89,7 @@ export function adminAuthRegister(
  * @param {string} password - The password for the user
  * @returns {{authUserId: number}} An object containing the authenticated user ID.
  */
-export function adminAuthLogin(email: string, password: string): { token: string } {
+export function adminAuthLogin(email: string, password: string): UserCreateReturn {
   // 1.Error 400
   if (!email || !password || !String(email).trim() || !String(password).trim()) {
     throw HTTPError(400, 'One or more missing parameters');
@@ -158,7 +159,7 @@ export function adminUserDetails(token: string): UserDetailsReturn {
  * @returns { }  null
  */
 export function adminUserDetailsUpdate(
-  token: string, email: string, nameFirst: string, nameLast: string) : Record<string, never> {
+  token: string, email: string, nameFirst: string, nameLast: string) : EmptyObject {
   // 1.Error 401
   const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));
@@ -200,7 +201,7 @@ export function adminUserDetailsUpdate(
  * @returns { } null
  */
 export function adminUserPasswordUpdate(
-  token: string, oldPassword: string, newPassword: string) : Record<string, never> {
+  token: string, oldPassword: string, newPassword: string) : EmptyObject {
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
@@ -255,7 +256,7 @@ export function adminUserPasswordUpdate(
  * @param {string} token - the sessionId of the user in the Token array
  * @returns {Object} empty objects indicating success OR an object with an error: string message
  */
-export function adminAuthLogout(token: string) : Record<string, never> {
+export function adminAuthLogout(token: string) : EmptyObject {
   // 1.Error 401
   const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));
