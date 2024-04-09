@@ -7,7 +7,7 @@ import {
   checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl
 } from './helper';
 import HTTPError from 'http-errors';
-
+import { QuestionCreateReturn } from './returnInterfaces';
 /**
  * creates a quiz question.
  * @param {string} token - a valid sessionId
@@ -18,7 +18,7 @@ import HTTPError from 'http-errors';
 export function adminQuestionCreate(
   token: string,
   quizId: number,
-  questionBody: QuestionBody) : {questionId: number} {
+  questionBody: QuestionBody) : QuestionCreateReturn {
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
@@ -94,11 +94,11 @@ export function adminQuestionCreate(
 export function adminQuestionCreateV2(
   token: string,
   quizId: number,
-  questionBody: QuestionBodyV2) : {questionId: number} {
+  questionBody: QuestionBodyV2) : QuestionCreateReturn {
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
-    throw HTTPError(400, 'Token is empty or not provided');
+    throw HTTPError(401, 'Token is empty or not provided');
   }
   const validToken = findSessionId(sessionId);
   if (!validToken) {

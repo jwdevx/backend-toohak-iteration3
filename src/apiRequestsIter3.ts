@@ -8,6 +8,11 @@ import { QuestionBody, QuestionBodyV2 } from './dataStore';
 import { message } from './dataStore';
 import {
   UserCreateReturn,
+  QuizCreateReturn,
+  QuestionCreateReturn,
+  /* quizInfoV1Return,
+  quizInfoV2Return,
+  quizListReturn, */
   // TODO
   EmptyObject,
   ErrorObject,
@@ -38,6 +43,8 @@ export interface RequestHelperReturnType {
   SessionId |
   // // TODO
   EmptyObject |
+  QuizCreateReturn |
+  QuestionCreateReturn |
   ErrorObject;
   error?: string;
 }
