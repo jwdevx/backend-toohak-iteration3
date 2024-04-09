@@ -26,7 +26,7 @@ import {
 // adminQuizSessionGetResults,
 // adminQuizSessionGetResultsCSV,
 } from './apiRequestsIter3';
-import { QuestionBody, QuestionBodyV2, answer, state, Action } from './dataStore'; // TODO do not use QuestionBody this cheng <--------------------------------
+import { QuestionBodyV2, answer, state, Action } from './dataStore'; // TODO do not use QuestionBody this cheng <--------------------------------
 import {
   UserCreateReturn,
   QuizCreateReturn,
