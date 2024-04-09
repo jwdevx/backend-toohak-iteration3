@@ -6,32 +6,9 @@ const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 10000;
 import { QuestionBody, QuestionBodyV2 } from './dataStore';
 import { message } from './dataStore';
-import {
-  UserCreateReturn,
-  QuizCreateReturn,
-  QuestionCreateReturn,
-  /* quizInfoV1Return,
-  quizInfoV2Return,
-  quizListReturn, */
-  EmptyObject,
-  ErrorObject,
-  SessionStatusReturn,
-  SessionCreateReturn,
-} from './returnInterfaces';
-
+import { RequestHelperReturnType } from './returnInterfaces';
 
 // ========================================================================= //
-
-export interface RequestHelperReturnType {
-  bodyObj?: UserCreateReturn |
-  SessionCreateReturn |
-  SessionStatusReturn |
-  QuizCreateReturn |
-  QuestionCreateReturn |
-  EmptyObject |
-  ErrorObject;
-  error?: string;
-}
 
 // Helpers:
 const requestHelper = (
@@ -49,11 +26,9 @@ const requestHelper = (
     json = payload;
   }
 
-
   const url = SERVER_URL + path;
   const res = request(method, url, { qs, json, headers, timeout: TIMEOUT_MS });
   let responseBody: RequestHelperReturnType;
-
   try {
     responseBody = {
       bodyObj: JSON.parse(res.body.toString())
@@ -66,8 +41,7 @@ const requestHelper = (
     }
     responseBody = { error: `Failed to parse JSON: '${err.message}'` };
   }
-
-  const errorMessage = `[${res.statusCode}] ` + responseBody?.error || responseBody || 'No message specified!'
+  const errorMessage = `[${res.statusCode}] ` + responseBody?.error || responseBody || 'No message specified!';
 
   // NOTE: the error is rethrown in the test below. This is useful becasuse the
   // test suite will halt (stop) if there's an error, rather than carry on and
