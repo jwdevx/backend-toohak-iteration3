@@ -102,7 +102,7 @@ export enum state {
   FINAL_RESULTS = 'FINAL_RESULTS',
   END = 'END'
 }
-export enum action {
+export enum Action {
   NEXT_QUESTION = 'NEXT_QUESTION',
   SKIP_COUNTDOWN = 'SKIP_COUNTDOWN',
   GO_TO_ANSWER = 'GO_TO_ANSWER',
@@ -133,6 +133,27 @@ export interface Session {
   // Recording Results of each question
   questionResults: questionResults[],
   messages: chat[],
+}
+
+export interface timeOuts {
+  sessionId: number,
+  timeOut: ReturnType<typeof setTimeout>,
+}
+
+export interface Times {
+  time: timeOuts[],
+}
+
+let times: Times = {
+  time: [],
+};
+
+export function getTimeList() {
+  return times;
+}
+
+export function setTimeList(newTime: Times) {
+  times = newTime;
 }
 
 // Specific only for return type

@@ -317,3 +317,10 @@ export function findSession(sessionId: number) : Session | undefined {
 // =============================================================================
 
 // TODO
+
+export function delay(ms: number) {
+  const startTime = new Date().getTime();
+  while (new Date().getTime() - startTime < ms) {
+    // this is a useless sentence to let eslint shut up
+  }
+}
