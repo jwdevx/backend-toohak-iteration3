@@ -7,7 +7,7 @@ import {
   adminAuthLogout,
   clear,
 } from './apiRequestsIter3';
-import { UserCreateReturn } from './returnInterfaces';
+import { UserCreateReturn, UserDetailsReturn } from './returnInterfaces';
 beforeEach(() => {
   clear();
 });
