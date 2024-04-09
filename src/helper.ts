@@ -1,6 +1,6 @@
 import validator from 'validator';
 import { getData, answer } from './dataStore';
-import { Users, DataStore, Tokens, Quizzes, Session, Questions, state } from './dataStore';
+import { Users, DataStore, Tokens, Quizzes, Session, Questions, state, Answer,  questionResults , player} from './dataStore';
 import HTTPError from 'http-errors';
 /**
  * Helper Function used in auth.js,
@@ -301,6 +301,9 @@ export function getNow() : number {
 // ============================   SESSION.TS  ==================================
 // =============================================================================
 
+/**
+ * Validate Token
+ */
 export function checkToken(token: string) : Tokens {
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
@@ -331,3 +334,125 @@ export function findQuizSession(playerId: number): Session | undefined {
 export function findAtQuestionMetadata(session: Session, questionPosition: number): Questions | undefined {
   return session.metadata.questions[questionPosition - 1];
 }
+
+/**
+ * Helper function to check for invalid or duplicate answer IDs
+ */
+export function hasInvalidOrDuplicateAnswerId(submittedIds: number[], validAnswers: Answer[]): boolean {
+  const uniqueIds = new Set(submittedIds);
+  if (uniqueIds.size !== submittedIds.length) return true;
+
+  // Iterate through idSubmit to each answerId in question.answers,
+  // stop until found first element for which the provided testing function returns true  
+  return submittedIds.some(id => !validAnswers.find(a => a.answerId === id));
+}
+
+/**
+ * Calculate AnswerTime in seconds
+ */
+export function calculateAnswerTime(session: Session): number {
+  return Math.floor(Date.now() / 1000) - session.startTime; 
+}
+
+/**
+ * Analyze Player Answers
+ */
+export function analyzeAnswer(question: Questions, answerIds: number[]):boolean {
+  const validAnswers: number[] = question.answers
+    .filter(answer => answer.correct === true)
+    .map(answer => answer.answerId);
+    const sortedValidAnswers = [...validAnswers].sort((a, b) => a - b);
+    const sortedAnswerIds = [...answerIds].sort((a, b) => a - b);
+
+  if (sortedValidAnswers.length !== sortedAnswerIds.length) return false;
+
+  for (let i = 0; i < sortedValidAnswers.length; i++) {
+    if (sortedValidAnswers[i] !== sortedAnswerIds[i]) return false;
+  }
+  return true;
+}
+
+//----------------    specific for playerQuestionAnswerSubmit    ---------------
+/**
+ * Helper Function once all error is pass, we can process success 200
+ */
+export function processAnswerSubmission(
+  playerId: number, session: Session,
+  question: Questions, answerIds: number[], questionPosition: number): Record<string, never> {
+
+  // Find player
+  const player = session.players.find(p => p.playerId === playerId);
+  const playerAnswer = player.answers[questionPosition - 1];
+
+  // Valid for first time and resubmit
+  if (session.startTime === 0) throw HTTPError(400, 'Cannot calculate player answer time!');
+  const answerTime = calculateAnswerTime(session);
+  const isCorrect = analyzeAnswer(question, answerIds);
+  const atQuestion = session.questionResults[questionPosition - 1];
+
+  // Success 200 case 1 - if no answer yet, player can answer first time
+  if (playerAnswer.answerIds.length === 0) {
+    playerAnswer.answerIds = answerIds;
+    playerAnswer.answerTime = answerTime;
+
+    if (isCorrect) {
+      playerAnswer.correct = true;
+      atQuestion.playersCorrectList.push(player.playerName);
+      playerAnswer.score = calculateScore(player, session, question, atQuestion);
+      player.totalScore += playerAnswer.score;
+    } else {
+      playerAnswer.correct = false;
+    }
+  }
+  // Success 200 case 2 - if already answer first time player can resubmit Answer
+  if (playerAnswer.answerIds.length > 0) {
+    playerAnswer.answerIds = [];
+    playerAnswer.answerIds = answerIds; 
+    playerAnswer.answerTime = answerTime;
+
+    if (isCorrect) {
+      updateAnswerQuestionResults(player,  question, atQuestion, isCorrect);      
+      playerAnswer.correct = true;
+      const temp = playerAnswer.score;
+      playerAnswer.score = calculateScore(player, session, question, atQuestion);
+      player.totalScore = player.totalScore - temp + playerAnswer.score;
+      
+    } else {
+      updateAnswerQuestionResults(player, question, atQuestion, isCorrect);         
+      playerAnswer.correct = false;
+      const temp = playerAnswer.score;
+      playerAnswer.score = 0;
+      player.totalScore -= temp;
+    }
+  }
+  return {};
+}
+
+/**
+ * Calculate Score, P / (num of ppl with correct answer before)
+ */
+// TODO jest tESt before forum Players who answer the question at the exact same time results in undefined behaviour.
+function calculateScore(player: player, session: Session, question: Questions, atQuestion: questionResults): number {
+  const questionPoints = question.points;
+  const playerNameIndex = atQuestion.playersCorrectList.indexOf(player.playerName);
+  if (playerNameIndex === 0) {
+    return questionPoints;
+  } else if (playerNameIndex > 0) {
+    return Math.round(questionPoints / playerNameIndex);
+  } else {
+    return 0;
+  }  
+}
+
+/**
+ * Update Question Results for the given player - if answer is correct
+ */
+function updateAnswerQuestionResults(
+  player: player, question: Questions, atQuestion: questionResults, isCorrect: boolean): void {
+  const playerNameIndex = atQuestion.playersCorrectList.indexOf(player.playerName);
+  atQuestion.playersCorrectList.splice(playerNameIndex, 1);
+  if (isCorrect) {
+    atQuestion.playersCorrectList.push(player.playerName);    
+  }
+}
+//------------------------------------------------------------------------------
