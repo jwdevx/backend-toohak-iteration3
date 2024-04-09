@@ -6,50 +6,9 @@ const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 10000;
 import { QuestionBody, QuestionBodyV2 } from './dataStore';
 import { message } from './dataStore';
-import {
-  UserCreateReturn,
-  QuizCreateReturn,
-  QuestionCreateReturn,
-  /* quizInfoV1Return,
-  quizInfoV2Return,
-  quizListReturn, */
-  // TODO
-  EmptyObject,
-  ErrorObject,
-  SessionStatusReturn,
-  SessionCreateReturn,
-} from './returnInterfaces';
+import { RequestHelperReturnType } from './returnInterfaces';
 
-// interface Payload {
-//   [key: string]: any;
-// }
-
-// interface ApiResponse<T> {
-//   success?: boolean;
-//   data?: T;
-//   error?: string;
-//   status?: number;
-// }
-
-// interface RequestHelperReturnType {
-//   statusCode?: number;
-//   jsonBody?: Record<string, any>;
-//   error?: string;
-//   status?: number;
-//   // data?: T;
-// }
 // ========================================================================= //
-export interface RequestHelperReturnType {
-  bodyObj?: UserCreateReturn |
-  SessionCreateReturn |
-  SessionStatusReturn |
-  QuizCreateReturn |
-  QuestionCreateReturn |
-  // // TODO
-  EmptyObject |
-  ErrorObject;
-  error?: string;
-}
 
 // Helpers:
 const requestHelper = (
@@ -70,7 +29,6 @@ const requestHelper = (
   const url = SERVER_URL + path;
   const res = request(method, url, { qs, json, headers, timeout: TIMEOUT_MS });
   let responseBody: RequestHelperReturnType;
-
   try {
     responseBody = {
       bodyObj: JSON.parse(res.body.toString())
@@ -83,27 +41,6 @@ const requestHelper = (
     }
     responseBody = { error: `Failed to parse JSON: '${err.message}'` };
   }
-
-  // const url = SERVER_URL + path;
-  // const res = request(method, url, { qs, json, headers, timeout: 20000 });
-  // const bodyString = res.body.toString();
-  // let responseBody: RequestHelperReturnType;
-
-  // try {
-  //   responseBody = {
-  //     jsonBody: JSON.parse(bodyString)
-  //   };
-  // } catch (err) {
-  //   if (res.statusCode === 200) {
-  //     throw HTTPError(500,
-  //       `Non-jsonifiable body despite code 200: '${res.body}'.\nCheck that you are not doing res.json(undefined) instead of res.json({}), e.g. in '/clear'`
-  //     );
-  //   }
-  //   responseBody = {
-  //     error: JSON.parse(bodyString)
-  //   };
-  // }
-
   const errorMessage = `[${res.statusCode}] ` + responseBody?.error || responseBody || 'No message specified!';
 
   // NOTE: the error is rethrown in the test below. This is useful becasuse the

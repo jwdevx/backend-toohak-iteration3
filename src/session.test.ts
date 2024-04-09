@@ -1,16 +1,16 @@
-test('Remove this test and uncomment the tests below', () => {
-  expect(1 + 1).toStrictEqual(2);
-});
 import HTTPError from 'http-errors';
 import {
   adminAuthRegister,
-  adminQuestionCreate,
+  adminQuestionCreate, // TODO do not use this cheng <--------------------------------
+  adminQuestionCreateV2,
   adminQuizCreate,
   adminQuizRemove,
-  adminQuizSessionGetStatus,
-  adminQuizSessionStart,
-  adminQuizSessionStateUpdate,
   clear,
+  // adminQuizThumbnailUpdate,
+  adminQuizSessionStateUpdate,
+  adminQuizSessionGetStatus,
+  adminQuizViewSessions,
+  adminQuizSessionStart,
 //   adminQuizCreate,
 //   adminAuthRegister,
 //   adminQuestionCreate,
@@ -25,10 +25,16 @@ import {
 // adminQuizSessionGetResults,
 // adminQuizSessionGetResultsCSV,
 } from './apiRequestsIter3';
-import { Action, QuestionBody, answer, state } from './dataStore';
-import { QuizCreateReturn, SessionCreateReturn, SessionStatusReturn, UserCreateReturn } from './returnInterfaces';
+import { QuestionBody, QuestionBodyV2, answer, state, Action } from './dataStore'; // TODO do not use QuestionBody this cheng <--------------------------------
+import {
+  UserCreateReturn,
+  QuizCreateReturn,
+  QuestionCreateReturn,
+  SessionQuizViewReturn,
+  SessionCreateReturn,
+  SessionStatusReturn,
+} from './returnInterfaces';
 import { delay } from './helper';
-
 // import { QuestionBodyV2, answer } from './dataStore';
 
 // const ERROR = { error: expect.any(String) };
@@ -46,17 +52,15 @@ beforeEach(() => {
 // ======================    adminQuizViewSessions   ===========================
 // =============================================================================
 
-// TODO JASON
-/*
 describe('View Sessions: /v1/admin/quiz/:quizid/sessions', () => {
-  // TODO uncomment thumbnailUrl once sadat implemented it
-  const questionBody1 = {
+  const questionBody1: QuestionBodyV2 = {
     question: 'Who is the Monarch of England?',
     duration: 4,
     points: 5,
-    answers: [{ answer: 'Prince Charles', correct: true },
+    answers: [
+      { answer: 'Prince Charles', correct: true },
       { answer: 'Princess Diana', correct: false }],
-    // thumbnailUrl: "http://google.com/some/image/path.jpg"
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
   };
   beforeEach(() => {
     clear();
@@ -64,87 +68,61 @@ describe('View Sessions: /v1/admin/quiz/:quizid/sessions', () => {
 
   // 1.Error 401
   test('Check invalid token', () => {
-    const sessionId1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
-    const quizId1 = adminQuizCreate(sessionId1, 'quiz1', 'first quiz').bodyObj.quizId;
-    adminQuestionCreate(sessionId1, quizId1, questionBody1); // TODO change to V2 once implemented
+    const sessionId1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const quizId1 = (adminQuizCreate(sessionId1, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
+    adminQuestionCreateV2(sessionId1, quizId1, questionBody1);
     adminQuizSessionStart(sessionId1, quizId1, 5);
-
-    let viewQuizSession1 = adminQuizViewSessions(sessionId1 + 1, quizId1);
-    expect(viewQuizSession1.statusCode).toStrictEqual(401);
-    expect(viewQuizSession1.bodyObj).toStrictEqual(ERROR);
-
-    // Token is empty
-    viewQuizSession1 = adminQuizViewSessions('', quizId1);
-    expect(viewQuizSession1.statusCode).toStrictEqual(401);
-    expect(viewQuizSession1.bodyObj).toStrictEqual(ERROR);
+    expect(() => adminQuizViewSessions(sessionId1 + 1, quizId1)).toThrow(HTTPError[401]);
+    expect(() => adminQuizViewSessions('', quizId1)).toThrow(HTTPError[401]);
   });
   // 2.Error 403
   test('quiz owner doesnt matchV1', () => {
-    const sessionId1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
-    const quizId1 = adminQuizCreate(sessionId1, 'quiz1', 'first quiz').bodyObj.quizId;
-    adminQuestionCreate(sessionId1, quizId1, questionBody1); // TODO change to V2 once implemented
+    const sessionId1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const quizId1 = (adminQuizCreate(sessionId1, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
+    adminQuestionCreateV2(sessionId1, quizId1, questionBody1);
     adminQuizSessionStart(sessionId1, quizId1, 5);
-
-    const viewQuizSession1 = adminQuizViewSessions(sessionId1, quizId1 + 1);
-    expect(viewQuizSession1.statusCode).toStrictEqual(403);
-    expect(viewQuizSession1.bodyObj).toStrictEqual(ERROR);
+    expect(() => adminQuizViewSessions(sessionId1, quizId1 + 1)).toThrow(HTTPError[403]);
   });
   test('quiz owner doesnt matchV2', () => {
-    const sessionId1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
-    const sessionId2 = adminAuthRegister('sadatadat@gmail.com', 'WadadOjiaoZC123', 'Sadsfat', 'Kabsdair').bodyObj.token;
-    const quizId1 = adminQuizCreate(sessionId1, 'quiz1', 'first quiz').bodyObj.quizId;
-    adminQuestionCreate(sessionId1, quizId1, questionBody1); // TODO change to V2 once implemented
-
+    const sessionId1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const sessionId2 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const quizId1 = (adminQuizCreate(sessionId1, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
+    adminQuestionCreateV2(sessionId1, quizId1, questionBody1);
     adminQuizSessionStart(sessionId1, quizId1, 5);
-    const viewQuizSession1 = adminQuizViewSessions(sessionId2, quizId1); // differerent owner
-    expect(viewQuizSession1.statusCode).toStrictEqual(403);
-    expect(viewQuizSession1.bodyObj).toStrictEqual(ERROR);
+    expect(() => adminQuizViewSessions(sessionId2, quizId1)).toThrow(HTTPError[403]);
   });
 
   // 3.Success 200
   test('successful view sessions', () => {
-    // Create User 1
-    const user1 = adminAuthRegister('hayden1.smith@unsw.edu.au', '1234abcd1', 'Haydena', 'Smitha');
-    expect(user1.statusCode).toStrictEqual(200);
-    const sessionId1 = user1.bodyObj.token;
-
-    // Create 2 Quiz only by User1
-    const quiz1 = adminQuizCreate(sessionId1, 'quiz1name', 'quiz1description');
-    expect(quiz1.statusCode).toStrictEqual(200);
-    const quizId1 = quiz1.bodyObj.quizId;
-
-    // TODO change to adminQuestionCreateV2 once sadat implemented it
-    const questionCreate1 = adminQuestionCreate(sessionId1, quizId1, questionBody1);
-    expect(questionCreate1.statusCode).toStrictEqual(200);
+    const sessionId1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(sessionId1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(sessionId1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(sessionId1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
 
     // Create sessions
-    const quizSession1 = adminQuizSessionStart(sessionId1, quizId1, 4);
-    const quizSession2 = adminQuizSessionStart(sessionId1, quizId1, 4);
-    expect(quizSession1.statusCode).toStrictEqual(200);
-    expect(quizSession2.statusCode).toStrictEqual(200);
-    const quizSessionId1 = quizSession1.bodyObj.sessionId;
-    const quizSessionId2 = quizSession2.bodyObj.sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(sessionId1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId2 = (adminQuizSessionStart(sessionId1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    expect(quizSessionId2).toStrictEqual(expect.any(Number));
 
     // Sort It just for expected output in view sessions
     const unsortedActiveSessions = [quizSessionId1, quizSessionId2];
     const sortedActiveSessions = unsortedActiveSessions.sort((a, b) => a - b);
 
-    // TODO once END state action is implemented we can test more
-    const viewQuizSession1 = adminQuizViewSessions(sessionId1, quizId1);
-    expect(viewQuizSession1.statusCode).toStrictEqual(200);
-    expect(viewQuizSession1.bodyObj).toStrictEqual({
+    // TODO MORE TEST  once END state action is implemented we can test more <----------------------------------------------------- cheng
+    const viewQuizSession1 = adminQuizViewSessions(sessionId1, quizId1).bodyObj as SessionQuizViewReturn;
+    expect(viewQuizSession1).toStrictEqual({
       activeSessions: sortedActiveSessions,
       inactiveSessions: [],
     });
   });
 });
-*/
 
 // =============================================================================
 // ======================    adminQuizSessionStart   ===========================
 // =============================================================================
-
-// TODO CHENG
 
 describe('create session', () => {
   const answer1 = 'this is answer1';

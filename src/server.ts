@@ -13,48 +13,40 @@ import process from 'process';
 import { getData, setData } from './dataStore';
 import { clear } from './other';
 
-//! * BEFORE YOU DO V2 TEST.TS MAKE SURE TEST COVERAGE IS 100%
 import {
-  adminAuthRegister, //! throw error + modify hashing
-  adminAuthLogin, // TODO throw error
-  adminAuthLogout, // TODO throw error
-  adminUserDetails, // TODO throw error
-  adminUserDetailsUpdate, // TODO throw error
-  adminUserPasswordUpdate, //! throw error + modify hashing
+  adminAuthRegister,
+  adminAuthLogin,
+  adminAuthLogout,
+  adminUserDetails,
+  adminUserDetailsUpdate,
+  adminUserPasswordUpdate,
 } from './auth';
 import {
-  adminQuizCreate, // TODO throw error
-  adminQuizList, // TODO throw error
-  adminQuizTrashView, // TODO throw error
-  adminQuizTrashEmpty, // TODO throw error
-
-  adminQuizInfo, // TODO throw error
-  adminQuizInfoV2, //! new function !!! has different return type.
-
-  adminQuizRemove, //! throw error and add END state error
-  // I am asking forum if this need to be a new function
-  adminQuizRemoveV2, //! New function: throw error and addEND state error
-
-  adminQuizNameUpdate, // TODO throw error
-  adminQuizDescriptionUpdate, // TODO throw error
-  adminQuizTrashRestore, // TODO throw error
-  adminQuizTransfer // TODO throw error and add END state error
-
+  adminQuizCreate,
+  adminQuizList,
+  adminQuizTrashView,
+  adminQuizTrashEmpty,
+  adminQuizInfo,
+  adminQuizInfoV2, // New Function
+  adminQuizRemove,
+  adminQuizRemoveV2, // New Function
+  adminQuizNameUpdate,
+  adminQuizDescriptionUpdate,
+  adminQuizTrashRestore,
+  adminQuizTransfer,
+  adminQuizThumbnailUpdate,
 } from './quiz';
 import {
-  adminQuestionCreate, // TODO throw error
-  adminQuestionUpdate, // TODO throw error
-
-  adminQuestionCreateV2, //! New function - ! has a different input type.
-  adminQuestionUpdateV2, //! New function - ! has different body input.
-
-  adminQuestionRemove, // TODO throw error
-  adminQuestionMove, //! throw error and add END state error
-
-  adminQuestionDuplicate, // TODO throw error
+  adminQuestionCreate,
+  adminQuestionUpdate,
+  adminQuestionCreateV2, // New Function
+  adminQuestionUpdateV2, // New Function
+  adminQuestionRemove,
+  adminQuestionMove,
+  adminQuestionDuplicate,
 } from './question';
 import {
-  adminQuizThumbnailUpdate, adminQuizViewSessions, adminQuizSessionStart,
+  adminQuizViewSessions, adminQuizSessionStart,
   adminQuizSessionStateUpdate, adminQuizSessionGetStatus, adminQuizSessionGetResults,
   adminQuizSessionGetResultsCSV,
 } from './session';
