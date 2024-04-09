@@ -1,7 +1,6 @@
 import validator from 'validator';
 import { getData, answer } from './dataStore';
-import { Users, DataStore, Tokens, Quizzes ,Session,state} from './dataStore';
-import HTTPError from 'http-errors';
+import { Users, DataStore, Tokens, Quizzes, Session, Questions, state } from './dataStore';
 /**
  * Helper Function used in auth.js,
  * Checks if the provided Token is invalid (does not refer to valid logged in user session)
@@ -141,7 +140,6 @@ export function matchQuizIdAndAuthor(UserId: number, quizId: number): Quizzes | 
   return data.quizzes.find(quiz => quiz.quizId === quizId && quiz.owner === UserId);
 }
 
-
 /**
  * Helper Function used in quiz.js
  * Checks if the provided imgUrl is valid.
@@ -151,11 +149,11 @@ export function matchQuizIdAndAuthor(UserId: number, quizId: number): Quizzes | 
  * The imgUrl does not begin with 'http://' or 'https://'.
  */
 export function isValidUrl(imgUrl: string): boolean {
-  const fileTypeRegex=/\.(jpg|jpeg|png)$/i;
-  if(!(fileTypeRegex.test(imgUrl))){
+  const fileTypeRegex = /\.(jpg|jpeg|png)$/i;
+  if (!(fileTypeRegex.test(imgUrl))) {
     return false;
   }
-  if(!(imgUrl.startsWith('http://')) && !(imgUrl.startsWith('https://'))){
+  if (!(imgUrl.startsWith('http://')) && !(imgUrl.startsWith('https://'))) {
     return false;
   }
   return true;
@@ -164,6 +162,9 @@ export function isValidUrl(imgUrl: string): boolean {
 export function EndState(quizId: number): boolean {
   const data: DataStore = getData();
   const session = data.sessions.find(session => session.quizId === quizId);
+  if (!session) {
+    return false;
+  }
   if (session.state !== state.END) {
     return false;
   }
@@ -298,14 +299,29 @@ export function getNow() : number {
   return Math.floor(Date.now() / 1000);
 }
 
-export function checkToken(token: string) : Tokens {
-  const sessionId = parseInt(decodeURIComponent(token));
-  if (!token || !String(token).trim() || isNaN(sessionId)) {
-    throw HTTPError(401, 'Token is empty or not provided');
-  }
-  const validToken = findSessionId(sessionId);
-  if (!validToken) {
-    throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
-  }
-  return validToken;
+// =============================================================================
+// ============================   SESSION.TS  ==================================
+// =============================================================================
+
+export function findSession(sessionId: number) : Session | undefined {
+  const data: DataStore = getData();
+  return data.sessions.find(session => session.sessionId === sessionId);
+}
+// =============================================================================
+// ============================   PLAYER.TS  ===================================
+// =============================================================================
+
+/**
+ * Given a playerId, find the Session they are in
+ */
+export function findQuizSession(playerId: number): Session | undefined {
+  const data: DataStore = getData();
+  return data.sessions.find(session => session.players.some(p => p.playerId === playerId));
+}
+
+/**
+ * Find at Question metadata
+ */
+export function findAtQuestionMetadata(session: Session, questionPosition: number): Questions | undefined {
+  return session.metadata.questions[questionPosition - 1];
 }

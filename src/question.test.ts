@@ -1,18 +1,7 @@
-// TODO this code and uncomment your test
-import request from 'sync-request-curl';
-import config from './config.json';
-const port = config.port;
-const url = config.url;
-describe('HTTP tests using Jest', () => {
-  test('Test successful echo', () => {
-    const res = request('GET', `${url}:${port}/echo`,
-      { qs: { echo: 'Hello' }, timeout: 100 });
-    const bodyObj = JSON.parse(res.body as string);
-    expect(bodyObj.value).toEqual('Hello');
-  });
+test('Remove this test and uncomment the tests below', () => {
+  expect(1 + 1).toStrictEqual(2);
 });
 
-/*
 import {
   adminAuthRegister, adminQuestionCreate, adminQuestionUpdate,
   adminQuizCreate, adminQuestionRemove,
@@ -384,7 +373,7 @@ describe('test question Update', () => {
           correct: false,
         }]
       }],
-      duration: 4
+      duration: 4,
     });
     expect(questionUpdate.bodyObj).toStrictEqual({ });
     expect(questionUpdate.statusCode).toStrictEqual(OK);
@@ -888,7 +877,7 @@ describe('test question remove', () => {
           correct: false,
         }]
       }],
-      duration: 15
+      duration: 15,
     });
     // if that succeeds, then removes the last remaining question and checking for empty question
     const obj = adminQuestionRemove(quiz.bodyObj.quizId, id2, token);
@@ -901,7 +890,7 @@ describe('test question remove', () => {
       description: 'first quiz',
       numQuestions: 0,
       questions: [],
-      duration: 0
+      duration: 0,
     });
     expect(info.statusCode).toStrictEqual(OK);
     expect(obj.bodyObj).toStrictEqual({});
@@ -1321,4 +1310,3 @@ describe('test question Duplicate', () => {
     expect(questionDuplicate.statusCode).toStrictEqual(OK);
   });
 });
-*/
