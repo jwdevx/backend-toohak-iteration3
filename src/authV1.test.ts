@@ -4,8 +4,8 @@ import {
   adminAuthLogin,
   adminAuthRegister,
   adminUserDetails,
-  adminAuthLogout
-  clear
+  adminAuthLogout,
+  clear,
 } from './apiRequestsIter3';
 import { UserCreateReturn } from './returnInterfaces';
 beforeEach(() => {
