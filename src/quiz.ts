@@ -6,7 +6,10 @@ import {
   invalidQuizName, invalidQuizNameLength, UsedQuizName,
   invalidDescriptionLength, findQuizId, matchQuizIdAndAuthor, EndState,
 } from './helper';
-
+import {
+    QuizCreateReturn,
+    // TODO
+  } from './returnInterfaces';
 /**
 * Given basic details about a new quiz, create one for the logged in user.
 *
@@ -15,7 +18,7 @@ import {
 * @param {string} description - the description of the quiz
 * @returns {{quizID: number}} An object containing the authenticated quiz ID.
 */
-export function adminQuizCreate(token: string, name: string, description: string): { quizId: number } {
+export function adminQuizCreate(token: string, name: string, description: string): QuizCreateReturn {
   // 1.Error 401
   const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));
