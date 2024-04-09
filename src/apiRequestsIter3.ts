@@ -17,8 +17,6 @@ import {
   EmptyObject,
   ErrorObject,
   SessionStatusReturn,
-  QuizCreateReturn,
-  QuestionCreateReturn,
   SessionCreateReturn,
 } from './returnInterfaces';
 
@@ -49,8 +47,6 @@ export interface RequestHelperReturnType {
   QuestionCreateReturn |
   // // TODO
   EmptyObject |
-  QuizCreateReturn |
-  QuestionCreateReturn |
   ErrorObject;
   error?: string;
 }
