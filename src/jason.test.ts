@@ -29,8 +29,8 @@ import {
   adminQuestionDuplicate,
 } from './apiRequests';
 import {
-    QuestionBody,
-  } from './dataStore';
+  QuestionBody,
+} from './dataStore';
 
 const ERROR_STRING = { error: expect.any(String) };
 // const ERROR_NUMBER = { error: expect.any(Number) };
@@ -394,7 +394,7 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
     FAILquestionCreate1 = adminQuestionCreate(user1SessionId3String, user1Quiz2IdNumber, questionBody2);
     expect(FAILquestionCreate1.statusCode).toStrictEqual(400);
     // --------------------------------------------------------------------------
-    const questionBody3: QuestionBody  = {
+    const questionBody3: QuestionBody = {
       question: 'Question 2 Who is the Monarch of England?',
       duration: 4,
       points: 5,
@@ -407,7 +407,7 @@ expect(quizState1.bodyObj.timeLastEdited).toBeGreaterThan(quizState1.bodyObj.tim
           answer: '2.2Prince Charles',
           correct: false
         }
-        ],
+      ],
     };
     const questionCreate2 = adminQuestionCreate(user1SessionId3String, user1Quiz2IdNumber, questionBody3);
     expect(questionCreate2.statusCode).toStrictEqual(200);
