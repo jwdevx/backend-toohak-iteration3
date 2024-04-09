@@ -1,6 +1,6 @@
 import HTTPError from 'http-errors';
 import { findSession, findSessionId, getNow, matchQuizIdAndAuthor, randomIdGenertor } from './helper';
-import { Action, DataStore, Quizzes, Session, getData, getTimeList, metaData, playerAnswers, questionResults, setData, setTimeList, state } from './dataStore';
+import { Action, DataStore, Quizzes, Session, Times, getData, getTimeList, metaData, playerAnswers, questionResults, setData, setTimeList, state } from './dataStore';
 interface sessionSummary {
   activeSessions: number[];
   inactiveSessions: number[];
@@ -151,55 +151,62 @@ export function adminQuizSessionStateUpdate(token: string, quizId: number, sessi
   if (isNaN(quizId) || !quiz) {
     throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
   }
-  const data : DataStore = getData()
-  const session = data.sessions.find(session => session.sessionId === sessionId)
+  const data : DataStore = getData();
+  const session = data.sessions.find(session => session.sessionId === sessionId);
   if (!session) {
-    throw HTTPError(400, 'The session doesnt exist.')
+    throw HTTPError(400, 'The session doesnt exist.');
   }
   if (session.quizId !== quizId) {
-    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz.')
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz.');
   }
   if (!(Object.keys(Action).includes(action))) {
     throw HTTPError(400, 'Action provided is not a valid Action enum');
   }
   switch (action) {
     case Action.SKIP_COUNTDOWN:
-      skipCountdown(session)
-      setData(data)
+      skipCountdown(session);
+      setData(data);
+      break;
     case Action.END:
-      endSession(session)
-      setData(data)
+      endSession(session);
+      setData(data);
+      break;
     case Action.GO_TO_ANSWER:
-      goAnswer(session)
-      setData(data)
+      goAnswer(session);
+      setData(data);
+      break;
     case Action.GO_TO_FINAL_RESULTS:
-      goFinal(session)
-      setData(data)
+      goFinal(session);
+      setData(data);
+      break;
     case Action.NEXT_QUESTION:
-      goNext(session)
-      setData(data)
+      goNext(session);
+      setData(data);
+      break;
   }
   return {};
 }
 
 function endSession(session: Session) {
-    switch (session.state) {
+  switch (session.state) {
     case state.END:
-      throw HTTPError(400, 'The action is not allowed in the current state')
+      throw HTTPError(400, 'The action is not allowed in the current state');
     case state.FINAL_RESULTS:
     case state.LOBBY:
     case state.ANSWER_SHOW:
     case state.QUESTION_CLOSE:
-      session.state = state.END
+      session.state = state.END;
+      break;
     case state.QUESTION_COUNTDOWN:
     case state.QUESTION_OPEN:
-      const times = getTimeList()
-      const timeIndex = times.time.findIndex(timeout => timeout.sessionId === session.sessionId)
+      const times: Times = getTimeList();
+      const timeIndex = times.time.findIndex(timeout => timeout.sessionId === session.sessionId);
       clearTimeout(times.time[timeIndex].timeOut);
       times.time.splice(timeIndex, 1);
-      setTimeList(times); 
-      session.atQuestion = 0
-      session.state = state.END
+      setTimeList(times);
+      session.atQuestion = 0;
+      session.state = state.END;
+      break;
   }
 }
 function skipCountdown(session: Session) {
@@ -210,46 +217,46 @@ function skipCountdown(session: Session) {
     case state.QUESTION_OPEN:
     case state.ANSWER_SHOW:
     case state.QUESTION_CLOSE:
-      throw HTTPError(400, 'The action is not allowed in the current state')
+      throw HTTPError(400, 'The action is not allowed in the current state');
     case state.QUESTION_COUNTDOWN:
-      const times = getTimeList()
-      const timeIndex = times.time.findIndex(timeout => timeout.sessionId === session.sessionId)
+      const times: Times = getTimeList();
+      const timeIndex = times.time.findIndex(timeout => timeout.sessionId === session.sessionId);
       clearTimeout(times.time[timeIndex].timeOut);
       times.time.splice(timeIndex, 1);
       // initialisation
       const createdTime = getNow();
       session.startTime = createdTime;
-      const questionId = session.metadata.questions[session.atQuestion - 1].questionId
+      const questionId = session.metadata.questions[session.atQuestion - 1].questionId;
       const defaultResult : questionResults = {
         questionId: questionId,
         playersCorrectList: [],
-        averageAnswerTime:0,
+        averageAnswerTime: 0,
         percentCorrect: 0,
-      }
+      };
       const defaultAnswer : playerAnswers = {
         correct: false,
         score: 0,
         answerIds: [],
         answerTime: 0,
-      }
-      session.questionResults.push(defaultResult)
+      };
+      session.questionResults.push(defaultResult);
       for (const player of session.players) {
-        player.answers.push(defaultAnswer)
+        player.answers.push(defaultAnswer);
       }
       session.state = state.QUESTION_OPEN;
       const answerDuration: ReturnType<typeof setTimeout> = setTimeout(() => {
-        const times = getTimeList();
+        const times: Times = getTimeList();
         session.state = state.QUESTION_CLOSE;
         const timeOutIndex = times.time.findIndex((timeOut) => timeOut.sessionId === session.sessionId);
         times.time.splice(timeOutIndex, 1);
         setTimeList(times);
-      }, session.metadata.questions[session.atQuestion - 1]. duration * 1000);
+      }, session.metadata.questions[session.atQuestion - 1].duration * 1000);
       times.time.push({
         sessionId: session.sessionId,
         timeOut: answerDuration,
       });
-      setTimeList(times); 
-      session.state = state.QUESTION_OPEN
+      setTimeList(times);
+      break;
   }
 }
 
@@ -260,15 +267,18 @@ function goAnswer(session: Session) {
     case state.LOBBY:
     case state.QUESTION_COUNTDOWN:
     case state.ANSWER_SHOW:
+      throw HTTPError(400, 'The action is not allowed in the current state');
     case state.QUESTION_OPEN:
-      const times = getTimeList()
-      const timeIndex = times.time.findIndex(timeout => timeout.sessionId === session.sessionId)
+      const times: Times = getTimeList();
+      const timeIndex = times.time.findIndex(timeout => timeout.sessionId === session.sessionId);
       clearTimeout(times.time[timeIndex].timeOut);
       times.time.splice(timeIndex, 1);
-      setTimeList(times); 
-      session.state = state.ANSWER_SHOW
+      setTimeList(times);
+      session.state = state.ANSWER_SHOW;
+      break;
     case state.QUESTION_CLOSE:
-      session.state = state.ANSWER_SHOW
+      session.state = state.ANSWER_SHOW;
+      break;
   }
 }
 
@@ -279,10 +289,11 @@ function goFinal(session: Session) {
     case state.LOBBY:
     case state.QUESTION_COUNTDOWN:
     case state.QUESTION_OPEN:
-      throw HTTPError(400, 'The action is not allowed in the current state')
+      throw HTTPError(400, 'The action is not allowed in the current state');
     case state.ANSWER_SHOW:
     case state.QUESTION_CLOSE:
-      session.state = state.FINAL_RESULTS
+      session.state = state.FINAL_RESULTS;
+      break;
   }
 }
 
@@ -292,54 +303,55 @@ function goNext(session: Session) {
     case state.FINAL_RESULTS:
     case state.QUESTION_OPEN:
     case state.QUESTION_COUNTDOWN:
-      throw HTTPError(400, 'The action is not allowed in the current state')
+      throw HTTPError(400, 'The action is not allowed in the current state');
     case state.LOBBY:
     case state.ANSWER_SHOW:
     case state.QUESTION_CLOSE:
-      session.atQuestion++
-      const times = getTimeList();
+      session.atQuestion++;
+      const times: Times = getTimeList();
+      session.state = state.QUESTION_COUNTDOWN;
       // count down time out
       const countDown: ReturnType<typeof setTimeout> = setTimeout(() => {
-        const times = getTimeList(); 
+        const times: Times = getTimeList();
         const createdTime = getNow();
         session.startTime = createdTime;
-        const questionId = session.metadata.questions[session.atQuestion - 1].questionId
+        const questionId = session.metadata.questions[session.atQuestion - 1].questionId;
         const defaultResult : questionResults = {
           questionId: questionId,
           playersCorrectList: [],
-          averageAnswerTime:0,
+          averageAnswerTime: 0,
           percentCorrect: 0,
-        }
+        };
         const defaultAnswer : playerAnswers = {
           correct: false,
           score: 0,
           answerIds: [],
           answerTime: 0,
-        }
-        session.questionResults.push(defaultResult)
+        };
+        session.questionResults.push(defaultResult);
         for (const player of session.players) {
-          player.answers.push(defaultAnswer)
+          player.answers.push(defaultAnswer);
         }
         session.state = state.QUESTION_OPEN;
         const answerDuration: ReturnType<typeof setTimeout> = setTimeout(() => {
-          const times = getTimeList();
+          const times: Times = getTimeList();
           session.state = state.QUESTION_CLOSE;
           const timeOutIndex = times.time.findIndex((timeOut) => timeOut.sessionId === session.sessionId);
           times.time.splice(timeOutIndex, 1);
           setTimeList(times);
-        }, session.metadata.questions[session.atQuestion - 1]. duration * 1000);
+        }, session.metadata.questions[session.atQuestion - 1].duration * 1000);
         times.time.push({
           sessionId: session.sessionId,
           timeOut: answerDuration,
         });
-        setTimeList(times); 
+        setTimeList(times);
       }, (3000));
       times.time.push({
         sessionId: session.sessionId,
         timeOut: countDown,
       });
       setTimeList(times);
-      session.state = state.QUESTION_COUNTDOWN;
+      break;
   }
 }
 
