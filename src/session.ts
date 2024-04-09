@@ -3,7 +3,6 @@ import { findSession, findSessionId, getNow, matchQuizIdAndAuthor, randomIdGener
 import { Action, DataStore, Quizzes, Session, Times, getData, getTimeList, metaData, playerAnswers, questionResults, setData, setTimeList, state } from './dataStore';
 import { SessionQuizViewReturn, SessionCreateReturn, SessionStatusReturn } from './returnInterfaces';
 
-
 export function adminQuizThumbnailUpdate(token: string, quizId: number, imgUrl:string): Record<string, never> {
   // TODO update typescript return types
 
