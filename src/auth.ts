@@ -1,27 +1,8 @@
 import HTTPError from 'http-errors';
 import { Users, Tokens, DataStore } from './dataStore';
 import { getData, setData } from './dataStore';
-import {
-  findSessionId, findUserId, invalidEmail, invalidUserName,
-  invalidNameLength, randomIdGenertor
-} from './helper';
-
-import {
-  EmptyObject,
-  UserCreateReturn,
-  // TODO
-} from './returnInterfaces';
-
-export interface UserDetails {
-  userId: number;
-  name: string;
-  email: string;
-  numSuccessfulLogins: number;
-  numFailedPasswordsSinceLastLogin: number;
-}
-export interface UserDetailsReturn {
-  user: UserDetails;
-}
+import { findSessionId, findUserId, invalidEmail, invalidUserName, invalidNameLength, randomIdGenertor } from './helper';
+import { EmptyObject, UserCreateReturn, UserDetailsReturn } from './returnInterfaces';
 import crypto from 'crypto';
 
 /**
