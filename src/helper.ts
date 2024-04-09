@@ -325,3 +325,10 @@ export function findQuizSession(playerId: number): Session | undefined {
 export function findAtQuestionMetadata(session: Session, questionPosition: number): Questions | undefined {
   return session.metadata.questions[questionPosition - 1];
 }
+
+export function delay(ms: number) {
+  const startTime = new Date().getTime();
+  while (new Date().getTime() - startTime < ms) {
+    // this is a useless sentence to let eslint shut up
+  }
+}
