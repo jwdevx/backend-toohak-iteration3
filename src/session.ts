@@ -1,24 +1,7 @@
 import HTTPError from 'http-errors';
 import { findSession, findSessionId, matchQuizIdAndAuthor, randomIdGenertor } from './helper';
 import { DataStore, Quizzes, Session, getData, metaData, state } from './dataStore';
-interface sessionSummary {
-  activeSessions: number[];
-  inactiveSessions: number[];
-}
-
-export function adminQuizThumbnailUpdate(token: string, quizId: number, imgUrl:string): Record<string, never> {
-  // TODO update typescript return types
-
-  // 1.Error 401
-
-  // 2.Error 403
-
-  // 3.Error 400
-
-  // 4.Success 200
-
-  return {};
-}
+import { SessionQuizViewReturn, SessionCreateReturn, SessionStatusReturn } from './returnInterfaces';
 
 /**
  * View active and inactive quiz sessions
@@ -30,7 +13,7 @@ export function adminQuizThumbnailUpdate(token: string, quizId: number, imgUrl:s
  * @returns {sessionSummary} - summary of the quiz view sessions
  *    An object containing active and inactive sessions or errorObject
  */
-export function adminQuizViewSessions(token: string, quizId: number): sessionSummary {
+export function adminQuizViewSessions(token: string, quizId: number): SessionQuizViewReturn {
   // 1.Error 401
   const userSessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim()) {
@@ -60,10 +43,7 @@ export function adminQuizViewSessions(token: string, quizId: number): sessionSum
 /**
  * Comments todo
  */
-export function adminQuizSessionStart(
-  token: string,
-  quizId: number,
-  autoStartNum: number): { sessionId: number } {
+export function adminQuizSessionStart(token: string, quizId: number, autoStartNum: number): SessionCreateReturn {
   // 1.Error 401
   const userSessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim()) {
@@ -76,13 +56,10 @@ export function adminQuizSessionStart(
 
   // 2.Error 403
   const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
-  if (isNaN(quizId) || !quiz) {
-    throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
-  }
+  if (isNaN(quizId) || !quiz) throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
+
   // 3.Error 400
-  if (autoStartNum > 50) {
-    throw HTTPError(400, 'Autostart cannot be higher than 50');
-  }
+  if (autoStartNum > 50) throw HTTPError(400, 'Autostart cannot be higher than 50');
   const data: DataStore = getData();
   let count = 0;
   for (const session of data.sessions) {
@@ -93,12 +70,9 @@ export function adminQuizSessionStart(
   if (count >= 10) {
     throw HTTPError(400, 'There are more than 10 session runing at the moment');
   }
-  if (quiz.numQuestions === 0) {
-    throw HTTPError(400, 'The quiz does not have any questions.');
-  }
-  if (quiz.intrash === true) {
-    throw HTTPError(400, 'The quiz is in trash.');
-  }
+  if (quiz.numQuestions === 0) throw HTTPError(400, 'The quiz does not have any questions.');
+  if (quiz.intrash === true) throw HTTPError(400, 'The quiz is in trash.');
+
   // 4.Success 200
   const quizSessionId = randomIdGenertor();
   const quizCopy : Quizzes = {
@@ -136,24 +110,13 @@ export function adminQuizSessionStart(
  * Comments todo
  */
 export function adminQuizSessionStateUpdate(token: string, quizId: number, sessionId: number, action: string): Record<string, never> {
-  // TODO update typescript return types
-  // 1.Error 401
-
-  // 2.Error 403
-
-  // 3.Error 400
-
-  // 4.Success 200
-
   return {};
 }
 
 /**
  * Comments todo
  */
-
-export function adminQuizSessionGetStatus(token: string, quizId: number, sessionId: number):
-{state: state, atQuestion: number, players: string[], metadata: metaData} {
+export function adminQuizSessionGetStatus(token: string, quizId: number, sessionId: number): SessionStatusReturn {
   // 1.Error 401
   const userSessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim() || isNaN(sessionId)) {
@@ -204,15 +167,6 @@ export function adminQuizSessionGetStatus(token: string, quizId: number, session
  * Comments todo
  */
 export function adminQuizSessionGetResults(token: string, quizId: number, sessionId: number): Record<string, never> {
-  // TODO, find a small dog and update typescript return types
-  // 1.Error 401
-
-  // 2.Error 403
-
-  // 3.Error 400
-
-  // 4.Success 200
-
   return {};
 }
 
@@ -220,14 +174,5 @@ export function adminQuizSessionGetResults(token: string, quizId: number, sessio
  * Comments todo
  */
 export function adminQuizSessionGetResultsCSV(token: string, quizId: number, sessionId: number): Record<string, never> {
-  // TODO update typescript return types
-  // 1.Error 401
-
-  // 2.Error 403
-
-  // 3.Error 400
-
-  // 4.Success 200
-
   return {};
 }
