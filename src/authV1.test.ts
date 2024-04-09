@@ -4,6 +4,7 @@ import {
   adminAuthLogin,
   adminAuthRegister,
   adminUserDetails,
+  adminAuthLogout
   clear
 } from './apiRequestsIter3';
 import { UserCreateReturn } from './returnInterfaces';
