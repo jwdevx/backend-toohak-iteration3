@@ -289,10 +289,7 @@ export function adminQuizTransfer(
 
 //! ---------------------   ITERATION 3 SPECIFIC  ------------------------------
 
-export function adminQuizThumbnailUpdate(
-  quizId: number,
-  token: string,
-  imgUrl: string): Record<string, never> {
+export function adminQuizThumbnailUpdate(token: string, quizId: number, imgUrl:string): Record<string, never> {
   /*
   // 1.Error 401
   const data: DataStore = getData();
