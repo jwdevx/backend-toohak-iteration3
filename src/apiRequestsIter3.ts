@@ -9,18 +9,26 @@ import { message } from './dataStore';
 import {
   UserCreateReturn,
   QuizCreateReturn,
-  // TODO
+  QuestionCreateReturn,
+  /* quizInfoV1Return,
+  quizInfoV2Return,
+  quizListReturn, */
   EmptyObject,
   ErrorObject,
+  SessionStatusReturn,
+  SessionCreateReturn,
 } from './returnInterfaces';
 
 
 // ========================================================================= //
-interface RequestHelperReturnType {
-  jsonBody?: UserCreateReturn |
-  QuizCreateReturn|
-  // TODO
-  EmptyObject|
+
+export interface RequestHelperReturnType {
+  bodyObj?: UserCreateReturn |
+  SessionCreateReturn |
+  SessionStatusReturn |
+  QuizCreateReturn |
+  QuestionCreateReturn |
+  EmptyObject |
   ErrorObject;
   error?: string;
 }
@@ -47,7 +55,9 @@ const requestHelper = (
   let responseBody: RequestHelperReturnType;
 
   try {
-    responseBody = { bodyObj: JSON.parse(res.body.toString()) };
+    responseBody = {
+      bodyObj: JSON.parse(res.body.toString())
+    };
   } catch (err) {
     if (res.statusCode === 200) {
       throw HTTPError(500,
@@ -58,6 +68,7 @@ const requestHelper = (
   }
 
   const errorMessage = `[${res.statusCode}] ` + responseBody?.error || responseBody || 'No message specified!'
+
   // NOTE: the error is rethrown in the test below. This is useful becasuse the
   // test suite will halt (stop) if there's an error, rather than carry on and
   // potentially failing on a different expect statement without useful outputs

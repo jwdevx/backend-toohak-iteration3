@@ -1,6 +1,7 @@
 import HTTPError from 'http-errors';
-import { checkToken, matchQuizIdAndAuthor, randomIdGenertor, findSessionId } from './helper';
-import { DataStore, Quizzes, Session, getData, state } from './dataStore';
+import { findSession, findSessionId, matchQuizIdAndAuthor, randomIdGenertor } from './helper';
+import { DataStore, Quizzes, Session, getData, metaData, state } from './dataStore';
+
 interface sessionSummary {
   activeSessions: number[];
   inactiveSessions: number[];
@@ -32,11 +33,11 @@ export function adminQuizThumbnailUpdate(token: string, quizId: number, imgUrl:s
  */
 export function adminQuizViewSessions(token: string, quizId: number): sessionSummary {
   // 1.Error 401
-  const sessionId = parseInt(decodeURIComponent(token));
-  if (!token || !String(token).trim() || isNaN(sessionId)) {
+  const userSessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
-  const validToken = findSessionId(sessionId);
+  const validToken = findSessionId(userSessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
@@ -65,23 +66,21 @@ export function adminQuizSessionStart(
   quizId: number,
   autoStartNum: number): { sessionId: number } {
   // 1.Error 401
-  const sessionId = parseInt(decodeURIComponent(token));
-  if (!token || !String(token).trim() || isNaN(sessionId)) {
+  const userSessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
-  const validToken = findSessionId(sessionId);
+  const validToken = findSessionId(userSessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
+
   // 2.Error 403
   const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
   if (isNaN(quizId) || !quiz) throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
 
   // 3.Error 400
-  //TODO autostartNum is number of people to autostart the quiz once that number of people join. If this number is 0, then no auto start will occur.
-  if (autoStartNum > 50) throw HTTPError(400, 'Autostart cannot be higher than 50');
-
-  //TODO A maximum of 10 sessions that are not in END state currently exist for this quiz    
+  if (autoStartNum > 50) throw HTTPError(400, 'Autostart cannot be higher than 50');   
   const data: DataStore = getData();
   let count = 0;
   for (const session of data.sessions) {
@@ -147,17 +146,52 @@ export function adminQuizSessionStateUpdate(token: string, quizId: number, sessi
 /**
  * Comments todo
  */
-export function adminQuizSessionGetStatus(token: string, quizId: number, sessionId: number): Record<string, never> {
-  // TODO update typescript return types
+export function adminQuizSessionGetStatus(token: string, quizId: number, sessionId: number):
+{state: state, atQuestion: number, players: string[], metadata: metaData} {
   // 1.Error 401
-
+  const userSessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    throw HTTPError(401, 'Token is empty or not provided');
+  }
+  const validToken = findSessionId(userSessionId);
+  if (!validToken) {
+    throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
+  }
   // 2.Error 403
+  const session = findSession(sessionId);
+  if (isNaN(quizId) || isNaN(sessionId) || !session) {
+    throw HTTPError(403, 'Session does not exist.');
+  }
+  if (session.owner !== validToken.userId) {
+    throw HTTPError(403, 'Valid token is provided, but user is not an owner of this quiz');
+  }
 
   // 3.Error 400
-
+  if (session.quizId !== quizId) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+  }
   // 4.Success 200
-
-  return {};
+  const metadata: metaData = {
+    quizId: session.metadata.quizId,
+    name: session.metadata.name,
+    timeCreated: session.metadata.timeCreated,
+    timeLastEdited: session.metadata.timeLastEdited,
+    description: session.metadata.description,
+    numQuestions: session.metadata.numQuestions,
+    questions: session.metadata.questions,
+    duration: session.metadata.duration,
+    thumbnailURL: session.metadata.thumbnailUrl
+  };
+  const players: string[] = [];
+  for (const player of session.players) {
+    players.push(player.playerName);
+  }
+  return {
+    state: session.state,
+    atQuestion: session.atQuestion,
+    players: players,
+    metadata: metadata
+  };
 }
 
 /**
