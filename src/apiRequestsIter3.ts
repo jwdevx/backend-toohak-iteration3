@@ -8,32 +8,17 @@ import { QuestionBody, QuestionBodyV2 } from './dataStore';
 import { message } from './dataStore';
 import {
   UserCreateReturn,
+  QuizCreateReturn,
   // TODO
   EmptyObject,
   ErrorObject,
 } from './returnInterfaces';
 
-// interface Payload {
-//   [key: string]: any;
-// }
 
-// interface ApiResponse<T> {
-//   success?: boolean;
-//   data?: T;
-//   error?: string;
-//   status?: number;
-// }
-
-// interface RequestHelperReturnType {
-//   statusCode?: number;
-//   jsonBody?: Record<string, any>;
-//   error?: string;
-//   status?: number;
-//   // data?: T;
-// }
 // ========================================================================= //
 interface RequestHelperReturnType {
   jsonBody?: UserCreateReturn |
+  QuizCreateReturn|
   // TODO
   EmptyObject|
   ErrorObject;
@@ -56,12 +41,13 @@ const requestHelper = (
     json = payload;
   }
 
+
   const url = SERVER_URL + path;
   const res = request(method, url, { qs, json, headers, timeout: TIMEOUT_MS });
   let responseBody: RequestHelperReturnType;
 
   try {
-    responseBody = JSON.parse(res.body.toString());
+    responseBody = { bodyObj: JSON.parse(res.body.toString()) };
   } catch (err) {
     if (res.statusCode === 200) {
       throw HTTPError(500,
@@ -71,8 +57,7 @@ const requestHelper = (
     responseBody = { error: `Failed to parse JSON: '${err.message}'` };
   }
 
-  const errorMessage = `[${res.statusCode}] ` + responseBody?.error || responseBody || 'No message specified!';
-
+  const errorMessage = `[${res.statusCode}] ` + responseBody?.error || responseBody || 'No message specified!'
   // NOTE: the error is rethrown in the test below. This is useful becasuse the
   // test suite will halt (stop) if there's an error, rather than carry on and
   // potentially failing on a different expect statement without useful outputs
