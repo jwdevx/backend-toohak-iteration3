@@ -11,6 +11,7 @@ import {
   adminQuizSessionGetStatus,
   adminQuizViewSessions,
   adminQuizSessionStart,
+  adminQuizCreateV2,
 //   adminQuizCreate,
 //   adminAuthRegister,
 //   adminQuestionCreate,
@@ -153,14 +154,14 @@ describe('create session', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
-    // TODO adminQuestionCreateV2
-    adminQuestionCreate(token1, Quiz1, body);
+    adminQuestionCreateV2(token1, Quiz1, body);
     expect(() => adminQuizSessionStart(token1, Quiz1, 51)).toThrow(HTTPError[400]);
   });
   test('quiz has no questions', () => {
@@ -172,14 +173,14 @@ describe('create session', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
-    // TODO adminQuestionCreateV2
-    adminQuestionCreate(token1, Quiz1, body);
+    adminQuestionCreateV2(token1, Quiz1, body);
     adminQuizRemove(token1, Quiz1);
     expect(() => adminQuizSessionStart(token1, Quiz1, 4)).toThrow(HTTPError[400]);
   });
@@ -187,14 +188,14 @@ describe('create session', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
-    // TODO adminQuestionCreateV2
-    adminQuestionCreate(token1, Quiz1, body);
+    adminQuestionCreateV2(token1, Quiz1, body);
     adminQuizSessionStart(token1, Quiz1, 4);
     adminQuizSessionStart(token1, Quiz1, 4);
     adminQuizSessionStart(token1, Quiz1, 4);
@@ -211,14 +212,14 @@ describe('create session', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
-    // TODO adminQuestionCreateV2
-    adminQuestionCreate(token1, Quiz1, body);
+    adminQuestionCreateV2(token1, Quiz1, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(session).toStrictEqual(expect.any(Number));
   });
@@ -240,14 +241,14 @@ describe('get status', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
-    // TODO adminQuestionCreateV2
-    adminQuestionCreate(token1, Quiz1, body);
+    adminQuestionCreateV2(token1, Quiz1, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(() => adminQuizSessionGetStatus('9999999', Quiz1, session)).toThrow(HTTPError[401]);
   });
@@ -255,14 +256,14 @@ describe('get status', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
-    // TODO adminQuestionCreateV2
-    adminQuestionCreate(token1, Quiz1, body);
+    adminQuestionCreateV2(token1, Quiz1, body);
     adminQuizSessionStart(token1, Quiz1, 4);
     expect(() => adminQuizSessionGetStatus(token1, Quiz1, 99999)).toThrow(HTTPError[403]);
   });
@@ -270,14 +271,14 @@ describe('get status', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
-    // TODO adminQuestionCreateV2
-    adminQuestionCreate(token1, Quiz1, body);
+    adminQuestionCreateV2(token1, Quiz1, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(() => adminQuizSessionGetStatus('', Quiz1, session)).toThrow(HTTPError[401]);
   });
@@ -286,13 +287,14 @@ describe('get status', () => {
     const token2 = (adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
-    // TODO adminQuestionCreateV2
+    adminQuestionCreateV2(token1, Quiz1, body);
     adminQuestionCreate(token1, Quiz1, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(() => adminQuizSessionGetStatus(token2, Quiz1, session)).toThrow(HTTPError[403]);
@@ -302,13 +304,14 @@ describe('get status', () => {
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const Quiz2 = (adminQuizCreate(token1, 'second tests', 'second autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
-    // TODO adminQuestionCreateV2
+    adminQuestionCreateV2(token1, Quiz1, body);
     adminQuestionCreate(token1, Quiz1, body);
     adminQuestionCreate(token1, Quiz2, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
@@ -318,13 +321,14 @@ describe('get status', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
-    // TODO adminQuestionCreateV2
+    adminQuestionCreateV2(token1, Quiz1, body);
     adminQuestionCreate(token1, Quiz1, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
     const status = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
@@ -348,11 +352,12 @@ describe('update status', () => {
   const answerObj1: answer = { answer: answer1, correct: true };
   const answerObj2: answer = { answer: answer2, correct: false };
   const answers = [answerObj1, answerObj2];
-  const body : QuestionBody = {
+  const body : QuestionBodyV2 = {
     question: 'this is a test',
     duration: 3,
     points: 5,
-    answers: answers
+    answers: answers,
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
   };
   let Quiz1: number;
   let token1: string;
@@ -360,7 +365,7 @@ describe('update status', () => {
   beforeEach(() => {
     clear();
     token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     // TODO adminQuestionCreateV2
     adminQuestionCreate(token1, Quiz1, body);
     sessionId = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
