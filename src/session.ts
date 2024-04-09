@@ -1,5 +1,5 @@
 import HTTPError from 'http-errors';
-import { checkToken, matchQuizIdAndAuthor, randomIdGenertor } from './helper';
+import { checkToken, matchQuizIdAndAuthor, randomIdGenertor, findSessionId } from './helper';
 import { DataStore, Quizzes, Session, getData, state } from './dataStore';
 interface sessionSummary {
   activeSessions: number[];
@@ -32,7 +32,14 @@ export function adminQuizThumbnailUpdate(token: string, quizId: number, imgUrl:s
  */
 export function adminQuizViewSessions(token: string, quizId: number): sessionSummary {
   // 1.Error 401
-  const validToken = checkToken(token);
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    throw HTTPError(401, 'Token is empty or not provided');
+  }
+  const validToken = findSessionId(sessionId);
+  if (!validToken) {
+    throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
+  }
   // 2.Error 403
   const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
   if (isNaN(quizId) || !quiz || quiz.intrash === true) {
@@ -58,17 +65,23 @@ export function adminQuizSessionStart(
   quizId: number,
   autoStartNum: number): { sessionId: number } {
   // 1.Error 401
-  const validToken = checkToken(token);
-
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    throw HTTPError(401, 'Token is empty or not provided');
+  }
+  const validToken = findSessionId(sessionId);
+  if (!validToken) {
+    throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
+  }
   // 2.Error 403
   const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
-  if (isNaN(quizId) || !quiz) {
-    throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
-  }
+  if (isNaN(quizId) || !quiz) throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
+
   // 3.Error 400
-  if (autoStartNum > 50) {
-    throw HTTPError(400, 'Autostart cannot be higher than 50');
-  }
+  //TODO autostartNum is number of people to autostart the quiz once that number of people join. If this number is 0, then no auto start will occur.
+  if (autoStartNum > 50) throw HTTPError(400, 'Autostart cannot be higher than 50');
+
+  //TODO A maximum of 10 sessions that are not in END state currently exist for this quiz    
   const data: DataStore = getData();
   let count = 0;
   for (const session of data.sessions) {
@@ -79,12 +92,9 @@ export function adminQuizSessionStart(
   if (count >= 10) {
     throw HTTPError(400, 'There are more than 10 session runing at the moment');
   }
-  if (quiz.numQuestions === 0) {
-    throw HTTPError(400, 'The quiz does not have any questions.');
-  }
-  if (quiz.intrash === true) {
-    throw HTTPError(400, 'The quiz is in trash.');
-  }
+  if (quiz.numQuestions === 0) throw HTTPError(400, 'The quiz does not have any questions.');
+  if (quiz.intrash === true) throw HTTPError(400, 'The quiz is in trash.');
+
   // 4.Success 200
   const quizSessionId = randomIdGenertor();
   const quizCopy : Quizzes = {
