@@ -158,6 +158,11 @@ describe('create session', () => {
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     expect(() => adminQuizSessionStart('99999999', Quiz1, 3)).toThrow(HTTPError[401]);
   });
+  test('token not provided', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    expect(() => adminQuizSessionStart('', Quiz1, 3)).toThrow(HTTPError[401]);
+  });
   test('quiz owner doesnt match', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const token2 = (adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
@@ -287,6 +292,21 @@ describe('get status', () => {
     adminQuizSessionStart(token1, Quiz1, 4);
     expect(() => adminQuizSessionGetStatus(token1, Quiz1, 99999)).toThrow(HTTPError[403]);
   });
+  test('token not provided', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBody = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers
+    };
+    // TODO adminQuestionCreateV2
+    adminQuestionCreate(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(() => adminQuizSessionGetStatus('', Quiz1, session)).toThrow(HTTPError[401]);
+  });
   test('the user doesnt match', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const token2 = (adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
@@ -334,12 +354,13 @@ describe('get status', () => {
     adminQuestionCreate(token1, Quiz1, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
     const status = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
-    expect(status).toEqual({
+    expect(status).toStrictEqual({
       state: expect.any(String),
       atQuestion: expect.any(Number),
       players: [],
       metadata: expect.any(Object)
     });
+    expect(status.players.every(player => typeof player === 'string')).toBe(true);
   });
 });
 
