@@ -1,27 +1,8 @@
 import HTTPError from 'http-errors';
 import { Users, Tokens, DataStore } from './dataStore';
 import { getData, setData } from './dataStore';
-import {
-  findSessionId, findUserId, invalidEmail, invalidUserName,
-  invalidNameLength, randomIdGenertor
-} from './helper';
-
-import {
-  EmptyObject,
-  UserCreateReturn,
-  // TODO
-} from './returnInterfaces';
-
-export interface UserDetails {
-  userId: number;
-  name: string;
-  email: string;
-  numSuccessfulLogins: number;
-  numFailedPasswordsSinceLastLogin: number;
-}
-export interface UserDetailsReturn {
-  user: UserDetails;
-}
+import { findSessionId, findUserId, invalidEmail, invalidUserName, invalidNameLength, randomIdGenertor } from './helper';
+import { EmptyObject, UserCreateReturn, UserDetailsReturn } from './returnInterfaces';
 import crypto from 'crypto';
 
 /**
@@ -172,11 +153,8 @@ export function adminUserDetailsUpdate(
   }
 
   // 2.Error 400
-  if (!email || !nameFirst || !nameLast) {
-    throw HTTPError(400, 'One or more missing parameters');
-  }
-  if (!email || !nameFirst || !nameLast) throw HTTPError(400, 'One or more missing parameters');
-  if (!String(email).trim() || !String(nameFirst).trim() || !String(nameLast).trim()) {
+  if (!email || !nameFirst || !nameLast ||
+    !String(email).trim() || !String(nameFirst).trim() || !String(nameLast).trim()) {
     throw HTTPError(400, 'One or more missing parameters');
   }
   const user = findUserId(validToken.userId);

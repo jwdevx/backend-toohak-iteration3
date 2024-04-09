@@ -82,7 +82,13 @@ export interface QuestionBodyV2 {
   answers: answer[];
   thumbnailUrl: string;
 }
-
+export interface QuestionV1 {
+  questionId: number
+  question: string;
+  duration: number;
+  points: number;
+  answers: Answer[];
+}
 // =============================================================================
 // ========================= INTERFACE FOR ENUM ================================
 // =============================================================================
@@ -134,6 +140,19 @@ export interface usersRankedByScore {
   name: string,
   score: number,
 }
+
+export interface metaData {
+  quizId: number;
+  name: string;
+  timeCreated: number;
+  timeLastEdited: number;
+  description: string;
+  numQuestions: number;
+  questions : Questions[];
+  duration: number;
+  thumbnailURL: string;
+}
+
 export interface questionResults {
   questionId: number,
   playersCorrectList: string[],

@@ -1,8 +1,3 @@
-test('Remove this test and uncomment the tests below', () => {
-  expect(1 + 1).toStrictEqual(2);
-});
-
-/*
 import {
   adminAuthRegister,
   adminUserDetails,
@@ -34,4 +29,3 @@ describe('Testing the clear function', () => {
     expect(userDetailsRes.bodyObj).toStrictEqual(ERROR);
   });
 });
-*/

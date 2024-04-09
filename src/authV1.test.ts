@@ -12,10 +12,6 @@ beforeEach(() => {
   clear();
 });
 
-// TODO VENUS authV1.test.ts
-// TODO VENUS authV2.test.ts   - duplicate authV1.test.ts and change functioname to V2
-// TODO VENUS otherV1.test.ts  - change to throw
-
 // =============================================================================
 // ========================== adminAuthRegister ================================
 // =============================================================================
@@ -131,7 +127,7 @@ describe('Test for adminUserDetails', () => {
   });
   test('200 Success case', () => {
     const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
-    const result = adminUserDetails(token1).bodyObj;
+    const result = adminUserDetails(token1).bodyObj as UserDetailsReturn;
     expect(result).toEqual({
       user: {
         userId: expect.any(Number),

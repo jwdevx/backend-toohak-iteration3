@@ -1,7 +1,3 @@
-test('Remove this test and uncomment the tests below', () => {
-  expect(1 + 1).toStrictEqual(2);
-});
-/*
 import {
   adminAuthRegister,
   adminAuthLogin,
@@ -254,7 +250,7 @@ describe('Test for adminUserDetailsUpdate', () => {
     expect(userDetailsRes.statusCode).toBe(200);
     expect(userDetailsRes.bodyObj).toStrictEqual({
       user: {
-        userId: 1,
+        userId: expect.any(Number),
         name: 'Angelina Jolie',
         email: 'smith.hayden@unsw.edu.au',
         numSuccessfulLogins: 1,
@@ -492,4 +488,3 @@ describe('Test for adminAuthLogout', () => {
     expect(userDetails.bodyObj).toStrictEqual(ERROR);
   });
 });
-*/

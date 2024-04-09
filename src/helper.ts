@@ -1,7 +1,8 @@
 import validator from 'validator';
 import { getData, answer } from './dataStore';
-import { Users, DataStore, Tokens, Quizzes, Session, Questions, state } from './dataStore';
-import HTTPError from 'http-errors';
+import { Users, DataStore, Tokens, Quizzes, Session, state } from './dataStore';
+// import { Questions, Answer, questionResults, player } from './dataStore';
+
 /**
  * Helper Function used in auth.js,
  * Checks if the provided Token is invalid (does not refer to valid logged in user session)
@@ -163,6 +164,9 @@ export function isValidUrl(imgUrl: string): boolean {
 export function EndState(quizId: number): boolean {
   const data: DataStore = getData();
   const session = data.sessions.find(session => session.quizId === quizId);
+  if (!session) {
+    return false;
+  }
   if (session.state !== state.END) {
     return false;
   }
@@ -301,33 +305,15 @@ export function getNow() : number {
 // ============================   SESSION.TS  ==================================
 // =============================================================================
 
-export function checkToken(token: string) : Tokens {
-  const sessionId = parseInt(decodeURIComponent(token));
-  if (!token || !String(token).trim() || isNaN(sessionId)) {
-    throw HTTPError(401, 'Token is empty or not provided');
-  }
-  const validToken = findSessionId(sessionId);
-  if (!validToken) {
-    throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
-  }
-  return validToken;
+/**
+ * Validate Token
+ */
+export function findSession(sessionId: number) : Session | undefined {
+  const data: DataStore = getData();
+  return data.sessions.find(session => session.sessionId === sessionId);
 }
-
 // =============================================================================
 // ============================   PLAYER.TS  ===================================
 // =============================================================================
 
-/**
- * Given a playerId, find the Session they are in
- */
-export function findQuizSession(playerId: number): Session | undefined {
-  const data: DataStore = getData();
-  return data.sessions.find(session => session.players.some(p => p.playerId === playerId));
-}
-
-/**
- * Find at Question metadata
- */
-export function findAtQuestionMetadata(session: Session, questionPosition: number): Questions | undefined {
-  return session.metadata.questions[questionPosition - 1];
-}
+// TODO
