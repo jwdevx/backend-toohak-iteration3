@@ -4,7 +4,7 @@ import {
   findSessionId, checkQuestionLength, findQuizId, matchQuizIdAndAuthor,
   checkQuestionDuration, checkQuestionPoints, checkAnswerLength,
   checkQuestionDurationSum, checkAnswerNum, checkAnswerDuplicate,
-  checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl
+  checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl, EndState
 } from './helper';
 import HTTPError from 'http-errors';
 import { QuestionCreateReturn } from './returnInterfaces';
@@ -322,7 +322,7 @@ export function adminQuestionUpdateV2(
   srcQuestion.question = questionBody.question;
   srcQuestion.points = questionBody.points;
   srcQuestion.duration = questionBody.duration;
-
+  srcQuestion.thumbnailUrl = questionBody.thumbnailUrl;
   // Update answers from questionBody
   const answers: Answer[] = [];
   for (const answer of questionBody.answers) {
@@ -375,6 +375,9 @@ export function adminQuestionRemove(
   const questionIndex = quiz.questions.findIndex(question => question.questionId === questionId);
   if (questionIndex === -1) {
     throw HTTPError(400, 'Question Id does not refer to a valid question within this quiz');
+  }
+  if (EndState(quizId)) {
+    throw HTTPError(400, 'Quiz is in END State');
   }
   // Success 200
   const duration = quiz.questions[questionIndex].duration;
