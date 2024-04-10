@@ -32,6 +32,12 @@ export interface quizInfoV1Return {
 }
 
 export interface quizListReturn {
+   quizId: number;
+   name: string;
+}
+
+
+export interface quizTrashViewReturn {
   quizId: number;
   name: string;
 }
