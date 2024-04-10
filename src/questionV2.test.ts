@@ -838,11 +838,11 @@ describe('test question Update', () => {
       answers: answers,
       thumbnailUrl: '.jpeg1531https://Iteration3',
     };
-    adminQuestionCreateV2(sessionId, quizId, body);
+    const questionId = (adminQuestionCreateV2(sessionId, quizId, body).bodyObj as QuestionCreateReturn).questionId;
     // inserts an invalid number as the token
-    expect(() => adminQuestionCreateV2(sessionId, quizId, body1)).toThrow(HTTPError[400]);
-    expect(() => adminQuestionCreateV2(sessionId, quizId, body2)).toThrow(HTTPError[400]);
-    expect(() => adminQuestionCreateV2(sessionId, quizId, body3)).toThrow(HTTPError[400]);
+    expect(() => adminQuestionUpdateV2(sessionId, quizId, questionId, body1)).toThrow(HTTPError[400]);
+    expect(() => adminQuestionUpdateV2(sessionId, quizId, questionId, body2)).toThrow(HTTPError[400]);
+    expect(() => adminQuestionUpdateV2(sessionId, quizId, questionId, body3)).toThrow(HTTPError[400]);
   });
 });
 // =============================================================================
