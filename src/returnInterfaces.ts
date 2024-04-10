@@ -12,6 +12,9 @@ export interface RequestHelperReturnType {
     SessionCreateReturn |
     SessionStatusReturn |
 
+    PlayerJoinReturn |
+
+    
     EmptyObject |
     ErrorObject;
     error?: string;
@@ -101,3 +104,7 @@ export interface SessionStatusReturn {
   metadata: metaData
 }
 // ============================= player.ts =====================================
+
+export interface PlayerJoinReturn {
+  playerId: number,
+}
