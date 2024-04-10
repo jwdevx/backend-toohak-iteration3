@@ -7,6 +7,7 @@ export interface RequestHelperReturnType {
 
     QuizCreateReturn |
     QuestionCreateReturn |
+    QuestionDuplicateReturn |
 
     SessionQuizViewReturn |
     SessionCreateReturn |
