@@ -1,7 +1,10 @@
 import validator from 'validator';
 import { getData, answer } from './dataStore';
 import { Users, DataStore, Tokens, Quizzes, Session, state } from './dataStore';
-// import { Questions, Answer, questionResults, player } from './dataStore';
+import {
+  Questions,
+  // Answer, questionResults, player
+} from './dataStore';
 
 /**
  * Helper Function used in auth.js,
@@ -312,15 +315,29 @@ export function findSession(sessionId: number) : Session | undefined {
   const data: DataStore = getData();
   return data.sessions.find(session => session.sessionId === sessionId);
 }
-// =============================================================================
-// ============================   PLAYER.TS  ===================================
-// =============================================================================
-
-// TODO
 
 export function delay(ms: number) {
   const startTime = new Date().getTime();
   while (new Date().getTime() - startTime < ms) {
     // this is a useless sentence to let eslint shut up
   }
+}
+
+// =============================================================================
+// ============================   PLAYER.TS  ===================================
+// =============================================================================
+
+/**
+ * Given a playerId, find the Session they are in
+ */
+export function findQuizSessionViaPlayerId(playerId: number): Session | undefined {
+  const data: DataStore = getData();
+  return data.sessions.find(session => session.players.some(p => p.playerId === playerId));
+}
+
+/**
+ * Find at Question metadata
+ */
+export function findAtQuestionMetadata(session: Session, questionPosition: number): Questions | undefined {
+  return session.metadata.questions[questionPosition - 1];
 }
