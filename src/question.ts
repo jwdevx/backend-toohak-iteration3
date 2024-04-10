@@ -7,7 +7,7 @@ import {
   checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl, EndState
 } from './helper';
 import HTTPError from 'http-errors';
-import { QuestionCreateReturn, QuestionDuplicateReturn} from './returnInterfaces';
+import { QuestionCreateReturn, QuestionDuplicateReturn } from './returnInterfaces';
 /**
  * creates a quiz question.
  * @param {string} token - a valid sessionId
@@ -410,8 +410,8 @@ export function adminQuestionRemoveV2(
   if (questionIndex === -1) {
     throw HTTPError(400, 'Question Id does not refer to a valid question within this quiz');
   }
-  if (EndState(quizId)) {
-    throw HTTPError(400, 'Quiz is in END State');
+  if (!EndState(quizId)) {
+    throw HTTPError(400, 'Quiz is not in END State');
   }
   // Success 200
   const duration = quiz.questions[questionIndex].duration;
