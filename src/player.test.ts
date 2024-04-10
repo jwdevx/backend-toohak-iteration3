@@ -1,5 +1,15 @@
-test('Remove this test and uncomment the tests below', () => {
-  expect(1 + 1).toStrictEqual(2);
+import HTTPError from 'http-errors';
+import {
+  UserCreateReturn, QuizCreateReturn, QuestionCreateReturn, SessionCreateReturn,
+  PlayerJoinReturn, SessionStatusReturn, EmptyObject, playerQuestionPositionInfoReturn
+} from './returnInterfaces';
+import {
+  clear, adminAuthRegister, adminQuizCreate, adminQuestionCreateV2, adminQuizSessionStart,
+  playerJoin, playerQuestionPositionInfo, adminQuizSessionStateUpdate, adminQuizSessionGetStatus
+} from './apiRequestsIter3';
+import { QuestionBodyV2 } from './dataStore';
+beforeEach(() => {
+  clear();
 });
 
 // =============================================================================
@@ -18,7 +28,181 @@ test('Remove this test and uncomment the tests below', () => {
 // ===============        playerQuestionPositionInfo          ==================
 // =============================================================================
 
-// TODO JASON proper test, awaiting Venus to finish her function before i can properly test
+describe('Complete Test for playerQuestionPositionInfo', () => {
+  const questionBody1: QuestionBodyV2 = {
+    question: 'Who is the Monarch of England?',
+    duration: 4,
+    points: 5,
+    answers: [
+      { answer: 'Prince Charles', correct: true },
+      { answer: 'Princess Diana', correct: false }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+  const questionBody2: QuestionBodyV2 = {
+    question: 'What colour is the earth?',
+    duration: 4,
+    points: 5,
+    answers: [
+      { answer: 'Blue', correct: true },
+      { answer: 'Blue and Green', correct: false },
+      { answer: 'Blue and White', correct: false },
+      { answer: 'Blue, white and green', correct: true }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+
+  beforeEach(() => {
+    clear();
+  });
+  // Error 400 if player ID does not exist
+  test('player ID does not existV1', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId2).toStrictEqual(expect.any(Number));
+    expect(() => playerQuestionPositionInfo(null, 1)).toThrow(HTTPError[400]);
+  });
+
+  test('player ID does not existV2', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId2).toStrictEqual(expect.any(Number));
+    expect(() => playerQuestionPositionInfo(playerId1 + 1, 1)).toThrow(HTTPError[400]);
+  });
+
+  // Error 400 if question position is not valid for the session this player is in
+  test('question position is not valid for the session this player is in', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId2).toStrictEqual(expect.any(Number));
+    expect(() => playerQuestionPositionInfo(playerId1, -1)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionPositionInfo(playerId1, 0)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionPositionInfo(playerId1, 5)).toThrow(HTTPError[400]);
+  });
+
+  // Error 400 if session is not currently on this question
+  test('session is not currently on this question', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId2).toStrictEqual(expect.any(Number));
+    expect(() => playerQuestionPositionInfo(playerId1, 2)).toThrow(HTTPError[400]);
+  });
+
+  // Error 400 if session is in LOBBY, QUESTION_COUNTDOWN, or END state
+  test('Session is in LOBBY, QUESTION_COUNTDOWN, or END state', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    // Lobby
+    expect(() => playerQuestionPositionInfo(playerId1, 1)).toThrow(HTTPError[400]);
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId2).toStrictEqual(expect.any(Number));
+
+    // Question_countdown
+    // TODO autonum question countdown is yet to be implemented <----------------------------------------------------
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    expect(() => playerQuestionPositionInfo(playerId1, 1)).toThrow(HTTPError[400]);
+
+    // End
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'END');
+    expect(() => playerQuestionPositionInfo(playerId1, 1)).toThrow(HTTPError[400]);
+  });
+
+  // 3.Success 200
+  test('Success 200', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId2).toStrictEqual(expect.any(Number));
+
+    // Question_countdown
+    // TODO autonum question countdown is yet to be implemented <----------------------------------------------------
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    adminQuizSessionGetStatus(token1, quizId1, quizSessionId1).bodyObj as SessionStatusReturn;
+    // const status = adminQuizSessionGetStatus(token1, quizId1, quizSessionId1).bodyObj as SessionStatusReturn;
+    // console.log(status);
+    const statusUpdate1 = adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN').bodyObj as EmptyObject;
+    expect(statusUpdate1).toStrictEqual({});
+    const qpInfo1 = playerQuestionPositionInfo(playerId1, 1).bodyObj as playerQuestionPositionInfoReturn;
+    expect(qpInfo1).toStrictEqual({
+      questionId: expect.any(Number),
+      question: expect.any(String),
+      duration: expect.any(Number),
+      thumbnailUrl: expect.any(String),
+      points: expect.any(Number),
+      answers: expect.any(Array),
+    });
+    // console.log(qpInfo1);
+  });
+});
 
 // =============================================================================
 // =================          playerReturnAllChat          =====================
