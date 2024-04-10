@@ -7,7 +7,7 @@ import {
   checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl, EndState
 } from './helper';
 import HTTPError from 'http-errors';
-import { QuestionCreateReturn } from './returnInterfaces';
+import { QuestionCreateReturn, QuestionDuplicateReturn} from './returnInterfaces';
 /**
  * creates a quiz question.
  * @param {string} token - a valid sessionId
@@ -475,7 +475,7 @@ export function adminQuestionMove(
 export function adminQuestionDuplicate(
   token: string,
   quizId: number,
-  questionId: number) : {questionId: number} {
+  questionId: number) : QuestionDuplicateReturn {
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
@@ -526,5 +526,5 @@ export function adminQuestionDuplicate(
   // Insert immeditately after source question
   const sourceIndex = quiz.questions.findIndex(q => q.questionId === questionId);
   quiz.questions.splice(sourceIndex + 1, 0, quesiton);
-  return { questionId: quesiton.questionId };
+  return { newQuestionId: quesiton.questionId };
 }

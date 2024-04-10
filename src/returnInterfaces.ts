@@ -83,6 +83,10 @@ export interface quizInfoV2Return {
 export interface QuestionCreateReturn {
   questionId: number,
 }
+
+export interface QuestionDuplicateReturn {
+  newQuestionId: number,
+}
 // ============================= session.ts ====================================
 
 export interface SessionQuizViewReturn {
