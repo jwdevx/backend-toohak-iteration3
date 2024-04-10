@@ -13,8 +13,8 @@ export interface RequestHelperReturnType {
     SessionStatusReturn |
 
     PlayerJoinReturn |
+    playerQuestionPositionInfoReturn|
 
-    
     EmptyObject |
     ErrorObject;
     error?: string;
@@ -107,4 +107,19 @@ export interface SessionStatusReturn {
 
 export interface PlayerJoinReturn {
   playerId: number,
+}
+
+export interface playerQuestionPositionInfoReturn {
+  questionId: number
+  question: string;
+  duration: number;
+  thumbnailUrl: string;
+  points: number;
+  answers: playerQuestionPositionInfoReturnAnswer[];
+}
+
+export interface playerQuestionPositionInfoReturnAnswer {
+  answerId: number;
+  answer: string;
+  colour: string;
 }
