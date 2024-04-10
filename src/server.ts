@@ -42,6 +42,7 @@ import {
   adminQuestionCreateV2, // New Function
   adminQuestionUpdateV2, // New Function
   adminQuestionRemove,
+  adminQuestionRemoveV2,
   adminQuestionMove,
   adminQuestionDuplicate,
 } from './question';
@@ -586,7 +587,7 @@ app.delete('/v2/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
   const token = req.header('token');
   const quizId = parseInt(req.params.quizid);
   const questionId = parseInt(req.params.questionid);
-  const response = adminQuestionRemove(quizId, questionId, token);
+  const response = adminQuestionRemoveV2(quizId, questionId, token);
   saveData();
   res.json(response);
 });
