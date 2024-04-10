@@ -1157,4 +1157,4 @@ describe('test question Duplicate', () => {
     });
     expect(questionDuplicate).toStrictEqual({ newQuestionId: expect.any(Number) });
   });
-})
+});
