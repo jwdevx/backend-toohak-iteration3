@@ -10,9 +10,11 @@ import {
   adminQuizSessionStateUpdate,
   adminQuizSessionStart,
   adminQuestionMoveV2,
+  adminQuestionDuplicateV2,
+  adminQuizRemoveV2,
   clear
 } from './apiRequestsIter3';
-import { UserCreateReturn, QuizCreateReturn, QuestionCreateReturn, quizInfoV2Return, SessionCreateReturn } from './returnInterfaces';
+import { UserCreateReturn, QuizCreateReturn, QuestionCreateReturn, QuestionDuplicateReturn, quizInfoV2Return, SessionCreateReturn } from './returnInterfaces';
 beforeEach(() => {
   clear();
 });
@@ -838,11 +840,11 @@ describe('test question Update', () => {
       answers: answers,
       thumbnailUrl: '.jpeg1531https://Iteration3',
     };
-    adminQuestionCreateV2(sessionId, quizId, body);
+    const questionId = (adminQuestionCreateV2(sessionId, quizId, body).bodyObj as QuestionCreateReturn).questionId;
     // inserts an invalid number as the token
-    expect(() => adminQuestionCreateV2(sessionId, quizId, body1)).toThrow(HTTPError[400]);
-    expect(() => adminQuestionCreateV2(sessionId, quizId, body2)).toThrow(HTTPError[400]);
-    expect(() => adminQuestionCreateV2(sessionId, quizId, body3)).toThrow(HTTPError[400]);
+    expect(() => adminQuestionUpdateV2(sessionId, quizId, questionId, body1)).toThrow(HTTPError[400]);
+    expect(() => adminQuestionUpdateV2(sessionId, quizId, questionId, body2)).toThrow(HTTPError[400]);
+    expect(() => adminQuestionUpdateV2(sessionId, quizId, questionId, body3)).toThrow(HTTPError[400]);
   });
 });
 // =============================================================================
@@ -882,6 +884,8 @@ describe('test question remove', () => {
     const id1 = questionid1.questionId;
     const id2 = questionid2.questionId;
     // removing one of the two questions and matching expected behavior
+    const quizSessionsId = (adminQuizSessionStart(token, quizID, 30).bodyObj as SessionCreateReturn).sessionId;
+    adminQuizSessionStateUpdate(token, quizID, quizSessionsId, 'END');
     adminQuestionRemoveV2(quizID, id1, token);
     expect(adminQuizInfoV2(token, quizID).bodyObj as quizInfoV2Return).toStrictEqual({
       quizId: quizID,
@@ -982,7 +986,7 @@ describe('test question remove', () => {
     expect(() => adminQuestionRemoveV2(quiz.quizId, id1, token2.token)).toThrow(HTTPError[403]);
     expect(() => adminQuestionRemoveV2(quiz.quizId + 100, id1, token1.token)).toThrow(HTTPError[403]);
   });
-  test('checking for END STATE', () => {
+  test('checking for not END STATE', () => {
     const tokenObj = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn;
     const token = tokenObj.token;
     const quizID = (adminQuizCreateV2(token, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
@@ -997,7 +1001,7 @@ describe('test question remove', () => {
     // creating two questions
     const questionid = (adminQuestionCreateV2(token, quizID, body1).bodyObj as QuestionCreateReturn).questionId;
     const quizSessionsId = (adminQuizSessionStart(token, quizID, 30).bodyObj as SessionCreateReturn).sessionId;
-    adminQuizSessionStateUpdate(token, quizID, quizSessionsId, 'END');
+    adminQuizSessionStateUpdate(token, quizID, quizSessionsId, 'NEXT_QUESTION');
     expect(() => adminQuestionRemoveV2(quizID, questionid, token)).toThrow(HTTPError[400]);
   });
 });
@@ -1163,7 +1167,7 @@ describe('test question move', () => {
 // =============================================================================
 // =========================  adminQuestionDuplicate  ==========================
 // =============================================================================
-/*
+
 describe('test question Duplicate', () => {
   beforeEach(() => {
     clear();
@@ -1174,106 +1178,101 @@ describe('test question Duplicate', () => {
   const answerObj2: answer = { answer: answer2, correct: false };
 
   test('invalid token', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const sessionId = decodeURIComponent(token1);
     const sessionId2 = (parseInt(decodeURIComponent(token1)));
     const wrongtoken = encodeURIComponent(JSON.stringify(sessionId2 + 1));
-    const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const quizId = (adminQuizCreateV2(sessionId, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'https://beautifulImage.png'
     };
-    const question = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body);
-    const duplicate = adminQuestionDuplicate(wrongtoken, quiz.bodyObj.quizId, question.bodyObj.questionId);
-    expect(duplicate.bodyObj).toStrictEqual(ERROR);
-    expect(duplicate.statusCode).toStrictEqual(UNAUTHORIZED);
+    const questionId = (adminQuestionCreateV2(sessionId, quizId, body).bodyObj as QuestionCreateReturn).questionId;
+    expect(() => adminQuestionDuplicateV2(wrongtoken, quizId, questionId)).toThrow(HTTPError[401]);
     // token is passed as a string instead of number
-    const question2 = adminQuestionDuplicate('happy', quiz.bodyObj.quizId, question.bodyObj.questionId);
-    expect(question2.bodyObj).toStrictEqual(ERROR);
-    expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
+    expect(() => adminQuestionDuplicateV2('happy', quizId, questionId)).toThrow(HTTPError[401]);
   });
-  test('quizid doesnt match', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const sessionId1 = decodeURIComponent(token1.bodyObj.token);
-    const token2 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'jason', 'wong');
-    const sessionId2 = decodeURIComponent(token2.bodyObj.token);
-    const quiz = adminQuizCreate(sessionId1, 'quiz1', 'first quiz');
+  test('quizid isnt valid', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn;
+    const sessionId1 = token1.token;
+    const quizId = (adminQuizCreateV2(sessionId1, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://helloWorld.jpeg'
     };
-    const questionid = adminQuestionCreate(sessionId2, quiz.bodyObj.quizId, body);
-    const duplicate = adminQuestionDuplicate(sessionId2, quiz.bodyObj.quizId + 1, questionid.bodyObj.questionId);
-    expect(duplicate.bodyObj).toStrictEqual(ERROR);
-    expect(duplicate.statusCode).toStrictEqual(FORBIDDEN);
+    const questionid = (adminQuestionCreateV2(sessionId1, quizId, body).bodyObj as QuestionCreateReturn).questionId;
+    expect(() => adminQuestionDuplicateV2(sessionId1, quizId + 1, questionid)).toThrow(HTTPError[403]);
+    const quizSessionsId = (adminQuizSessionStart(sessionId1, quizId, 30).bodyObj as SessionCreateReturn).sessionId;
+    adminQuizSessionStateUpdate(sessionId1, quizId, quizSessionsId, 'END');
+    adminQuizRemoveV2(sessionId1, quizId);
+    expect(() => adminQuestionDuplicateV2(sessionId1, quizId, questionid)).toThrow(HTTPError[403]);
   });
-
   test('quizid doest match', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const sessionId1 = decodeURIComponent(token1.bodyObj.token);
-    const token2 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'jason', 'wong');
-    const sessionId2 = decodeURIComponent(token2.bodyObj.token);
-    const quiz = adminQuizCreate(sessionId1, 'quiz1', 'first quiz');
-    const quiz1 = adminQuizCreate(sessionId2, 'quiz1', 'first quiz');
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn;
+    const sessionId1 = decodeURIComponent(token1.token);
+    const token2 = adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'jason', 'wong').bodyObj as UserCreateReturn;
+    const sessionId2 = decodeURIComponent(token2.token);
+    const quiz1 = adminQuizCreateV2(sessionId1, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn;
+    const quiz2 = adminQuizCreateV2(sessionId2, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://helloWorld.png'
     };
-    const questionid = adminQuestionCreate(sessionId2, quiz.bodyObj.quizId, body);
-    const duplicate = adminQuestionDuplicate(sessionId1, quiz1.bodyObj.quizId, questionid.bodyObj.questionId);
-    expect(duplicate.bodyObj).toStrictEqual(ERROR);
-    expect(duplicate.statusCode).toStrictEqual(FORBIDDEN);
+    const questionid = adminQuestionCreateV2(sessionId1, quiz1.quizId, body).bodyObj as QuestionCreateReturn;
+    expect(() => adminQuestionDuplicateV2(sessionId1, quiz2.quizId, questionid.questionId)).toThrow(HTTPError[403]);
   });
-
   test('Question Id does not refer to a valid question within this quiz', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj.token;
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const sessionId = decodeURIComponent(token1);
-    const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz').bodyObj.quizId;
+    const quiz = (adminQuizCreateV2(sessionId, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body1 : QuestionBody = {
+    const body1 : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://helloWorld.png'
     };
-    const questionid = adminQuestionCreate(sessionId, quiz, body1).bodyObj.questionId;
-    const questionDuplicate = adminQuestionDuplicate(sessionId, quiz, questionid + 1);
-    expect(questionDuplicate.bodyObj).toStrictEqual(ERROR);
-    expect(questionDuplicate.statusCode).toStrictEqual(400);
+    const questionid = (adminQuestionCreateV2(sessionId, quiz, body1).bodyObj as QuestionCreateReturn).questionId;
+    expect(() => adminQuestionDuplicateV2(sessionId, quiz, questionid + 1)).toThrow(HTTPError[400]);
   });
-
   test('success create', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const sessionId = decodeURIComponent(token1.bodyObj.token);
-    const quiz = adminQuizCreate(sessionId, 'quiz1', 'first quiz');
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn;
+    const sessionId = decodeURIComponent(token1.token);
+    const quiz = adminQuizCreateV2(sessionId, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn;
     const answers = [answerObj1, answerObj2];
-    const body : QuestionBody = {
+    const body : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://helloWorld.png'
     };
-    const body1 : QuestionBody = {
+    const body1 : QuestionBodyV2 = {
       question: 'this is a test 2',
       duration: 15,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'http://helloWorld.png'
     };
-    const questionid = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body).bodyObj.questionId;
-    const questionid2 = adminQuestionCreate(sessionId, quiz.bodyObj.quizId, body1).bodyObj.questionId;
-    const questionDuplicate = adminQuestionDuplicate(sessionId, quiz.bodyObj.quizId, questionid);
-    const info = adminQuizInfo(sessionId, quiz.bodyObj.quizId);
+    const questionid = (adminQuestionCreateV2(sessionId, quiz.quizId, body).bodyObj as QuestionCreateReturn).questionId;
+    const questionid2 = (adminQuestionCreateV2(sessionId, quiz.quizId, body1).bodyObj as QuestionCreateReturn).questionId;
+    const questionDuplicate = adminQuestionDuplicateV2(sessionId, quiz.quizId, questionid).bodyObj as QuestionDuplicateReturn;
+    const info = adminQuizInfoV2(sessionId, quiz.quizId);
     expect(info.bodyObj).toStrictEqual({
-      quizId: quiz.bodyObj.quizId,
+      quizId: quiz.quizId,
       name: 'quiz1',
       timeCreated: expect.any(Number),
       timeLastEdited: expect.any(Number),
@@ -1294,10 +1293,11 @@ describe('test question Duplicate', () => {
           answerId: expect.any(Number),
           colour: expect.any(String),
           correct: false,
-        }]
+        }],
+        thumbnailUrl: 'http://helloWorld.png'
       },
       {
-        questionId: questionDuplicate.bodyObj.questionId,
+        questionId: questionDuplicate.newQuestionId,
         question: body.question,
         duration: body.duration,
         points: body.points,
@@ -1311,7 +1311,8 @@ describe('test question Duplicate', () => {
           answerId: expect.any(Number),
           colour: expect.any(String),
           correct: false,
-        }]
+        }],
+        thumbnailUrl: 'http://helloWorld.png'
       },
       {
         questionId: questionid2,
@@ -1328,12 +1329,12 @@ describe('test question Duplicate', () => {
           answerId: expect.any(Number),
           colour: expect.any(String),
           correct: false,
-        }]
+        }],
+        thumbnailUrl: 'http://helloWorld.png'
       }],
-      duration: 35
+      duration: 35,
+      thumbnailUrl: ''
     });
-    expect(questionDuplicate.bodyObj).toStrictEqual({ questionId: expect.any(Number) });
-    expect(questionDuplicate.statusCode).toStrictEqual(OK);
+    expect(questionDuplicate).toStrictEqual({ newQuestionId: expect.any(Number) });
   });
 });
-*/

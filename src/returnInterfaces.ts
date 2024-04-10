@@ -7,6 +7,7 @@ export interface RequestHelperReturnType {
 
     QuizCreateReturn |
     QuestionCreateReturn |
+    QuestionDuplicateReturn |
 
     SessionQuizViewReturn |
     SessionCreateReturn |
@@ -85,6 +86,10 @@ export interface quizInfoV2Return {
 
 export interface QuestionCreateReturn {
   questionId: number,
+}
+
+export interface QuestionDuplicateReturn {
+  newQuestionId: number,
 }
 // ============================= session.ts ====================================
 
