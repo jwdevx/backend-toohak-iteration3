@@ -376,6 +376,40 @@ export function adminQuestionRemove(
   if (questionIndex === -1) {
     throw HTTPError(400, 'Question Id does not refer to a valid question within this quiz');
   }
+  // Success 200
+  const duration = quiz.questions[questionIndex].duration;
+  quiz.questions.splice(questionIndex, 1);
+  quiz.duration -= duration;
+  quiz.numQuestions -= 1;
+  return {};
+}
+export function adminQuestionRemoveV2(
+  quizId: number,
+  questionId: number,
+  token: string): Record<string, never> {
+  // 1.Error 401
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || isNaN(sessionId) || !String(token).trim()) {
+    throw HTTPError(401, 'Token is empty or not provided');
+  }
+  const validToken = findSessionId(sessionId);
+  if (!validToken) {
+    throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
+  }
+  // 2.Error 403
+  const authUserId = validToken.userId;
+  const quiz = findQuizId(quizId);
+  if (!quiz || isNaN(quizId) || quiz.intrash === true) {
+    throw HTTPError(403, 'Quiz ID does not refer to a valid quiz.');
+  }
+  if (!matchQuizIdAndAuthor(authUserId, quizId)) {
+    throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
+  }
+  // 3.Error 400
+  const questionIndex = quiz.questions.findIndex(question => question.questionId === questionId);
+  if (questionIndex === -1) {
+    throw HTTPError(400, 'Question Id does not refer to a valid question within this quiz');
+  }
   if (EndState(quizId)) {
     throw HTTPError(400, 'Quiz is in END State');
   }
@@ -386,7 +420,6 @@ export function adminQuestionRemove(
   quiz.numQuestions -= 1;
   return {};
 }
-
 /**
  * Moves a quiz question.
  * @param {number} quizId - the authenticated quiz ID
