@@ -7,9 +7,12 @@ import {
   adminQuestionUpdateV2,
   adminQuizInfoV2,
   adminQuestionRemoveV2,
+  adminQuizSessionStateUpdate,
+  adminQuizSessionStart,
+  adminQuestionMoveV2,
   clear
 } from './apiRequestsIter3';
-import { UserCreateReturn, QuizCreateReturn, QuestionCreateReturn, quizInfoV2Return } from './returnInterfaces';
+import { UserCreateReturn, QuizCreateReturn, QuestionCreateReturn, quizInfoV2Return, SessionCreateReturn } from './returnInterfaces';
 beforeEach(() => {
   clear();
 });
@@ -310,7 +313,7 @@ describe('test question create', () => {
     expect(() => adminQuestionCreateV2(sessionId, quizId, body3)).toThrow(HTTPError[400]);
   });
 });
-/// /////////////////////adminQuestionUpdate:///////////////
+/// //////////////////////adminQuestionUpdate:///////////////
 describe('test question Update', () => {
   beforeEach(() => {
     clear();
@@ -979,11 +982,29 @@ describe('test question remove', () => {
     expect(() => adminQuestionRemoveV2(quiz.quizId, id1, token2.token)).toThrow(HTTPError[403]);
     expect(() => adminQuestionRemoveV2(quiz.quizId + 100, id1, token1.token)).toThrow(HTTPError[403]);
   });
+  test('checking for END STATE', () => {
+    const tokenObj = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn;
+    const token = tokenObj.token;
+    const quizID = (adminQuizCreateV2(token, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body1 : QuestionBodyV2 = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers,
+      thumbnailUrl: 'http://1531Iteration3.png'
+    };
+    // creating two questions
+    const questionid = (adminQuestionCreateV2(token, quizID, body1).bodyObj as QuestionCreateReturn).questionId;
+    const quizSessionsId = (adminQuizSessionStart(token, quizID, 30).bodyObj as SessionCreateReturn).sessionId;
+    adminQuizSessionStateUpdate(token, quizID, quizSessionsId, 'END');
+    expect(() => adminQuestionRemoveV2(quizID, questionid, token)).toThrow(HTTPError[400]);
+  });
 });
 // =============================================================================
 // =========================    adminQuestionMove   ============================
 // =============================================================================
-/* describe('test question move', () => {
+describe('test question move', () => {
   beforeEach(() => {
     clear();
   });
@@ -991,165 +1012,154 @@ describe('test question remove', () => {
   const answer2 = 'this is answer2';
   const answerObj1: answer = { answer: answer1, correct: true };
   const answerObj2: answer = { answer: answer2, correct: false };
-   test('Testing correct functionality of adminQuestionMove', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const token = token1.bodyObj.token;
-    const quizId = adminQuizCreate(token, 'quiz1', 'first quiz').bodyObj.quizId;
+  test('Testing correct functionality of adminQuestionMove', () => {
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn;
+    const token = token1.token;
+    const quizId = (adminQuizCreateV2(token, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body1 : QuestionBody = {
+    const body1 : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'https://beautifulImage.png'
     };
-    const body2 : QuestionBody = {
+    const body2 : QuestionBodyV2 = {
       question: 'this is another test',
       duration: 15,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'https://beautifulImage.png'
     };
-    const body3 : QuestionBody = {
+    const body3 : QuestionBodyV2 = {
       question: 'this is yet another test',
       duration: 5,
       points: 10,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'https://beautifulImage.png'
     };
-    const body4 : QuestionBody = {
+    const body4 : QuestionBodyV2 = {
       question: 'as you can guess, this is yet another test',
       duration: 5,
       points: 10,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'https://beautifulImage.png'
     };
-    const questionid0 = adminQuestionCreate(token, quizId, body1).bodyObj.questionId;
-    const questionid1 = adminQuestionCreate(token, quizId, body2).bodyObj.questionId;
-    const questionid2 = adminQuestionCreate(token, quizId, body3).bodyObj.questionId;
-    const questionid3 = adminQuestionCreate(token, quizId, body4).bodyObj.questionId;
+    const questionid0 = (adminQuestionCreateV2(token, quizId, body1).bodyObj as QuestionCreateReturn).questionId;
+    const questionid1 = (adminQuestionCreateV2(token, quizId, body2).bodyObj as QuestionCreateReturn).questionId;
+    const questionid2 = (adminQuestionCreateV2(token, quizId, body3).bodyObj as QuestionCreateReturn).questionId;
+    const questionid3 = (adminQuestionCreateV2(token, quizId, body4).bodyObj as QuestionCreateReturn).questionId;
     // moving a question and verifying the resultant question indexes to the expected behavior
-    const res = adminQuestionMove(quizId, questionid2, token, 0);
-    expect(res.statusCode).toStrictEqual(OK);
-    let QuizInfo = adminQuizInfo(token, quizId);
-    expect(QuizInfo.statusCode).toStrictEqual(OK);
-    let questions = QuizInfo.bodyObj.questions;
+    const res = adminQuestionMoveV2(quizId, questionid2, token, 0);
+    expect(res.bodyObj).toStrictEqual({});
+    let QuizInfo = adminQuizInfoV2(token, quizId).bodyObj as quizInfoV2Return;
+    let questions = QuizInfo.questions;
     expect(questions[0].questionId).toStrictEqual(questionid2);
     expect(questions[1].questionId).toStrictEqual(questionid0);
     expect(questions[2].questionId).toStrictEqual(questionid1);
     expect(questions[3].questionId).toStrictEqual(questionid3);
     // performs another move and doing another verification
-    const status = adminQuestionMove(quizId, questionid3, token, 2);
-    QuizInfo = adminQuizInfo(token, quizId);
-    questions = QuizInfo.bodyObj.questions;
+    const status = adminQuestionMoveV2(quizId, questionid3, token, 2);
+    QuizInfo = adminQuizInfoV2(token, quizId).bodyObj as quizInfoV2Return;
+    questions = QuizInfo.questions;
     expect(questions[2].questionId).toStrictEqual(questionid3);
-    expect(status.statusCode).toStrictEqual(200);
     expect(status.bodyObj).toStrictEqual({});
   });
   test('Testing valid new position', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const token = token1.bodyObj.token;
-    const quizId = adminQuizCreate(token, 'quiz1', 'first quiz').bodyObj.quizId;
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn;
+    const token = token1.token;
+    const quizId = (adminQuizCreateV2(token, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body1 : QuestionBody = {
+    const body1 : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'https://beautifulImage.png'
     };
-    const body2 : QuestionBody = {
+    const body2 : QuestionBodyV2 = {
       question: 'this is another test',
       duration: 15,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'https://beautifulImage.png'
     };
-    const body3 : QuestionBody = {
+    const body3 : QuestionBodyV2 = {
       question: 'this is yet another test',
       duration: 5,
       points: 10,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'https://beautifulImage.png'
     };
-    const questionid0 = adminQuestionCreate(token, quizId, body1).bodyObj.questionId;
-    const questionid1 = adminQuestionCreate(token, quizId, body2).bodyObj.questionId;
-    const questionid2 = adminQuestionCreate(token, quizId, body3).bodyObj.questionId;
+    const questionid0 = (adminQuestionCreateV2(token, quizId, body1).bodyObj as QuestionCreateReturn).questionId;
+    const questionid1 = (adminQuestionCreateV2(token, quizId, body2).bodyObj as QuestionCreateReturn).questionId;
+    const questionid2 = (adminQuestionCreateV2(token, quizId, body3).bodyObj as QuestionCreateReturn).questionId;
     // attempting to move it to outside the index
-    let res = adminQuestionMove(quizId, questionid1, token, 4);
-    expect(res.bodyObj).toStrictEqual(ERROR);
-    expect(res.statusCode).toStrictEqual(400);
+    expect(() => adminQuestionMoveV2(quizId, questionid1, token, 4)).toThrow(HTTPError[400]);
     // attempting to move it to a negative index
-    res = adminQuestionMove(quizId, questionid0, token, -1);
-    expect(res.bodyObj).toStrictEqual(ERROR);
-    expect(res.statusCode).toStrictEqual(400);
-    // attempt to move it to its original position
-    res = adminQuestionMove(quizId, questionid2, token, 2);
-    expect(res.bodyObj).toStrictEqual(ERROR);
-    expect(res.statusCode).toStrictEqual(400);
+    expect(() => adminQuestionMoveV2(quizId, questionid0, token, -1)).toThrow(HTTPError[400]);
+    /// move it to its original position
+    expect(() => adminQuestionMoveV2(quizId, questionid2, token, 2)).toThrow(HTTPError[400]);
   });
   test('Question Id does not refer to a valid question within this quiz', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const token = token1.bodyObj.token;
-    const quiz = adminQuizCreate(token, 'quiz1', 'first quiz');
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn;
+    const token = token1.token;
+    const quizId = (adminQuizCreateV2(token, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body1 : QuestionBody = {
+    const body1 : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'https://beautifulImage.png'
     };
-    const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
-    const id1 = questionid1.bodyObj.questionId;
+    const id1 = (adminQuestionCreateV2(token, quizId, body1).bodyObj as QuestionCreateReturn).questionId;
     // inputs an invalid question id by adding 1 to the only valid question id
-    const obj = adminQuestionMove(quiz.bodyObj.quizId, id1 + 1, token, 0);
-    expect(obj.bodyObj).toStrictEqual(ERROR);
-    expect(obj.statusCode).toStrictEqual(400);
+    expect(() => adminQuestionMoveV2(quizId, id1 + 1, token, 0)).toThrow(HTTPError[400]);
   });
   test('Token is empty or invalid (does not refer to valid logged in user session)', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const token = token1.bodyObj.token;
-    const quiz = adminQuizCreate(token, 'quiz1', 'first quiz');
-
-    const sessionId = (parseInt(decodeURIComponent(token1.bodyObj.token)));
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn;
+    const token = token1.token;
+    const quizId = (adminQuizCreateV2(token, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
+    const sessionId = (parseInt(decodeURIComponent(token1.token)));
     const wrongtoken = encodeURIComponent(JSON.stringify(sessionId + 1));
 
     const answers = [answerObj1, answerObj2];
-    const body1 : QuestionBody = {
+    const body1 : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'https://beautifulImage.png'
     };
-    const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
-    const id1 = questionid1.bodyObj.questionId;
+    const id1 = (adminQuestionCreateV2(token, quizId, body1) as QuestionCreateReturn).questionId;
     // passes in a wrong token by adding 1 to the only valid session id
-    const obj = adminQuestionMove(quiz.bodyObj.quizId, id1, wrongtoken, 0);
-    expect(obj.bodyObj).toStrictEqual(ERROR);
-    expect(obj.statusCode).toStrictEqual(401);
+    expect(() => adminQuestionMoveV2(quizId, id1, wrongtoken, 0)).toThrow(HTTPError[401]);
     // token is passed as a string instead of number
-    const question2 = adminQuestionMove(quiz.bodyObj.quizId, id1, 'happy', 0);
-    expect(question2.bodyObj).toStrictEqual(ERROR);
-    expect(question2.statusCode).toStrictEqual(UNAUTHORIZED);
+    expect(() => adminQuestionMoveV2(quizId, id1, 'happy', 0)).toThrow(HTTPError[401]);
   });
   test('Valid token is provided, but either the quiz ID is invalid, or the user does not own the quiz', () => {
-    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir');
-    const token2 = adminAuthRegister('jason@gmail.com', 'WOjiaoZC123', 'jason', 'cheng');
-    const token = token1.bodyObj.token;
-    const quiz = adminQuizCreate(token, 'quiz1', 'first quiz');
+    const token1 = adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn;
+    const token2 = adminAuthRegister('jason@gmail.com', 'WOjiaoZC123', 'jason', 'cheng').bodyObj as UserCreateReturn;
+    const token = token1.token;
+    const quizId = (adminQuizCreateV2(token, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
-    const body1 : QuestionBody = {
+    const body1 : QuestionBodyV2 = {
       question: 'this is a test',
       duration: 10,
       points: 5,
-      answers: answers
+      answers: answers,
+      thumbnailUrl: 'https://beautifulImage.png'
     };
-    const questionid1 = adminQuestionCreate(token, quiz.bodyObj.quizId, body1);
-    const id1 = questionid1.bodyObj.questionId;
+    const questionid1 = adminQuestionCreateV2(token, quizId, body1).bodyObj as QuestionCreateReturn;
+    const id1 = questionid1.questionId;
     // inputting a valid quizId but not one corresponding to the given user's quizzes
-    const obj = adminQuestionMove(quiz.bodyObj.quizId, id1, token2.bodyObj.token, 0);
-    expect(obj.bodyObj).toStrictEqual(ERROR);
-    expect(obj.statusCode).toStrictEqual(403);
+    expect(() => adminQuestionMoveV2(quizId, id1, token2.token, 0)).toThrow(HTTPError[403]);
     // inputting an invalid quizId by making it negative
-    const obj1 = adminQuestionMove(quiz.bodyObj.quizId * (-1), id1, token1.bodyObj.token, 0);
-    expect(obj1.bodyObj).toStrictEqual(ERROR);
-    expect(obj1.statusCode).toStrictEqual(403);
+    expect(() => adminQuestionMoveV2(quizId * (-1), id1, token1.token, 0)).toThrow(HTTPError[403]);
   });
 });
-*/
+
 // =============================================================================
 // =========================  adminQuestionDuplicate  ==========================
 // =============================================================================
