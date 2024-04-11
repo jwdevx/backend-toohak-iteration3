@@ -4,7 +4,7 @@ import {
   findSessionId, checkQuestionLength, findQuizId, matchQuizIdAndAuthor,
   checkQuestionDuration, checkQuestionPoints, checkAnswerLength,
   checkQuestionDurationSum, checkAnswerNum, checkAnswerDuplicate,
-  checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl, EndState
+  checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl, isEndState
 } from './helper';
 import HTTPError from 'http-errors';
 import { QuestionCreateReturn, QuestionDuplicateReturn } from './returnInterfaces';
@@ -410,7 +410,7 @@ export function adminQuestionRemoveV2(
   if (questionIndex === -1) {
     throw HTTPError(400, 'Question Id does not refer to a valid question within this quiz');
   }
-  if (!EndState(quizId)) {
+  if (!isEndState(quizId)) {
     throw HTTPError(400, 'Quiz is not in END State');
   }
   // Success 200
