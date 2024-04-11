@@ -212,5 +212,3 @@ describe('adminUserPasswordUpdateV2', () => {
     expect(() => adminUserPasswordUpdateV2(token1, '1234abcd', '12345678')).toThrow(HTTPError[400]);
   });
 });
-
-// TODO
