@@ -3,10 +3,9 @@ import { UserCreateReturn, UserDetailsReturn } from './returnInterfaces';
 import {
   adminAuthRegister,
   adminUserDetailsV2,
-  adminUserDetails,
   adminAuthLogoutV2,
   adminUserDetailsUpdateV2,
-  adminUserPasswordUpdate,
+  adminUserPasswordUpdateV2,
   clear,
 } from './apiRequestsIter3';
 
@@ -70,7 +69,7 @@ describe('Test for adminUserDetailsUpdateV2', () => {
     const retVal = adminUserDetailsUpdateV2(token1, 'smith.hayden@unsw.edu.au', 'Angelina', 'Jolie');
     expect(retVal.bodyObj).toStrictEqual({});
 
-    const userDetailsRes = adminUserDetails(token1);
+    const userDetailsRes = adminUserDetailsV2(token1);
     expect(userDetailsRes.bodyObj).toStrictEqual({
       user: {
         userId: expect.any(Number),
@@ -153,4 +152,65 @@ describe('Test for adminUserDetailsUpdateV2', () => {
   });
 });
 
+// TODO
+// =============================================================================
+// ========================== adminUserPasswordUpdateV2 ==========================
+// =============================================================================
+describe('adminUserPasswordUpdateV2', () => {
+  beforeEach(() => {
+    clear();
+  });
+  // Success 200
+  test('Success Case', () => {
+    const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const retVal = adminUserPasswordUpdateV2(token1, 'iloveemail1234', 'Angelina1234');
+    expect(retVal.bodyObj).toStrictEqual({});
+  });
+  // Error 401
+  test('the token does not exist', () => {
+    const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    expect(() => adminUserPasswordUpdateV2('999999999', '1234abcd', 'WOjiaoZC1')).toThrow(HTTPError[401]);
+  });
+  test('the token is invalid', () => {
+    expect(() => adminUserPasswordUpdateV2('', '1234abcd', 'WOjiaoZC1')).toThrow(HTTPError[401]);
+  });
+  // Error 400
+  test.each([
+    ['hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith', '', 'WOjiaoZC1'],
+    ['hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith', '1234abcd', ''],
+  ])('Check missing parameter error', async (email, password, firstName, lastName, oldPassword, newPassword) => {
+    const token = (adminAuthRegister(email, password, firstName, lastName).bodyObj as UserCreateReturn).token;
+    expect(token).toStrictEqual(expect.any(String));
+    expect(() => adminUserPasswordUpdateV2(token, oldPassword, newPassword)).toThrow(HTTPError[400]);
+  });
+  test('the old password is wrong', () => {
+    const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(() => adminUserPasswordUpdateV2(token1, '1234aaaa', 'WOjiaoZC1')).toThrow(HTTPError[400]);
+  });
+  test('the new password is the same as the old one', () => {
+    const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(() => adminUserPasswordUpdateV2(token1, '1234abcd', '1234abcd')).toThrow(HTTPError[400]);
+  });
+  test('the new password is used before', () => {
+    const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    adminUserPasswordUpdateV2(token1, 'iloveemail1234', 'WOjiaoC123');
+    expect(() => adminUserPasswordUpdateV2(token1, 'WOjiaoC123', 'iloveemail1234')).toThrow(HTTPError[400]);
+  });
+  test('short password', () => {
+    const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(() => adminUserPasswordUpdateV2(token1, '1234abcd', '1234a')).toThrow(HTTPError[400]);
+  });
+  test('missing number password', () => {
+    const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(() => adminUserPasswordUpdateV2(token1, '1234abcd', 'abncdefgh')).toThrow(HTTPError[400]);
+  });
+  test('missing letter password', () => {
+    const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(() => adminUserPasswordUpdateV2(token1, '1234abcd', '12345678')).toThrow(HTTPError[400]);
+  });
+});
 
+// TODO
