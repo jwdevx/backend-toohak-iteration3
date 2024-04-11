@@ -160,16 +160,13 @@ export function isValidUrl(imgUrl: string): boolean {
   return true;
 }
 
-export function EndState(quizId: number): boolean {
+export function isEndState(quizId: number): boolean {
   const data: DataStore = getData();
-  const session = data.sessions.find(session => session.quizId === quizId);
-  if (!session) {
-    return false;
+  const session = data.sessions.find(session => session.quizId === quizId && session.state !== state.END);
+  if (session === undefined) {
+    return true;
   }
-  if (session.state !== state.END) {
-    return false;
-  }
-  return true;
+  return false;
 }
 
 // =============================================================================

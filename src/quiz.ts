@@ -4,7 +4,7 @@ import { setData, getData } from './dataStore';
 import {
   findSessionId, findUserId, getNow, randomIdGenertor,
   invalidQuizName, invalidQuizNameLength, UsedQuizName,
-  invalidDescriptionLength, findQuizId, matchQuizIdAndAuthor, EndState,
+  invalidDescriptionLength, findQuizId, matchQuizIdAndAuthor, isEndState,
 } from './helper';
 import { QuizCreateReturn, quizListReturn, quizInfoV1Return, quizInfoV2Return } from './returnInterfaces';
 
@@ -152,7 +152,7 @@ export function adminQuizInfoV2(token: string, quizId: number): quizInfoV2Return
     throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
   }
   // Success 200
-  const quizInfo = {
+  const quizInfo: quizInfoV2Return = {
     quizId: quiz.quizId,
     name: quiz.name,
     timeCreated: quiz.timeCreated,
@@ -364,7 +364,7 @@ export function adminQuizRemoveV2(token: string, quizId: number): Record<string,
     throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
   }
   // 3.Error 400
-  if (!EndState(quizId)) {
+  if (!isEndState(quizId)) {
     throw HTTPError(400, 'Any session for this quiz is not in END state.');
   }
   // Success 200
