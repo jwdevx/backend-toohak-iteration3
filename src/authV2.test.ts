@@ -1,11 +1,10 @@
 import HTTPError from 'http-errors';
-
+import { UserCreateReturn, UserDetailsReturn } from './returnInterfaces';
 import {
-  adminAuthLogin,
   adminAuthRegister,
-  adminUserDetails,
+  adminUserDetailsV2,
   adminAuthLogoutV2,
-  adminUserDetailsUpdate,
+  adminUserDetailsV2Update,
   adminUserPasswordUpdate,
   clear,
 } from './apiRequestsIter3';
@@ -29,4 +28,34 @@ describe('Test for adminAuthLogoutV2', () => {
     expect(logout.bodyObj).toStrictEqual({});
   });
 });
+// TODO
+// =============================================================================
+// ============================ adminUserDetailsV2 ===============================
+// =============================================================================
+describe('Test for adminUserDetailsV2', () => {
+  beforeEach(() => {
+    clear();
+  });
+  test('200 Success case', () => {
+    const token1 = (adminAuthRegister('hayden2@gmail.com', 'iloveemail1234', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const result = adminUserDetailsV2(token1).bodyObj as UserDetailsReturn;
+    expect(result).toEqual({
+      user: {
+        userId: expect.any(Number),
+        name: 'Hayden Smith',
+        email: 'hayden2@gmail.com',
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0
+      },
+    });
+  });
+  test(' 400 empty token', () => {
+    expect(() => adminUserDetailsV2('')).toThrow(HTTPError[401]);
+  });
+  test(' 400 invalid token', () => {
+    expect(() => adminUserDetailsV2('99999999')).toThrow(HTTPError[401]);
+  });
+});
+
+// TODO
 
