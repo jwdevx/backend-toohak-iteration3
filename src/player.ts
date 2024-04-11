@@ -1,10 +1,13 @@
 import HTTPError from 'http-errors';
-import { message, player, state } from './dataStore';
-import { PlayerJoinReturn, playerQuestionPositionInfoReturn } from './returnInterfaces';
-import { findQuizSessionViaPlayerId, findAtQuestionMetadata, randomIdGenertor, findSession } from './helper';
+import {
+  findQuizSessionViaPlayerId, findAtQuestionMetadata, randomIdGenertor,
+  findSession, hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer
+} from './helper';
+import { message, player, state, questionResults, Session, Questions } from './dataStore';
+import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject } from './returnInterfaces';
 
 /**
- * To DO.....! ? ? ? ?
+ * To DO.....!
  */
 export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
   const quizSession = findSession(sessionId);
@@ -17,12 +20,11 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
   quizSession.players.push(newPlayer);
   return { playerId: newPlayer.playerId };
 }
-
 export function playerStatus(playerId: number): Record<string, never> { return {}; }
 
 /**
  * Get the information about a question that the guest player is on. Question position starts at 1
- * @param {number} playerId - an encoded session ID of the user
+ * @param {number} playerId - the player we want to view the question he/she is in
  * @param {number} quizId - the authenticated quiz ID.
  * @returns {playerQuestionPositionInfoReturn} Questions containing the questions at the question position
  */
@@ -54,9 +56,121 @@ export function playerQuestionPositionInfo(playerId: number, questionPosition: n
   return questionPositionInfo;
 }
 
-export function playerQuestionAnswerSubmit(playerId: number, questionPosition: number, answerIds: number[]): Record<string, never> {
+/**
+ * Allow the current player to submit answer(s) to the currently active question.
+ * Question position starts at 1.
+ * Note: An answer can be re-submitted once first selection is made, as long as game is in the right state
+ *
+ * @param {number} playerId - an encoded session ID of the user
+ * @param {number} questionPosition - the requested position of question to submit answer
+ * @param {Array} answerIds - a number array of the answerId player chose
+ * @returns {} Null if it is successfull else it throws error
+ */
+export function playerQuestionAnswerSubmit(
+  playerId: number, questionPosition: number, answerIds: number[]): EmptyObject {
+  // Find Session
+  const session = findQuizSessionViaPlayerId(playerId);
+  if (!session) throw HTTPError(400, 'Error player ID does not exist!');
+
+  // Find Current Question to compare in metadata
+  const question = findAtQuestionMetadata(session, questionPosition);
+  if (!question) throw HTTPError(400, 'Error question position is not valid for this session!');
+
+  // An answer can be re-submitted once first selection is made, as long as game is in the right state
+  if (session.state !== state.QUESTION_OPEN) throw HTTPError(400, 'Error session is not in QUESTION_OPEN state!');
+  if (questionPosition > session.atQuestion) throw HTTPError(400, 'Error session is not yet up to this question!');
+
+  // Correct AnswerIds but for a different question
+  if (questionPosition < session.atQuestion) throw HTTPError(400, 'Error answering wrong question');
+
+  const invalidOrDuplicateAnswerId = hasInvalidOrDuplicateAnswerId(answerIds, question.answers);
+  if (invalidOrDuplicateAnswerId) throw HTTPError(400, 'Error one or more answer IDs are not valid or duplicated!');
+  if (answerIds.length < 1) throw HTTPError(400, 'Error less than 1 answer ID was submitted!');
+  return processAnswerSubmission(playerId, session, question, answerIds, questionPosition);
+}
+
+// ------------  Helper Function for playerQuestionAnswerSubmit  --------------//
+/**
+ * Helper Function once all error is pass, we can process success 200
+ *
+ * Please note playerQuestionAnswerSubmit - uses 5 extra additional helper functions
+ * that is located at helper.ts
+ */
+export function processAnswerSubmission(
+  playerId: number, session: Session, question: Questions,
+  answerIds: number[], questionPosition: number): Record<string, never> {
+  // Find player
+  const player = session.players.find(p => p.playerId === playerId);
+  const playerAnswer = player.answers[questionPosition - 1];
+
+  // Valid for first time and resubmit
+  if (session.startTime === 0) throw HTTPError(400, 'Cannot calculate player answer time!');
+  const answerTime = calculateAnswerTime(session);
+  const isCorrect = analyzeAnswer(question, answerIds);
+  const atQuestion = session.questionResults[questionPosition - 1];
+
+  // Success 200 case 1 - if no answer yet, player can answer first time
+  if (playerAnswer.answerIds.length === 0) {
+    playerAnswer.answerIds = answerIds;
+    playerAnswer.answerTime = answerTime;
+    if (isCorrect) {
+      playerAnswer.correct = true;
+      atQuestion.playersCorrectList.push(player.playerName);
+      playerAnswer.score = calculateScore(player, session, question, atQuestion);
+      player.totalScore += playerAnswer.score;
+    }
+  }
+  // Success 200 case 2 - if already answer first time player can resubmit Answer
+  if (playerAnswer.answerIds.length > 0) {
+    playerAnswer.answerIds = [];
+    playerAnswer.answerIds = answerIds;
+    playerAnswer.answerTime = answerTime;
+
+    if (isCorrect) {
+      updateAnswerQuestionResults(player, question, atQuestion, isCorrect);
+      playerAnswer.correct = true;
+      const temp = playerAnswer.score;
+      playerAnswer.score = calculateScore(player, session, question, atQuestion);
+      player.totalScore = player.totalScore - temp + playerAnswer.score;
+    } else {
+      updateAnswerQuestionResults(player, question, atQuestion, isCorrect);
+      playerAnswer.correct = false;
+      const temp = playerAnswer.score;
+      playerAnswer.score = 0;
+      player.totalScore -= temp;
+    }
+  }
   return {};
 }
+
+/**
+ * Calculate Score, P / (num of ppl with correct answer before)
+ */
+// TODO jest tESt before forum Players who answer the question at the exact same time results in undefined behaviour.
+function calculateScore(player: player, session: Session, question: Questions, atQuestion: questionResults): number {
+  const questionPoints = question.points;
+  const playerNameIndex = atQuestion.playersCorrectList.indexOf(player.playerName);
+  if (playerNameIndex === 0) {
+    return questionPoints;
+  } else if (playerNameIndex > 0) { // TODO <------- not tested
+    return Math.round(questionPoints / playerNameIndex); // TODO <------- not tested
+  } else { // TODO <------- not tested
+    return 0; // TODO <------- not tested
+  }
+}
+
+/**
+ * Update Question Results for the given player - if answer is correct
+ */
+function updateAnswerQuestionResults(
+  player: player, question: Questions, atQuestion: questionResults, isCorrect: boolean): void {
+  const playerNameIndex = atQuestion.playersCorrectList.indexOf(player.playerName);
+  atQuestion.playersCorrectList.splice(playerNameIndex, 1);
+  if (isCorrect) {
+    atQuestion.playersCorrectList.push(player.playerName);
+  }
+}
+// ----------------------------------------------------------------------------//
 
 export function playerQuestionResults(playerId: number, questionPosition: number): Record<string, never> {
   return {};
