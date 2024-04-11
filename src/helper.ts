@@ -1,10 +1,6 @@
 import validator from 'validator';
 import { getData, answer } from './dataStore';
-import { Users, DataStore, Tokens, Quizzes, Session, state } from './dataStore';
-import {
-  Questions,
-  // Answer, questionResults, player
-} from './dataStore';
+import { Users, DataStore, Tokens, Quizzes, Session, state, Answer, Questions } from './dataStore';
 
 /**
  * Helper Function used in auth.js,
@@ -340,4 +336,51 @@ export function findQuizSessionViaPlayerId(playerId: number): Session | undefine
  */
 export function findAtQuestionMetadata(session: Session, questionPosition: number): Questions | undefined {
   return session.metadata.questions[questionPosition - 1];
+}
+
+/**
+ * Helper function to check for invalid or duplicate answer IDs
+ */
+export function hasInvalidOrDuplicateAnswerId(answerIds: number[], metadataAnswersArray: Answer[]): boolean {
+  // Check for duplicate
+  const uniqueIds = new Set(answerIds);
+  if (uniqueIds.size !== answerIds.length) return true;
+
+  // Iterate through idSubmit to each answerId in question.answers,
+  // stop until found first element for which the provided testing function returns true
+  // return answerIds.some(id => !metadataAnswersArray.find(a => a.answerId === id));
+
+  for (const value of answerIds) {
+    const found = metadataAnswersArray.find(a => a.answerId === value);
+    if (found === undefined) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Calculate AnswerTime in seconds
+ */
+// TODO jest tESt before forum Players who answer the question at the exact same time results in undefined behaviour.
+// TODO will need to add a timestamp answertime, Queue
+export function calculateAnswerTime(session: Session): number {
+  return Math.floor(Date.now() / 1000) - session.startTime;
+}
+
+/**
+ * Analyze Player Answers
+ */
+export function analyzeAnswer(question: Questions, answerIds: number[]):boolean {
+  const validAnswers: number[] = question.answers
+    .filter(answer => answer.correct === true)
+    .map(answer => answer.answerId);
+  const sortedValidAnswers = [...validAnswers].sort((a, b) => a - b);
+  const sortedAnswerIds = [...answerIds].sort((a, b) => a - b);
+
+  if (sortedValidAnswers.length !== sortedAnswerIds.length) return false;
+  for (let i = 0; i < sortedValidAnswers.length; i++) {
+    if (sortedValidAnswers[i] !== sortedAnswerIds[i]) return false;
+  }
+  return true;
 }
