@@ -145,10 +145,10 @@ export const adminQuizCreateV2 = (token: string, name: string, description: stri
   return requestHelper('POST', '/v2/admin/quiz/', { name, description }, { token });
 };
 export const adminQuizListV2 = (token: string) => {
-  return requestHelper('GET', '/v2/admin/quiz/list', { token });
+  return requestHelper('GET', '/v2/admin/quiz/list', {}, { token });
 };
 export const adminQuizTrashViewV2 = (token: string) => {
-  return requestHelper('GET', '/v2/admin/quiz/trash', { token });
+  return requestHelper('GET', '/v2/admin/quiz/trash', {}, { token });
 };
 export const adminQuizTrashEmptyV2 = (token: string, quizIds: string) => {
   return requestHelper('DELETE', '/v2/admin/quiz/trash/empty', { quizIds }, { token });
