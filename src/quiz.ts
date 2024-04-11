@@ -151,7 +151,7 @@ export function adminQuizInfoV2(token: string, quizId: number): quizInfoV2Return
     throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
   }
   // Success 200
-  const quizInfo = {
+  const quizInfo: quizInfoV2Return = {
     quizId: quiz.quizId,
     name: quiz.name,
     timeCreated: quiz.timeCreated,

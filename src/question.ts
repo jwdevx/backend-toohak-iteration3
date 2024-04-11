@@ -4,10 +4,10 @@ import {
   findSessionId, checkQuestionLength, findQuizId, matchQuizIdAndAuthor,
   checkQuestionDuration, checkQuestionPoints, checkAnswerLength,
   checkQuestionDurationSum, checkAnswerNum, checkAnswerDuplicate,
-  checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl
+  checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl, isEndState
 } from './helper';
 import HTTPError from 'http-errors';
-import { QuestionCreateReturn } from './returnInterfaces';
+import { QuestionCreateReturn, QuestionDuplicateReturn } from './returnInterfaces';
 /**
  * creates a quiz question.
  * @param {string} token - a valid sessionId
@@ -322,7 +322,7 @@ export function adminQuestionUpdateV2(
   srcQuestion.question = questionBody.question;
   srcQuestion.points = questionBody.points;
   srcQuestion.duration = questionBody.duration;
-
+  srcQuestion.thumbnailUrl = questionBody.thumbnailUrl;
   // Update answers from questionBody
   const answers: Answer[] = [];
   for (const answer of questionBody.answers) {
@@ -383,7 +383,43 @@ export function adminQuestionRemove(
   quiz.numQuestions -= 1;
   return {};
 }
-
+export function adminQuestionRemoveV2(
+  quizId: number,
+  questionId: number,
+  token: string): Record<string, never> {
+  // 1.Error 401
+  const sessionId = parseInt(decodeURIComponent(token));
+  if (!token || isNaN(sessionId) || !String(token).trim()) {
+    throw HTTPError(401, 'Token is empty or not provided');
+  }
+  const validToken = findSessionId(sessionId);
+  if (!validToken) {
+    throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
+  }
+  // 2.Error 403
+  const authUserId = validToken.userId;
+  const quiz = findQuizId(quizId);
+  if (!quiz || isNaN(quizId) || quiz.intrash === true) {
+    throw HTTPError(403, 'Quiz ID does not refer to a valid quiz.');
+  }
+  if (!matchQuizIdAndAuthor(authUserId, quizId)) {
+    throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
+  }
+  // 3.Error 400
+  const questionIndex = quiz.questions.findIndex(question => question.questionId === questionId);
+  if (questionIndex === -1) {
+    throw HTTPError(400, 'Question Id does not refer to a valid question within this quiz');
+  }
+  if (!isEndState(quizId)) {
+    throw HTTPError(400, 'Quiz is not in END State');
+  }
+  // Success 200
+  const duration = quiz.questions[questionIndex].duration;
+  quiz.questions.splice(questionIndex, 1);
+  quiz.duration -= duration;
+  quiz.numQuestions -= 1;
+  return {};
+}
 /**
  * Moves a quiz question.
  * @param {number} quizId - the authenticated quiz ID
@@ -439,7 +475,7 @@ export function adminQuestionMove(
 export function adminQuestionDuplicate(
   token: string,
   quizId: number,
-  questionId: number) : {questionId: number} {
+  questionId: number) : QuestionDuplicateReturn {
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
@@ -490,5 +526,5 @@ export function adminQuestionDuplicate(
   // Insert immeditately after source question
   const sourceIndex = quiz.questions.findIndex(q => q.questionId === questionId);
   quiz.questions.splice(sourceIndex + 1, 0, quesiton);
-  return { questionId: quesiton.questionId };
+  return { newQuestionId: quesiton.questionId };
 }

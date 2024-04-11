@@ -13,10 +13,14 @@ export interface RequestHelperReturnType {
     quizInfoV2Return|
 
     QuestionCreateReturn |
+    QuestionDuplicateReturn |
 
     SessionQuizViewReturn |
     SessionCreateReturn |
     SessionStatusReturn |
+
+    PlayerJoinReturn |
+    playerQuestionPositionInfoReturn|
 
     EmptyObject |
     ErrorObject;
@@ -102,6 +106,10 @@ export interface quizInfoV2Return {
 export interface QuestionCreateReturn {
   questionId: number,
 }
+
+export interface QuestionDuplicateReturn {
+  newQuestionId: number,
+}
 // ============================= session.ts ====================================
 
 export interface SessionQuizViewReturn {
@@ -120,3 +128,22 @@ export interface SessionStatusReturn {
   metadata: metaData
 }
 // ============================= player.ts =====================================
+
+export interface PlayerJoinReturn {
+  playerId: number,
+}
+
+export interface playerQuestionPositionInfoReturn {
+  questionId: number
+  question: string;
+  duration: number;
+  thumbnailUrl: string;
+  points: number;
+  answers: playerQuestionPositionInfoReturnAnswer[];
+}
+
+export interface playerQuestionPositionInfoReturnAnswer {
+  answerId: number;
+  answer: string;
+  colour: string;
+}

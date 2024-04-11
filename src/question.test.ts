@@ -1,6 +1,3 @@
-test('Remove this test and uncomment the tests below', () => {
-  expect(1 + 1).toStrictEqual(2);
-});
 
 import {
   adminAuthRegister, adminQuestionCreate, adminQuestionUpdate,
@@ -1271,7 +1268,7 @@ describe('test question Duplicate', () => {
         }]
       },
       {
-        questionId: questionDuplicate.bodyObj.questionId,
+        questionId: questionDuplicate.bodyObj.newQuestionId,
         question: body.question,
         duration: body.duration,
         points: body.points,
@@ -1306,7 +1303,7 @@ describe('test question Duplicate', () => {
       }],
       duration: 35
     });
-    expect(questionDuplicate.bodyObj).toStrictEqual({ questionId: expect.any(Number) });
+    expect(questionDuplicate.bodyObj).toStrictEqual({ newQuestionId: expect.any(Number) });
     expect(questionDuplicate.statusCode).toStrictEqual(OK);
   });
 });
