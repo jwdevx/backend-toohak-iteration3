@@ -4,7 +4,7 @@ import {
   adminAuthRegister,
   adminUserDetailsV2,
   adminAuthLogoutV2,
-  adminUserDetailsV2Update,
+  adminUserDetailsUpdateV2,
   adminUserPasswordUpdate,
   clear,
 } from './apiRequestsIter3';
