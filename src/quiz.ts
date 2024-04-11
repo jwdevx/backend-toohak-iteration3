@@ -332,7 +332,6 @@ export function adminQuizTransferV2(
 
 //! ---------------------   ITERATION 3 SPECIFIC  ------------------------------
 
-
 export function adminQuizThumbnailUpdate(token: string, quizId: number, imgUrl:string): Record<string, never> {
   // 1.Error 401
   const data: DataStore = getData();

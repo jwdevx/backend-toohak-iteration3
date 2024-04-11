@@ -2,7 +2,6 @@ test('Remove this test and uncomment the tests below', () => {
   expect(1 + 1).toStrictEqual(2);
 });
 
-
 import {
   clear,
   adminAuthRegister,
@@ -875,5 +874,3 @@ describe('adminQuizTransfer Response Tests', () => {
     expect(adminQuizTransfer(quizId, token2, 'valid@unsw.com').bodyObj).toStrictEqual(ERROR);
   });
 });
-
-
