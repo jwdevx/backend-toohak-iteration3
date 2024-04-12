@@ -34,6 +34,7 @@ import {
   adminQuizDescriptionUpdate,
   adminQuizTrashRestore,
   adminQuizTransfer,
+  adminQuizTransferV2,
   adminQuizThumbnailUpdate,
 } from './quiz';
 import {
@@ -492,7 +493,7 @@ app.post('/v2/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
   const token = req.header('token');
   const quizId = parseInt(req.params.quizid);
   const { userEmail } = req.body;
-  const response = adminQuizTransfer(quizId, token, userEmail);
+  const response = adminQuizTransferV2(quizId, token, userEmail);
   saveData();
   res.json(response);
 });

@@ -6,6 +6,12 @@ export interface RequestHelperReturnType {
     UserDetailsReturn |
 
     QuizCreateReturn |
+    quizListReturn|
+    quizInfoV1Return |
+    Quiz |
+    quizTrashViewReturn|
+    quizInfoV2Return|
+
     QuestionCreateReturn |
     QuestionDuplicateReturn |
 
@@ -55,10 +61,10 @@ export interface QuizCreateReturn {
   quizId: number;
 }
 
-export interface quizListReturn {
+/* export interface quizListReturn {
   quizId: number;
   name: string;
-}
+} */
 
 export interface quizInfoV1Return {
   quizId: number,
@@ -68,6 +74,19 @@ export interface quizInfoV1Return {
   description: string,
   numQuestions: number,
   questions: QuestionV1[]
+}
+
+export interface quizListReturn {
+  quizzes: Quiz[];
+}
+export interface Quiz {
+  quizId: number;
+  name: string;
+ }
+
+export interface quizTrashViewReturn {
+  quizId: number;
+  name: string;
 }
 
 export interface quizInfoV2Return {
