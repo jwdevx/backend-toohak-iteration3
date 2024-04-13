@@ -147,3 +147,10 @@ export interface playerQuestionPositionInfoReturnAnswer {
   answer: string;
   colour: string;
 }
+
+export interface allChat{
+  messageBody: string,
+  playerId: number,
+  playerName: string,
+  timeSent: number,
+}

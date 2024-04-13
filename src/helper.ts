@@ -381,3 +381,16 @@ export function analyzeAnswer(question: Questions, answerIds: number[]):boolean 
   }
   return true;
 }
+
+/**
+ * Helper Function used in player.ts
+ * Check if name is less than 1 characters or more than 100 characters.
+ *
+ * @param {string} message - The name string to be validated for length.
+ * @returns {boolean} - Returns true if name is invalid (either too short or too long).
+ */
+export function invalidMessageLength(message: string): boolean {
+  return (message.length < 1 || message.length > 100);
+}
+
+

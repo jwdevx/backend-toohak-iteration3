@@ -1,10 +1,11 @@
 import HTTPError from 'http-errors';
 import {
   findQuizSessionViaPlayerId, findAtQuestionMetadata, randomIdGenertor,
-  findSession, hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer
+  findSession, hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer, invalidMessageLength, getNow
 } from './helper';
-import { message, player, state, questionResults, Session, Questions } from './dataStore';
-import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject } from './returnInterfaces';
+import { message, player, state, questionResults, Session, Questions, chat,DataStore } from './dataStore';
+import {  getData } from './dataStore';
+import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, allChat } from './returnInterfaces';
 
 /**
  * To DO.....!
@@ -177,13 +178,69 @@ export function playerQuestionResults(playerId: number, questionPosition: number
 }
 
 export function playerFinalResults(playerId: number): Record<string, never> {
+
   return {};
 }
 
-export function playerReturnAllChat(playerId: number): Record<string, never> {
-  return {};
+export function playerReturnAllChat(playerId: number): chat[] {
+  const session=findQuizSessionViaPlayerId(playerId);
+  if (!session) throw HTTPError(400, 'Error player ID does not exist!');
+  const player = session.players.find(p => p.playerId === playerId);
+  const messages = session.messages
+  .filter(message => message.playerId === playerId)
+
+  const data: DataStore = getData();
+  for (const session of data.sessions) {
+    // Filter messages for the player
+    const playerMessages = session.messages.filter(chat => chat.playerId === playerId);
+    //const chat=playerMessages;
+    if (playerMessages.length > 0) {
+      /*const newChat:Chat = { 
+        messageBody: playerMessages.messageBody,
+        playerId: playerMessages.playerId,
+        playerName: player.playerName,
+        timeSent: time,
+         };
+      quizarray.push(newChat);*/
+      return playerMessages;
+    }
+ }
+ // const messages : chat[] = [];
+  
+/*  const sessions: Session = getData();
+  for (const message of sessions.messages) {
+    if (message.playerId === player ) {
+      const newquiz:Quiz = { quizId: quiz.quizId, name: quiz.name };
+      quizarray.push(newquiz);
+    }
+  
+  }
+  return { quizzes: quizarray };
+  const newChat:chat = {
+    messageBody: chat.messageBody,
+    playerId: chat.playerId,
+    playerName: chat.playerName,
+    timeSent: Chat.timeSent,
+  }
+*/
+  
+  
 }
 
 export function playerSendChat(playerId: number, message: message): Record<string, never> {
+  //const data: DataStore = getData();
+  const session=findQuizSessionViaPlayerId(playerId);
+  if (!session) throw HTTPError(400, 'Error player ID does not exist!');
+  if(!invalidMessageLength(message.messageBody))throw HTTPError(400, 'If message body is less than 1 character or more than 100 characters');
+  const player = session.players.find(p => p.playerId === playerId);
+  const time =Math.floor(new Date().getTime() / 1000);
+  //const messages: chat[] = [];
+  const newChat:chat = {
+    messageBody: message.messageBody,
+    playerId: player.playerId,
+    playerName: player.playerName,
+    timeSent: time,
+  }
+  session.messages.push(newChat);
   return {};
 }
