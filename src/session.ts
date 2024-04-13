@@ -213,9 +213,9 @@ function skipCountdown(session: Session) {
       answerIds: [],
       answerTime: 0,
     };
-    session.questionResults.push({...defaultResult});
+    session.questionResults.push({ ...defaultResult });
     for (const player of session.players) {
-      player.answers.push({...defaultAnswer});
+      player.answers.push({ ...defaultAnswer });
     }
     session.state = state.QUESTION_OPEN;
     const answerDuration: ReturnType<typeof setTimeout> = setTimeout(() => {
@@ -305,9 +305,9 @@ function goNext(session: Session) {
         answerIds: [],
         answerTime: 0,
       };
-      session.questionResults.push({...defaultResult});
+      session.questionResults.push({ ...defaultResult });
       for (const player of session.players) {
-        player.answers.push({...defaultAnswer});
+        player.answers.push({ ...defaultAnswer });
       }
       session.state = state.QUESTION_OPEN;
       const answerDuration: ReturnType<typeof setTimeout> = setTimeout(() => {
