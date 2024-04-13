@@ -1,7 +1,6 @@
 import HTTPError from 'http-errors';
 import {
   adminAuthRegister,
-  adminQuestionCreate, // TODO do not use this cheng <--------------------------------
   adminQuestionCreateV2,
   adminQuizCreate,
   adminQuizRemove,
@@ -136,23 +135,23 @@ describe('create session', () => {
 
   test('Check invalid token', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     expect(() => adminQuizSessionStart('99999999', Quiz1, 3)).toThrow(HTTPError[401]);
   });
   test('token not provided', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     expect(() => adminQuizSessionStart('', Quiz1, 3)).toThrow(HTTPError[401]);
   });
   test('quiz owner doesnt match', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const token2 = (adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     expect(() => adminQuizSessionStart(token2, Quiz1, 3)).toThrow(HTTPError[403]);
   });
   test('autostartNum greater than 50', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
     const body : QuestionBodyV2 = {
       question: 'this is a test',
@@ -166,12 +165,12 @@ describe('create session', () => {
   });
   test('quiz has no questions', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     expect(() => adminQuizSessionStart(token1, Quiz1, 4)).toThrow(HTTPError[400]);
   });
   test('quiz is in trash', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
     const body : QuestionBodyV2 = {
       question: 'this is a test',
@@ -186,7 +185,7 @@ describe('create session', () => {
   });
   test('more than 10 opening sessions', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
     const body : QuestionBodyV2 = {
       question: 'this is a test',
@@ -210,7 +209,7 @@ describe('create session', () => {
   });
   test('successful start', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
     const body : QuestionBodyV2 = {
       question: 'this is a test',
@@ -239,7 +238,7 @@ describe('get status', () => {
   const answerObj2: answer = { answer: answer2, correct: false };
   test('invalid userid', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
     const body : QuestionBodyV2 = {
       question: 'this is a test',
@@ -254,7 +253,7 @@ describe('get status', () => {
   });
   test('invalid sessionid', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
     const body : QuestionBodyV2 = {
       question: 'this is a test',
@@ -269,7 +268,7 @@ describe('get status', () => {
   });
   test('token not provided', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
     const body : QuestionBodyV2 = {
       question: 'this is a test',
@@ -285,7 +284,7 @@ describe('get status', () => {
   test('the user doesnt match', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const token2 = (adminAuthRegister('tony@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
     const body : QuestionBodyV2 = {
       question: 'this is a test',
@@ -295,14 +294,14 @@ describe('get status', () => {
       thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
     adminQuestionCreateV2(token1, Quiz1, body);
-    adminQuestionCreate(token1, Quiz1, body);
+    adminQuestionCreateV2(token1, Quiz1, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(() => adminQuizSessionGetStatus(token2, Quiz1, session)).toThrow(HTTPError[403]);
   });
   test('quizid doesnt match', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
-    const Quiz2 = (adminQuizCreate(token1, 'second tests', 'second autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz2 = (adminQuizCreateV2(token1, 'second tests', 'second autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
     const body : QuestionBodyV2 = {
       question: 'this is a test',
@@ -312,14 +311,14 @@ describe('get status', () => {
       thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
     adminQuestionCreateV2(token1, Quiz1, body);
-    adminQuestionCreate(token1, Quiz1, body);
-    adminQuestionCreate(token1, Quiz2, body);
+    adminQuestionCreateV2(token1, Quiz1, body);
+    adminQuestionCreateV2(token1, Quiz2, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(() => adminQuizSessionGetStatus(token1, Quiz2, session)).toThrow(HTTPError[400]);
   });
   test('successful check', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
-    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
     const body : QuestionBodyV2 = {
       question: 'this is a test',
@@ -329,7 +328,7 @@ describe('get status', () => {
       thumbnailUrl: 'http://google.com/some/image/path.jpg'
     };
     adminQuestionCreateV2(token1, Quiz1, body);
-    adminQuestionCreate(token1, Quiz1, body);
+    adminQuestionCreateV2(token1, Quiz1, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
     const status = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
     expect(status).toStrictEqual({
@@ -367,7 +366,7 @@ describe('update status', () => {
     token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     // TODO adminQuestionCreateV2
-    adminQuestionCreate(token1, Quiz1, body);
+    adminQuestionCreateV2(token1, Quiz1, body);
     sessionId = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
   });
   test('invalid token', () => {
