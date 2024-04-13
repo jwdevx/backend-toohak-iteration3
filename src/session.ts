@@ -53,7 +53,6 @@ export function adminQuizSessionStart(token: string, quizId: number, autoStartNu
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
-
   // 2.Error 403
   const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
   if (isNaN(quizId) || !quiz) throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
@@ -109,7 +108,6 @@ export function adminQuizSessionStart(token: string, quizId: number, autoStartNu
 /**
  * Comments todo
  */
-
 export function adminQuizSessionStateUpdate(token: string, quizId: number, sessionId: number, action: string): Record<string, never> {
   // ERROR 401
   const userSessionId = parseInt(decodeURIComponent(token));
@@ -215,9 +213,9 @@ function skipCountdown(session: Session) {
       answerIds: [],
       answerTime: 0,
     };
-    session.questionResults.push(defaultResult);
+    session.questionResults.push({...defaultResult});
     for (const player of session.players) {
-      player.answers.push(defaultAnswer);
+      player.answers.push({...defaultAnswer});
     }
     session.state = state.QUESTION_OPEN;
     const answerDuration: ReturnType<typeof setTimeout> = setTimeout(() => {
@@ -307,9 +305,9 @@ function goNext(session: Session) {
         answerIds: [],
         answerTime: 0,
       };
-      session.questionResults.push(defaultResult);
+      session.questionResults.push({...defaultResult});
       for (const player of session.players) {
-        player.answers.push(defaultAnswer);
+        player.answers.push({...defaultAnswer});
       }
       session.state = state.QUESTION_OPEN;
       const answerDuration: ReturnType<typeof setTimeout> = setTimeout(() => {
