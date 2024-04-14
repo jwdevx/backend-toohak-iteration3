@@ -9,7 +9,7 @@ import {
   playerJoin, playerQuestionPositionInfo, adminQuizSessionStateUpdate, adminQuizSessionGetStatus,
   playerQuestionAnswerSubmit, adminQuizInfoV2, playerQuestionResults, playerFinalResults
 } from './apiRequestsIter3';
-import { answer, QuestionBodyV2, questionResults } from './dataStore';
+import { answer, QuestionBodyV2, questionResults, Action } from './dataStore';
 import { delay } from './helper';
 beforeEach(() => { clear(); });
 
@@ -42,7 +42,7 @@ describe('Test for playerJoin', () => {
     adminQuestionCreateV2(token1, Quiz1, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 1).bodyObj as SessionCreateReturn).sessionId;
     expect(session).toStrictEqual(expect.any(Number));
-    playerJoin(session, 'John doe');
+    adminQuizSessionStateUpdate(token1, Quiz1, session, Action.NEXT_QUESTION);
     expect(() => playerJoin(session, 'John doe')).toThrow(HTTPError[400]);
   });
   test('Name already in use', () => {
