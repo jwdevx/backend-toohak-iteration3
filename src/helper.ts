@@ -400,6 +400,7 @@ export function iterateQuestionResults(session: Session, questionPosition: numbe
   const atQuestion: questionResults = session.questionResults[questionPosition - 1];
   const players : player[] = session.players;
   const numCorrectPlayers: number = atQuestion.playersCorrectList.length;
+  atQuestion.playersCorrectList = atQuestion.playersCorrectList.sort((a, b) => a.localeCompare(b));
   const numPlayers : number = players.length;
   let totalAnswerTime = 0;
   for (const player of players) {

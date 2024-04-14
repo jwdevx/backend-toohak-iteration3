@@ -690,7 +690,7 @@ describe('Session final result', () => {
       usersRankedByScore: [{ name: 'julius', score: 6 }, { name: 'alexander', score: 3 }, { name: 'caesar', score: 2 }],
       questionResults: [{
         questionId: questionId1,
-        playersCorrectList: ['julius', 'alexander'],
+        playersCorrectList: ['alexander', 'julius'],
         averageAnswerTime: 3,
         percentCorrect: 67
       }, {
