@@ -1002,9 +1002,10 @@ describe('Complete Test for playerFinalResults', () => {
     const playerId3 = (playerJoin(quizSessionId1, 'alexander').bodyObj as PlayerJoinReturn).playerId;
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
-    // julius is submitting correct answers for question 1 and takes total 2 seconds
+    // julius is submits correct answers for question 1 twice and takes total 2 seconds
     // julius' score should for q1 should be 6 since he is first at getting it right. 6/1 = 6
     delay(2000);
+    playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
     playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
     // caesar is submitting wrong answers for question 1 and takes total 3 seconds
     // caesar's score for q1 is 0.
