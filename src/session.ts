@@ -1,7 +1,7 @@
 import HTTPError from 'http-errors';
-import { findSession, findSessionId, getNow, matchQuizIdAndAuthor, randomIdGenertor } from './helper';
+import { findSession, findSessionId, getNow, matchQuizIdAndAuthor, randomIdGenertor, iterateQuestionResults } from './helper';
 import { Action, DataStore, Quizzes, Session, Times, getData, getTimeList, metaData, playerAnswers, questionResults, setData, setTimeList, state } from './dataStore';
-import { SessionQuizViewReturn, SessionCreateReturn, SessionStatusReturn } from './returnInterfaces';
+import { SessionQuizViewReturn, SessionCreateReturn, SessionStatusReturn, finalResults, user } from './returnInterfaces';
 
 /**
  * View active and inactive quiz sessions
@@ -384,8 +384,42 @@ export function adminQuizSessionGetStatus(token: string, quizId: number, session
 /**
  * Comments todo
  */
-export function adminQuizSessionGetResults(token: string, quizId: number, sessionId: number): Record<string, never> {
-  return {};
+export function adminQuizSessionGetResults(token: string, quizId: number, sessionId: number): finalResults {
+  // 1.Error 401
+  const userSessionId = parseInt(decodeURIComponent(token));
+  if (!token || !String(token).trim() || isNaN(userSessionId)) {
+    throw HTTPError(401, 'Token is empty or not provided');
+  }
+  const validToken = findSessionId(userSessionId);
+  if (!validToken) {
+    throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
+  }
+  // 2.Error 403
+  const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
+  if (isNaN(quizId) || !quiz || quiz.intrash === true) {
+    throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
+  }
+  // 3.Error 400
+  const session = findSession(sessionId);
+  if (isNaN(sessionId) || !session || session.quizId !== quizId) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz.');
+  }
+  if (session.state !== state.FINAL_RESULTS) {
+    throw HTTPError(400, 'Session is not in FINAL_RESULTS state');
+  }
+  // status 200
+  const numQuestions: number = session.questionResults.length;
+  for (let questionPosition = 1; questionPosition <= numQuestions; questionPosition++) {
+    iterateQuestionResults(session, questionPosition);
+  }
+  const usersRankedByScore : user[] = [];
+  for (const player of session.players) {
+    usersRankedByScore.push({ ...{ name: player.playerName, score: player.totalScore } });
+  }
+  return {
+    usersRankedByScore: usersRankedByScore.sort((a, b) => b.score - a.score),
+    questionResults: session.questionResults
+  };
 }
 
 /**
