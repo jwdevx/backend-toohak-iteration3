@@ -737,7 +737,7 @@ app.get('/v1/player/:playerid/question/:questionposition/results', (req: Request
 });
 
 // Get the final results for a whole session a player is playing in
-app.get('/v1/player/:playerid/results ', (req: Request, res: Response) => {
+app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerid);
   const response = playerFinalResults(playerId);
   saveData();
