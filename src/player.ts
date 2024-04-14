@@ -119,9 +119,8 @@ export function processAnswerSubmission(
       playerAnswer.score = calculateScore(player, session, question, atQuestion);
       player.totalScore += playerAnswer.score;
     }
-  }
-  // Success 200 case 2 - if already answer first time player can resubmit Answer
-  if (playerAnswer.answerIds.length > 0) {
+  } else if (playerAnswer.answerIds.length > 0) {
+    // Success 200 case 2 - if already answer first time player can resubmit Answer
     playerAnswer.answerIds = [];
     playerAnswer.answerIds = answerIds;
     playerAnswer.answerTime = answerTime;
@@ -142,7 +141,6 @@ export function processAnswerSubmission(
   }
   return {};
 }
-
 /**
  * Calculate Score, P / (num of ppl with correct answer before)
  */
@@ -150,13 +148,7 @@ export function processAnswerSubmission(
 function calculateScore(player: player, session: Session, question: Questions, atQuestion: questionResults): number {
   const questionPoints = question.points;
   const playerNameIndex = atQuestion.playersCorrectList.indexOf(player.playerName);
-  if (playerNameIndex === 0) {
-    return questionPoints;
-  } else if (playerNameIndex > 0) { // TODO <------- not tested
-    return Math.round(questionPoints / playerNameIndex); // TODO <------- not tested
-  } else { // TODO <------- not tested
-    return 0; // TODO <------- not tested
-  }
+  return Math.round(questionPoints / (playerNameIndex + 1));
 }
 
 /**
@@ -171,9 +163,41 @@ function updateAnswerQuestionResults(
   }
 }
 // ----------------------------------------------------------------------------//
+// finds the number of players who could answer within the question duration
+function AnsweredOnTime(players: player[], questionPosition: number): number {
+  let answeredOnTime = 0;
+  for (const player of players) {
+    if (player.answers[questionPosition - 1].answerTime !== 0) {
+      answeredOnTime += 1;
+    }
+  }
+  return answeredOnTime;
+}
 
-export function playerQuestionResults(playerId: number, questionPosition: number): Record<string, never> {
-  return {};
+export function playerQuestionResults(playerId: number, questionPosition: number): questionResults {
+  const session = findQuizSessionViaPlayerId(playerId);
+  // Error 400:
+  if (!session) throw HTTPError(400, 'player ID does not exist!');
+  const question = findAtQuestionMetadata(session, questionPosition);
+  if (questionPosition <= 0 || !question) throw HTTPError(400, 'question position is not valid for this session!');
+  if (session.state !== state.ANSWER_SHOW) throw HTTPError(400, 'session is not in ANSWER_SHOW state!');
+  if (questionPosition > session.atQuestion) throw HTTPError(400, 'Error session is not yet up to this question!');
+  // Success 200
+  const atQuestion = session.questionResults[questionPosition - 1];
+  const players : player[] = session.players;
+  const numCorrectPlayers: number = atQuestion.playersCorrectList.length;
+  const numPlayers : number = players.length;
+  let totalAnswerTime = 0;
+  for (const player of players) {
+    totalAnswerTime += player.answers[questionPosition - 1].answerTime;
+  }
+  // PlayersAnsweredOnTime is the number of players who answered within the question duration
+  atQuestion.percentCorrect = Math.round(numCorrectPlayers / numPlayers * 100);
+  const PlayersAnsweredOnTime = AnsweredOnTime(players, questionPosition);
+  if (PlayersAnsweredOnTime) {
+    atQuestion.averageAnswerTime = Math.round(totalAnswerTime / PlayersAnsweredOnTime);
+  }
+  return atQuestion;
 }
 
 export function playerFinalResults(playerId: number): Record<string, never> {

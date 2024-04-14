@@ -6,9 +6,10 @@ import {
 import {
   clear, adminAuthRegister, adminQuizCreate, adminQuestionCreateV2, adminQuizSessionStart,
   playerJoin, playerQuestionPositionInfo, adminQuizSessionStateUpdate, adminQuizSessionGetStatus,
-  playerQuestionAnswerSubmit, adminQuizInfoV2,
+  playerQuestionAnswerSubmit, adminQuizInfoV2, playerQuestionResults
 } from './apiRequestsIter3';
-import { QuestionBodyV2 } from './dataStore';
+import { QuestionBodyV2, questionResults } from './dataStore';
+import { delay } from './helper';
 beforeEach(() => { clear(); });
 
 // =============================================================================
@@ -611,6 +612,300 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
 // =============================================================================
 
 // TODO SADAT
+describe('Complete Test for playerQuestionAnswerSubmit', () => {
+  const invalidAnswerIds = [-99999999];
+  const questionBody1: QuestionBodyV2 = {
+    question: 'Who is the Monarch of England?',
+    duration: 10,
+    points: 6,
+    answers: [
+      { answer: 'Prince Charles', correct: true },
+      { answer: 'Princess Diana', correct: false }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+  const questionBody2: QuestionBodyV2 = {
+    question: 'What colour is the earth?',
+    duration: 5,
+    points: 5,
+    answers: [
+      { answer: 'Blue', correct: true },
+      { answer: 'Blue and Green', correct: false },
+      { answer: 'Blue and White', correct: false },
+      { answer: 'Blue, white and green', correct: true }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+  const questionBody3: QuestionBodyV2 = {
+    question: 'What colour is the moon?',
+    duration: 1,
+    points: 5,
+    answers: [
+      { answer: 'white', correct: true },
+      { answer: 'Blue and Green', correct: false },
+      { answer: 'Blue and White', correct: false },
+      { answer: 'black and white', correct: true }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+  beforeEach(() => {
+    clear();
+  });
+  test('correct functionality', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    // Extracting answer Question 1
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    const answerObjectQuestion1 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[0].answers;
+    // making an array with all answers' id
+    const allAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      allAnswersQuestion1.push(a.answerId);
+    }
+    // making an array with all correct answers' id
+    const correctAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      if (a.correct === true) { correctAnswersQuestion1.push(a.answerId); }
+    }
+    // making an array with all wrong answers' id
+    const wrongAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      if (a.correct === false) { wrongAnswersQuestion1.push(a.answerId); }
+    }
+    // creating Question 2
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    // Extracting answer Question 2
+    const answerObjectQuestion2 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[1].answers;
+    const allAnswersQuestion2: Array<number> = []; for (const a of answerObjectQuestion2) { allAnswersQuestion2.push(a.answerId); }
+    const correctAnswersQuestion2: Array<number> = [];
+    for (const a of answerObjectQuestion2) {
+      if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
+    }
+    const wrongAnswersQuestion2: Array<number> = [];
+    for (const a of answerObjectQuestion2) {
+      if (a.correct === false) { wrongAnswersQuestion2.push(a.answerId); }
+    }
+    // creating Question 3
+    const questionId3 = (adminQuestionCreateV2(token1, quizId1, questionBody3).bodyObj as QuestionCreateReturn).questionId;
+    // Extracting answer Question 2
+    const answerObjectQuestion3 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[2].answers;
+    const allAnswersQuestion3: Array<number> = []; for (const a of answerObjectQuestion3) { allAnswersQuestion3.push(a.answerId); }
+    const correctAnswersQuestion3: Array<number> = [];
+    for (const a of answerObjectQuestion3) {
+      if (a.correct === true) { correctAnswersQuestion3.push(a.answerId); }
+    }
+    const wrongAnswersQuestion3: Array<number> = [];
+    for (const a of answerObjectQuestion3) {
+      if (a.correct === false) { wrongAnswersQuestion3.push(a.answerId); }
+    }
+    // starting session
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const playerId1 = (playerJoin(quizSessionId1, 'julius').bodyObj as PlayerJoinReturn).playerId;
+    const playerId2 = (playerJoin(quizSessionId1, 'caesar').bodyObj as PlayerJoinReturn).playerId;
+    const playerId3 = (playerJoin(quizSessionId1, 'alexander').bodyObj as PlayerJoinReturn).playerId;
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
+    // julius is submitting correct answers for question 1 and takes total 2 seconds
+    delay(2000);
+    playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
+    // caesar is submitting wrong answers for question 1 and takes total 3 seconds
+    delay(1000);
+    playerQuestionAnswerSubmit(playerId2, 1, wrongAnswersQuestion1);
+    // alexander is submitting correct answers for question 1 and takes total 4 seconds
+    delay(1000);
+    playerQuestionAnswerSubmit(playerId3, 1, correctAnswersQuestion1);
+    // now let's end the question and process answer
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
+    // expected average time = (2 + 3 + 4) / 3 = 3.
+    // expected percent correct = 2/3 * 100 which rounds to 67
+    expect(playerQuestionResults(playerId1, 1).bodyObj as questionResults).toStrictEqual({
+      questionId: questionId1,
+      playersCorrectList: ['julius', 'alexander'],
+      averageAnswerTime: 3,
+      percentCorrect: 67
+    });
+    expect(playerQuestionResults(playerId2, 1).bodyObj as questionResults).toStrictEqual({
+      questionId: questionId1,
+      playersCorrectList: ['julius', 'alexander'],
+      averageAnswerTime: 3,
+      percentCorrect: 67
+    });
+    // let's move to second question now
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
+    // julius is submitting wrong answers for question 2 and takes total 2 seconds
+    delay(2000);
+    playerQuestionAnswerSubmit(playerId1, 2, wrongAnswersQuestion2);
+    // caesar is submitting correct answers for question 2 and takes total 3 seconds
+    delay(1000);
+    playerQuestionAnswerSubmit(playerId2, 2, correctAnswersQuestion2);
+    // alexander is submitting correct answers for question 2 but takes total 6 secs which exceeds the duration of 5 secs.
+    // his answer should not be registered and should be marked as incorrect
+    delay(3000);
+    expect(() => playerQuestionAnswerSubmit(playerId3, 2, correctAnswersQuestion2)).toThrow(HTTPError[400]);
+    // we should have moved to QUESTION_CLOSE automatically by now
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
+    // expected average time = (2 + 3) / 2 = 2.5 which rounds to 3
+    // expected percent correct = (1 / 3 * 100) which rounds to 33
+    expect(playerQuestionResults(playerId1, 2).bodyObj as questionResults).toStrictEqual({
+      questionId: questionId2,
+      playersCorrectList: ['caesar'],
+      averageAnswerTime: 3,
+      percentCorrect: 33
+    });
+    // let's move to third question now
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
+    // julius, caesar and alexander couldnt submit within question duration of 1 sec
+    delay(1000);
+    expect(() => playerQuestionAnswerSubmit(playerId1, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionAnswerSubmit(playerId2, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionAnswerSubmit(playerId3, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
+    // goes to answer show with everyone getting 0
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
+    expect(playerQuestionResults(playerId1, 3).bodyObj as questionResults).toStrictEqual({
+      questionId: questionId3,
+      playersCorrectList: [],
+      averageAnswerTime: 0,
+      percentCorrect: 0
+    });
+  });
+  test('400 if player does not exist', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    adminQuestionCreateV2(token1, quizId1, questionBody1);
+    const answerObjectQuestion1 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[0].answers;
+    const allAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      allAnswersQuestion1.push(a.answerId);
+    }
+    const correctAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      if (a.correct === true) { correctAnswersQuestion1.push(a.answerId); }
+    }
+    // Extracting answer Question 2
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+    const answerObjectQuestion2 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[1].answers;
+    const allAnswersQuestion2: Array<number> = []; for (const a of answerObjectQuestion2) { allAnswersQuestion2.push(a.answerId); }
+    const correctAnswersQuestion2: Array<number> = [];
+    for (const a of answerObjectQuestion2) {
+      if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
+    }
+    // Start a quiz session
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
+    // players submit the answers
+    playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
+    playerQuestionAnswerSubmit(playerId2, 1, correctAnswersQuestion1);
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
+    expect(() => playerQuestionResults(null, 1)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionResults(playerId1 + 1, 1)).toThrow(HTTPError[400]);
+  });
+  test('400 if question position is not valid for the session this player is in', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+    const answerObjectQuestion1 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[0].answers;
+    const allAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      allAnswersQuestion1.push(a.answerId);
+    }
+    const correctAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      if (a.correct === true) { correctAnswersQuestion1.push(a.answerId); }
+    }
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
+
+    playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
+    playerQuestionAnswerSubmit(playerId2, 1, correctAnswersQuestion1);
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
+
+    expect(() => playerQuestionAnswerSubmit(playerId1, -1, invalidAnswerIds)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionAnswerSubmit(playerId1, 0, invalidAnswerIds)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionAnswerSubmit(playerId1, 10, invalidAnswerIds)).toThrow(HTTPError[400]);
+  });
+
+  test('400 if state of the session is not in ANSWER_SHOW', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+    const answerObjectQuestion1 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[0].answers;
+    const allAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      allAnswersQuestion1.push(a.answerId);
+    }
+    const correctAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      if (a.correct === true) { correctAnswersQuestion1.push(a.answerId); }
+    }
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
+
+    playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
+    playerQuestionAnswerSubmit(playerId2, 1, correctAnswersQuestion1);
+
+    expect(() => playerQuestionAnswerSubmit(playerId1, 1, invalidAnswerIds)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionAnswerSubmit(playerId1, 1, invalidAnswerIds)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionAnswerSubmit(playerId1, 1, invalidAnswerIds)).toThrow(HTTPError[400]);
+  });
+  test('400 if session is not yet up to this question', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    // Extracting answer Question 1
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const answerObjectQuestion1 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[0].answers;
+    const allAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      allAnswersQuestion1.push(a.answerId);
+    }
+    const correctAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      if (a.correct === true) { correctAnswersQuestion1.push(a.answerId); }
+    }
+    // Extracting answer Question 2
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+    const answerObjectQuestion2 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[1].answers;
+    const allAnswersQuestion2: Array<number> = []; for (const a of answerObjectQuestion2) { allAnswersQuestion2.push(a.answerId); }
+    const correctAnswersQuestion2: Array<number> = [];
+    for (const a of answerObjectQuestion2) {
+      if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
+    }
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId2).toStrictEqual(expect.any(Number));
+
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
+
+    expect(() => playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1)).not.toThrow(HTTPError[400]);
+    expect(() => playerQuestionAnswerSubmit(playerId2, 1, correctAnswersQuestion1)).not.toThrow(HTTPError[400]);
+
+    expect(() => playerQuestionResults(playerId1, 3)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionResults(playerId1, 2)).toThrow(HTTPError[400]);
+  });
+});
 
 // =============================================================================
 // ===============          playerFinalResults           =======================
