@@ -397,7 +397,7 @@ function AnsweredOnTime(players: player[], questionPosition: number): number {
 }
 
 export function iterateQuestionResults(session: Session, questionPosition: number) {
-  const atQuestion = session.questionResults[questionPosition - 1];
+  const atQuestion: questionResults = session.questionResults[questionPosition - 1];
   const players : player[] = session.players;
   const numCorrectPlayers: number = atQuestion.playersCorrectList.length;
   const numPlayers : number = players.length;

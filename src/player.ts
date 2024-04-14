@@ -5,7 +5,7 @@ import {
   iterateQuestionResults,
 } from './helper';
 import { message, player, state, questionResults, Session, Questions } from './dataStore';
-import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults} from './returnInterfaces';
+import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults } from './returnInterfaces';
 
 /**
  * To DO.....!
@@ -183,14 +183,14 @@ export function playerFinalResults(playerId: number): finalResults {
   // Error 400:
   if (!session) throw HTTPError(400, 'player ID does not exist!');
   if (session.state !== state.FINAL_RESULTS) throw HTTPError(400, 'session is not in FINAL_RESULTS state!');
-  //success 200:
+  // success 200:
   const numQuestions: number = session.questionResults.length;
   for (let questionPosition = 1; questionPosition <= numQuestions; questionPosition++) {
     iterateQuestionResults(session, questionPosition);
   }
-  let usersRankedByScore : user[] = [];
+  const usersRankedByScore : user[] = [];
   for (const player of session.players) {
-    usersRankedByScore.push({ ...{name: player.playerName, score: player.totalScore}});
+    usersRankedByScore.push({ ...{ name: player.playerName, score: player.totalScore } });
   }
   return {
     usersRankedByScore: usersRankedByScore.sort((a, b) => b.score - a.score),

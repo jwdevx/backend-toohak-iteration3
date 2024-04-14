@@ -860,7 +860,7 @@ describe('Complete Test for playerQuestionResults', () => {
     playerQuestionAnswerSubmit(playerId2, 1, correctAnswersQuestion1);
 
     expect(() => playerQuestionResults(playerId1, 1)).toThrow(HTTPError[400]);
-    expect(() => playerQuestionResults(playerId1, 1,)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionResults(playerId1, 1)).toThrow(HTTPError[400]);
     expect(() => playerQuestionResults(playerId1, 1)).toThrow(HTTPError[400]);
   });
   test('400 if session is not yet up to this question', () => {
@@ -914,7 +914,6 @@ describe('Complete Test for playerQuestionResults', () => {
 
 // TODO SADAT
 describe('Complete Test for playerFinalResults', () => {
-  const invalidAnswerIds = [-99999999];
   const questionBody1: QuestionBodyV2 = {
     question: 'Who is the Monarch of England?',
     duration: 10,
@@ -1004,15 +1003,15 @@ describe('Complete Test for playerFinalResults', () => {
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
     // julius is submitting correct answers for question 1 and takes total 2 seconds
-    //julius' score should for q1 should be 6 since he is first at getting it right. 6/1 = 6
+    // julius' score should for q1 should be 6 since he is first at getting it right. 6/1 = 6
     delay(2000);
     playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
     // caesar is submitting wrong answers for question 1 and takes total 3 seconds
-    //caesar's score for q1 is 0.
+    // caesar's score for q1 is 0.
     delay(1000);
     playerQuestionAnswerSubmit(playerId2, 1, wrongAnswersQuestion1);
     // alexander is submitting correct answers for question 1 and takes total 4 seconds
-    //alexanders's score for q1 should be 6/2 = 3 since he is second
+    // alexanders's score for q1 should be 6/2 = 3 since he is second
     delay(1000);
     playerQuestionAnswerSubmit(playerId3, 1, correctAnswersQuestion1);
     // now let's end the question and process answer
@@ -1035,11 +1034,11 @@ describe('Complete Test for playerFinalResults', () => {
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
     // julius is submitting wrong answers for question 2 and takes total 2 seconds
-    //his score is 0.
+    // his score is 0.
     delay(2000);
     playerQuestionAnswerSubmit(playerId1, 2, wrongAnswersQuestion2);
     // caesar is submitting correct answers for question 2 and takes total 3 seconds
-    //his score should be 2/1 = 2.
+    // his score should be 2/1 = 2.
     delay(1000);
     playerQuestionAnswerSubmit(playerId2, 2, correctAnswersQuestion2);
     // alexander is submitting correct answers for question 2 but takes total 6 secs which exceeds the duration of 5 secs.
@@ -1060,7 +1059,7 @@ describe('Complete Test for playerFinalResults', () => {
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
     // julius, caesar and alexander couldnt submit within question duration of 1 sec
-    //they all get zero
+    // they all get zero
     delay(1000);
     expect(() => playerQuestionAnswerSubmit(playerId1, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
     expect(() => playerQuestionAnswerSubmit(playerId2, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
@@ -1073,13 +1072,13 @@ describe('Complete Test for playerFinalResults', () => {
       averageAnswerTime: 0,
       percentCorrect: 0
     });
-    //now let's see the final results
-    //julius' total score: 6 + 0 + 0 = 6
-    //caesar's total score: 0 + 2 + 0 = 2
-    //alexander's total score: 3 + 0 + 0 = 3
+    // now let's see the final results
+    // julius' total score: 6 + 0 + 0 = 6
+    // caesar's total score: 0 + 2 + 0 = 2
+    // alexander's total score: 3 + 0 + 0 = 3
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_FINAL_RESULTS');
     expect(playerFinalResults(playerId1).bodyObj as finalResults).toStrictEqual({
-      usersRankedByScore: [{name: 'julius', score: 6}, {name: 'alexander', score: 3}, {name: 'caesar', score: 2}],
+      usersRankedByScore: [{ name: 'julius', score: 6 }, { name: 'alexander', score: 3 }, { name: 'caesar', score: 2 }],
       questionResults: [{
         questionId: questionId1,
         playersCorrectList: ['julius', 'alexander'],
@@ -1096,7 +1095,7 @@ describe('Complete Test for playerFinalResults', () => {
         averageAnswerTime: 0,
         percentCorrect: 0
       }]
-    })
+    });
   });
   test('400 if player does not exist', () => {
     const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
@@ -1165,7 +1164,6 @@ describe('Complete Test for playerFinalResults', () => {
     expect(() => playerFinalResults(playerId1)).toThrow(HTTPError[400]);
     expect(() => playerFinalResults(playerId1)).toThrow(HTTPError[400]);
   });
-  
 });
 
 // =============================================================================
