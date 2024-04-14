@@ -1,6 +1,6 @@
 import validator from 'validator';
-import { getData, answer } from './dataStore';
-import { Users, DataStore, Tokens, Quizzes, Session, state, Answer, Questions } from './dataStore';
+import { getData, answer, questionResults } from './dataStore';
+import { Users, DataStore, Tokens, Quizzes, Session, state, Answer, Questions, player } from './dataStore';
 
 /**
  * Helper Function used in auth.js,
@@ -391,4 +391,33 @@ export function analyzeAnswer(question: Questions, answerIds: number[]):boolean 
  */
 export function invalidMessageLength(messageBody: string): boolean {
   return (messageBody.length < 1 || messageBody.length > 100);
+}
+/* complete iterating question results for average answer time and percent correct
+ */
+// finds the number of players who could answer within the question duration
+function AnsweredOnTime(players: player[], questionPosition: number): number {
+  let answeredOnTime = 0;
+  for (const player of players) {
+    if (player.answers[questionPosition - 1].answerTime !== 0) {
+      answeredOnTime += 1;
+    }
+  }
+  return answeredOnTime;
+}
+
+export function iterateQuestionResults(session: Session, questionPosition: number) {
+  const atQuestion: questionResults = session.questionResults[questionPosition - 1];
+  const players : player[] = session.players;
+  const numCorrectPlayers: number = atQuestion.playersCorrectList.length;
+  const numPlayers : number = players.length;
+  let totalAnswerTime = 0;
+  for (const player of players) {
+    totalAnswerTime += player.answers[questionPosition - 1].answerTime;
+  }
+  // PlayersAnsweredOnTime is the number of players who answered within the question duration
+  atQuestion.percentCorrect = Math.round(numCorrectPlayers / numPlayers * 100);
+  const PlayersAnsweredOnTime = AnsweredOnTime(players, questionPosition);
+  if (PlayersAnsweredOnTime) {
+    atQuestion.averageAnswerTime = Math.round(totalAnswerTime / PlayersAnsweredOnTime);
+  }
 }

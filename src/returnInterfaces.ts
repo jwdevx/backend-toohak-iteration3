@@ -1,4 +1,4 @@
-import { metaData, state } from './dataStore';
+import { metaData, questionResults, state } from './dataStore';
 import { Questions, QuestionV1 } from './dataStore';
 
 export interface RequestHelperReturnType {
@@ -21,6 +21,8 @@ export interface RequestHelperReturnType {
 
     PlayerJoinReturn |
     playerQuestionPositionInfoReturn|
+    questionResults |
+    finalResults |
 
     EmptyObject |
     ErrorObject;
@@ -142,8 +144,18 @@ export interface playerQuestionPositionInfoReturn {
   answers: playerQuestionPositionInfoReturnAnswer[];
 }
 
+export interface user {
+  name: string,
+  score: number
+}
+
 export interface playerQuestionPositionInfoReturnAnswer {
   answerId: number;
   answer: string;
   colour: string;
+}
+
+export interface finalResults {
+  usersRankedByScore: user[],
+  questionResults: questionResults[]
 }

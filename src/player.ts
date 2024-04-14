@@ -1,10 +1,11 @@
 import HTTPError from 'http-errors';
 import {
   findQuizSessionViaPlayerId, findAtQuestionMetadata, randomIdGenertor,
-  findSession, hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer, invalidMessageLength
+  findSession, hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer, iterateQuestionResults, invalidMessageLength
 } from './helper';
 import { message, player, state, questionResults, Session, Questions, chat } from './dataStore';
-import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject } from './returnInterfaces';
+
+import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults } from './returnInterfaces';
 
 /**
  * To DO.....!
@@ -119,9 +120,8 @@ export function processAnswerSubmission(
       playerAnswer.score = calculateScore(player, session, question, atQuestion);
       player.totalScore += playerAnswer.score;
     }
-  }
-  // Success 200 case 2 - if already answer first time player can resubmit Answer
-  if (playerAnswer.answerIds.length > 0) {
+  } else if (playerAnswer.answerIds.length > 0) {
+    // Success 200 case 2 - if already answer first time player can resubmit Answer
     playerAnswer.answerIds = [];
     playerAnswer.answerIds = answerIds;
     playerAnswer.answerTime = answerTime;
@@ -142,7 +142,6 @@ export function processAnswerSubmission(
   }
   return {};
 }
-
 /**
  * Calculate Score, P / (num of ppl with correct answer before)
  */
@@ -150,13 +149,7 @@ export function processAnswerSubmission(
 function calculateScore(player: player, session: Session, question: Questions, atQuestion: questionResults): number {
   const questionPoints = question.points;
   const playerNameIndex = atQuestion.playersCorrectList.indexOf(player.playerName);
-  if (playerNameIndex === 0) {
-    return questionPoints;
-  } else if (playerNameIndex > 0) { // TODO <------- not tested
-    return Math.round(questionPoints / playerNameIndex); // TODO <------- not tested
-  } else { // TODO <------- not tested
-    return 0; // TODO <------- not tested
-  }
+  return Math.round(questionPoints / (playerNameIndex + 1));
 }
 
 /**
@@ -172,12 +165,37 @@ function updateAnswerQuestionResults(
 }
 // ----------------------------------------------------------------------------//
 
-export function playerQuestionResults(playerId: number, questionPosition: number): Record<string, never> {
-  return {};
+export function playerQuestionResults(playerId: number, questionPosition: number): questionResults {
+  const session = findQuizSessionViaPlayerId(playerId);
+  // Error 400:
+  if (!session) throw HTTPError(400, 'player ID does not exist!');
+  const question = findAtQuestionMetadata(session, questionPosition);
+  if (questionPosition <= 0 || !question) throw HTTPError(400, 'question position is not valid for this session!');
+  if (session.state !== state.ANSWER_SHOW) throw HTTPError(400, 'session is not in ANSWER_SHOW state!');
+  if (questionPosition > session.atQuestion) throw HTTPError(400, 'Error session is not yet up to this question!');
+  // Success 200
+  iterateQuestionResults(session, questionPosition);
+  return session.questionResults[questionPosition - 1];
 }
 
-export function playerFinalResults(playerId: number): Record<string, never> {
-  return {};
+export function playerFinalResults(playerId: number): finalResults {
+  const session = findQuizSessionViaPlayerId(playerId);
+  // Error 400:
+  if (!session) throw HTTPError(400, 'player ID does not exist!');
+  if (session.state !== state.FINAL_RESULTS) throw HTTPError(400, 'session is not in FINAL_RESULTS state!');
+  // success 200:
+  const numQuestions: number = session.questionResults.length;
+  for (let questionPosition = 1; questionPosition <= numQuestions; questionPosition++) {
+    iterateQuestionResults(session, questionPosition);
+  }
+  const usersRankedByScore : user[] = [];
+  for (const player of session.players) {
+    usersRankedByScore.push({ ...{ name: player.playerName, score: player.totalScore } });
+  }
+  return {
+    usersRankedByScore: usersRankedByScore.sort((a, b) => b.score - a.score),
+    questionResults: session.questionResults
+  };
 }
 
 export function playerReturnAllChat(playerId: number): {messages:chat[]} {
