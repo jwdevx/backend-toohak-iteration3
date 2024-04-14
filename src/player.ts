@@ -1,10 +1,11 @@
 import HTTPError from 'http-errors';
 import {
   findQuizSessionViaPlayerId, findAtQuestionMetadata, randomIdGenertor,
-  findSession, hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer
+  findSession, hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer,
+  iterateQuestionResults,
 } from './helper';
 import { message, player, state, questionResults, Session, Questions } from './dataStore';
-import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject } from './returnInterfaces';
+import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults} from './returnInterfaces';
 
 /**
  * To DO.....!
@@ -163,16 +164,6 @@ function updateAnswerQuestionResults(
   }
 }
 // ----------------------------------------------------------------------------//
-// finds the number of players who could answer within the question duration
-function AnsweredOnTime(players: player[], questionPosition: number): number {
-  let answeredOnTime = 0;
-  for (const player of players) {
-    if (player.answers[questionPosition - 1].answerTime !== 0) {
-      answeredOnTime += 1;
-    }
-  }
-  return answeredOnTime;
-}
 
 export function playerQuestionResults(playerId: number, questionPosition: number): questionResults {
   const session = findQuizSessionViaPlayerId(playerId);
@@ -183,25 +174,28 @@ export function playerQuestionResults(playerId: number, questionPosition: number
   if (session.state !== state.ANSWER_SHOW) throw HTTPError(400, 'session is not in ANSWER_SHOW state!');
   if (questionPosition > session.atQuestion) throw HTTPError(400, 'Error session is not yet up to this question!');
   // Success 200
-  const atQuestion = session.questionResults[questionPosition - 1];
-  const players : player[] = session.players;
-  const numCorrectPlayers: number = atQuestion.playersCorrectList.length;
-  const numPlayers : number = players.length;
-  let totalAnswerTime = 0;
-  for (const player of players) {
-    totalAnswerTime += player.answers[questionPosition - 1].answerTime;
-  }
-  // PlayersAnsweredOnTime is the number of players who answered within the question duration
-  atQuestion.percentCorrect = Math.round(numCorrectPlayers / numPlayers * 100);
-  const PlayersAnsweredOnTime = AnsweredOnTime(players, questionPosition);
-  if (PlayersAnsweredOnTime) {
-    atQuestion.averageAnswerTime = Math.round(totalAnswerTime / PlayersAnsweredOnTime);
-  }
-  return atQuestion;
+  iterateQuestionResults(session, questionPosition);
+  return session.questionResults[questionPosition - 1];
 }
 
-export function playerFinalResults(playerId: number): Record<string, never> {
-  return {};
+export function playerFinalResults(playerId: number): finalResults {
+  const session = findQuizSessionViaPlayerId(playerId);
+  // Error 400:
+  if (!session) throw HTTPError(400, 'player ID does not exist!');
+  if (session.state !== state.FINAL_RESULTS) throw HTTPError(400, 'session is not in FINAL_RESULTS state!');
+  //success 200:
+  const numQuestions: number = session.questionResults.length;
+  for (let questionPosition = 1; questionPosition <= numQuestions; questionPosition++) {
+    iterateQuestionResults(session, questionPosition);
+  }
+  let usersRankedByScore : user[] = [];
+  for (const player of session.players) {
+    usersRankedByScore.push({ ...{name: player.playerName, score: player.totalScore}});
+  }
+  return {
+    usersRankedByScore: usersRankedByScore.sort((a, b) => b.score - a.score),
+    questionResults: session.questionResults
+  };
 }
 
 export function playerReturnAllChat(playerId: number): Record<string, never> {
