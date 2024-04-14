@@ -719,13 +719,13 @@ describe('Complete Test for playerQuestionResults', () => {
     // expected percent correct = 2/3 * 100 which rounds to 67
     expect(playerQuestionResults(playerId1, 1).bodyObj as questionResults).toStrictEqual({
       questionId: questionId1,
-      playersCorrectList: ['julius', 'alexander'],
+      playersCorrectList: ['alexander', 'julius'],
       averageAnswerTime: 3,
       percentCorrect: 67
     });
     expect(playerQuestionResults(playerId2, 1).bodyObj as questionResults).toStrictEqual({
       questionId: questionId1,
-      playersCorrectList: ['julius', 'alexander'],
+      playersCorrectList: ['alexander', 'julius'],
       averageAnswerTime: 3,
       percentCorrect: 67
     });
@@ -1022,13 +1022,13 @@ describe('Complete Test for playerFinalResults', () => {
     // expected percent correct = 2/3 * 100 which rounds to 67
     expect(playerQuestionResults(playerId1, 1).bodyObj as questionResults).toStrictEqual({
       questionId: questionId1,
-      playersCorrectList: ['julius', 'alexander'],
+      playersCorrectList: ['alexander', 'julius'],
       averageAnswerTime: 3,
       percentCorrect: 67
     });
     expect(playerQuestionResults(playerId2, 1).bodyObj as questionResults).toStrictEqual({
       questionId: questionId1,
-      playersCorrectList: ['julius', 'alexander'],
+      playersCorrectList: ['alexander', 'julius'],
       averageAnswerTime: 3,
       percentCorrect: 67
     });
@@ -1083,7 +1083,7 @@ describe('Complete Test for playerFinalResults', () => {
       usersRankedByScore: [{ name: 'julius', score: 6 }, { name: 'alexander', score: 3 }, { name: 'caesar', score: 2 }],
       questionResults: [{
         questionId: questionId1,
-        playersCorrectList: ['julius', 'alexander'],
+        playersCorrectList: ['alexander', 'julius'],
         averageAnswerTime: 3,
         percentCorrect: 67
       }, {
