@@ -31,6 +31,17 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
   if (quizSession.state !== state.LOBBY) {
     throw HTTPError(400, 'Session is not in LOBBY state.');
   }
+  const newPlayer: player = {
+    playerId: randomIdGenertor(),
+    playerName: name,
+    totalScore: 0,
+    answers: [],
+  };
+  if(quizSession.autoStartNum === 0) {
+    quizSession.players.push(newPlayer);
+    setData(data);
+    return { playerId: newPlayer.playerId };
+  }
   if (quizSession.autoStartNum === quizSession.numPlayers++) {
     adminQuizSessionStateUpdateHelperV1(
       quizSession.metadata.owner,
@@ -39,12 +50,6 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
       Action.NEXT_QUESTION
     );
   }
-  const newPlayer: player = {
-    playerId: randomIdGenertor(),
-    playerName: name,
-    totalScore: 0,
-    answers: [],
-  };
   quizSession.players.push(newPlayer);
   setData(data);
   return { playerId: newPlayer.playerId };
