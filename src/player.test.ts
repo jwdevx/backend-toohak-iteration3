@@ -720,7 +720,6 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
 
 // TODO SADAT
 describe('Complete Test for playerQuestionResults', () => {
-  const invalidAnswerIds = [-99999999];
   const questionBody1: QuestionBodyV2 = {
     question: 'Who is the Monarch of England?',
     duration: 10,
@@ -909,36 +908,6 @@ describe('Complete Test for playerQuestionResults', () => {
     expect(() => playerQuestionResults(null, 1)).toThrow(HTTPError[400]);
     expect(() => playerQuestionResults(playerId1 + 1, 1)).toThrow(HTTPError[400]);
   });
-  test('400 if question position is not valid for the session this player is in', () => {
-    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
-    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
-    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
-    expect(questionId1).toStrictEqual(expect.any(Number));
-    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
-    expect(questionId2).toStrictEqual(expect.any(Number));
-    const answerObjectQuestion1 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[0].answers;
-    const allAnswersQuestion1: Array<number> = [];
-    for (const a of answerObjectQuestion1) {
-      allAnswersQuestion1.push(a.answerId);
-    }
-    const correctAnswersQuestion1: Array<number> = [];
-    for (const a of answerObjectQuestion1) {
-      if (a.correct === true) { correctAnswersQuestion1.push(a.answerId); }
-    }
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
-    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
-    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
-
-    playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
-    playerQuestionAnswerSubmit(playerId2, 1, correctAnswersQuestion1);
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
-
-    expect(() => playerQuestionAnswerSubmit(playerId1, -1, invalidAnswerIds)).toThrow(HTTPError[400]);
-    expect(() => playerQuestionAnswerSubmit(playerId1, 0, invalidAnswerIds)).toThrow(HTTPError[400]);
-    expect(() => playerQuestionAnswerSubmit(playerId1, 10, invalidAnswerIds)).toThrow(HTTPError[400]);
-  });
 
   test('400 if state of the session is not in ANSWER_SHOW', () => {
     const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
@@ -969,7 +938,7 @@ describe('Complete Test for playerQuestionResults', () => {
     expect(() => playerQuestionResults(playerId1, 1)).toThrow(HTTPError[400]);
     expect(() => playerQuestionResults(playerId1, 1)).toThrow(HTTPError[400]);
   });
-  test('400 if session is not yet up to this question', () => {
+  test('400 if session is not yet up to this question or question position not valid for this session', () => {
     const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
     expect(token1).toStrictEqual(expect.any(String));
     const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
@@ -1008,7 +977,7 @@ describe('Complete Test for playerQuestionResults', () => {
 
     expect(() => playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1)).not.toThrow(HTTPError[400]);
     expect(() => playerQuestionAnswerSubmit(playerId2, 1, correctAnswersQuestion1)).not.toThrow(HTTPError[400]);
-
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
     expect(() => playerQuestionResults(playerId1, 3)).toThrow(HTTPError[400]);
     expect(() => playerQuestionResults(playerId1, 2)).toThrow(HTTPError[400]);
   });
