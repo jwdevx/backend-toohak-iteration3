@@ -383,7 +383,16 @@ export function analyzeAnswer(question: Questions, answerIds: number[]):boolean 
 }
 
 /**
- * complete iterating question results for average answer time and percent correct
+ * Helper Function used in player.ts
+ * Check if name is less than 1 characters or more than 100 characters.
+ *
+ * @param {string} messageBody - The name string to be validated for length.
+ * @returns {boolean} - Returns true if name is invalid (either too short or too long).
+ */
+export function invalidMessageLength(messageBody: string): boolean {
+  return (messageBody.length < 1 || messageBody.length > 100);
+}
+/* complete iterating question results for average answer time and percent correct
  */
 // finds the number of players who could answer within the question duration
 function AnsweredOnTime(players: player[], questionPosition: number): number {
@@ -400,6 +409,7 @@ export function iterateQuestionResults(session: Session, questionPosition: numbe
   const atQuestion: questionResults = session.questionResults[questionPosition - 1];
   const players : player[] = session.players;
   const numCorrectPlayers: number = atQuestion.playersCorrectList.length;
+  atQuestion.playersCorrectList = atQuestion.playersCorrectList.sort((a, b) => a.localeCompare(b));
   const numPlayers : number = players.length;
   let totalAnswerTime = 0;
   for (const player of players) {

@@ -1,20 +1,10 @@
 import HTTPError from 'http-errors';
 import {
   findQuizSessionViaPlayerId, findAtQuestionMetadata, randomIdGenertor,
-  hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer,
-  iterateQuestionResults,
+  findSession, hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer, iterateQuestionResults, invalidMessageLength
 } from './helper';
-import {
-  message,
-  player,
-  state,
-  questionResults,
-  Session,
-  Questions,
-  getData,
-  DataStore,
-  setData,
-} from './dataStore';
+import { message, player, state, questionResults, Session, Questions, chat } from './dataStore';
+
 import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults } from './returnInterfaces';
 
 /**
@@ -227,10 +217,26 @@ export function playerFinalResults(playerId: number): finalResults {
   };
 }
 
-export function playerReturnAllChat(playerId: number): Record<string, never> {
-  return {};
+export function playerReturnAllChat(playerId: number): {messages:chat[]} {
+  const session = findQuizSessionViaPlayerId(playerId);
+  if (!session) throw HTTPError(400, 'Error player ID does not exist!');
+
+  const messages = session.messages.sort((a, b) => a.timeSent - b.timeSent);
+  return { messages };
 }
 
 export function playerSendChat(playerId: number, message: message): Record<string, never> {
+  const session = findQuizSessionViaPlayerId(playerId);
+  if (!session) throw HTTPError(400, 'Error player ID does not exist!');
+  if (invalidMessageLength(message.messageBody)) throw HTTPError(400, 'If message body is less than 1 character or more than 100 characters');
+  const player = session.players.find(p => p.playerId === playerId);
+  const time = Math.floor(new Date().getTime() / 1000);
+  const newChat:chat = {
+    messageBody: message.messageBody,
+    playerId: player.playerId,
+    playerName: player.playerName,
+    timeSent: time,
+  };
+  session.messages.push(newChat);
   return {};
 }

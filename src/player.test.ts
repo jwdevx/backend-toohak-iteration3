@@ -7,9 +7,10 @@ import {
 import {
   clear, adminAuthRegister, adminQuizCreate, adminQuestionCreateV2, adminQuizSessionStart,
   playerJoin, playerQuestionPositionInfo, adminQuizSessionStateUpdate, adminQuizSessionGetStatus,
-  playerQuestionAnswerSubmit, adminQuizInfoV2, playerQuestionResults, playerFinalResults
+  playerQuestionAnswerSubmit, adminQuizInfoV2, playerQuestionResults, playerFinalResults, playerReturnAllChat, playerSendChat
 } from './apiRequestsIter3';
-import { answer, QuestionBodyV2, questionResults, Action } from './dataStore';
+
+import { QuestionBodyV2, questionResults, message } from './dataStore';
 import { delay } from './helper';
 beforeEach(() => { clear(); });
 
@@ -781,13 +782,13 @@ describe('Complete Test for playerQuestionResults', () => {
     // expected percent correct = 2/3 * 100 which rounds to 67
     expect(playerQuestionResults(playerId1, 1).bodyObj as questionResults).toStrictEqual({
       questionId: questionId1,
-      playersCorrectList: ['julius', 'alexander'],
+      playersCorrectList: ['alexander', 'julius'],
       averageAnswerTime: 3,
       percentCorrect: 67
     });
     expect(playerQuestionResults(playerId2, 1).bodyObj as questionResults).toStrictEqual({
       questionId: questionId1,
-      playersCorrectList: ['julius', 'alexander'],
+      playersCorrectList: ['alexander', 'julius'],
       averageAnswerTime: 3,
       percentCorrect: 67
     });
@@ -1065,9 +1066,10 @@ describe('Complete Test for playerFinalResults', () => {
     const playerId3 = (playerJoin(quizSessionId1, 'alexander').bodyObj as PlayerJoinReturn).playerId;
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
-    // julius is submitting correct answers for question 1 and takes total 2 seconds
+    // julius is submits correct answers for question 1 twice and takes total 2 seconds
     // julius' score should for q1 should be 6 since he is first at getting it right. 6/1 = 6
     delay(2000);
+    playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
     playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
     // caesar is submitting wrong answers for question 1 and takes total 3 seconds
     // caesar's score for q1 is 0.
@@ -1083,13 +1085,13 @@ describe('Complete Test for playerFinalResults', () => {
     // expected percent correct = 2/3 * 100 which rounds to 67
     expect(playerQuestionResults(playerId1, 1).bodyObj as questionResults).toStrictEqual({
       questionId: questionId1,
-      playersCorrectList: ['julius', 'alexander'],
+      playersCorrectList: ['alexander', 'julius'],
       averageAnswerTime: 3,
       percentCorrect: 67
     });
     expect(playerQuestionResults(playerId2, 1).bodyObj as questionResults).toStrictEqual({
       questionId: questionId1,
-      playersCorrectList: ['julius', 'alexander'],
+      playersCorrectList: ['alexander', 'julius'],
       averageAnswerTime: 3,
       percentCorrect: 67
     });
@@ -1144,7 +1146,7 @@ describe('Complete Test for playerFinalResults', () => {
       usersRankedByScore: [{ name: 'julius', score: 6 }, { name: 'alexander', score: 3 }, { name: 'caesar', score: 2 }],
       questionResults: [{
         questionId: questionId1,
-        playersCorrectList: ['julius', 'alexander'],
+        playersCorrectList: ['alexander', 'julius'],
         averageAnswerTime: 3,
         percentCorrect: 67
       }, {
@@ -1232,11 +1234,218 @@ describe('Complete Test for playerFinalResults', () => {
 // =============================================================================
 // =================          playerReturnAllChat          =====================
 // =============================================================================
+describe('Complete Test for  playerReturnAllChat   ', () => {
+  const questionBody1: QuestionBodyV2 = {
+    question: 'Who is the Monarch of England?',
+    duration: 4,
+    points: 5,
+    answers: [
+      { answer: 'Prince Charles', correct: true },
+      { answer: 'Princess Diana', correct: false }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+  const questionBody2: QuestionBodyV2 = {
+    question: 'What colour is the earth?',
+    duration: 4,
+    points: 5,
+    answers: [
+      { answer: 'Blue', correct: true },
+      { answer: 'Blue and Green', correct: false },
+      { answer: 'Blue and White', correct: false },
+      { answer: 'Blue, white and green', correct: true }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
 
-// TODO ASH
+  beforeEach(() => {
+    clear();
+  });
+  // TODO ASH
 
+  test('player ID does not existV2', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId2).toStrictEqual(expect.any(Number));
+    expect(() => playerReturnAllChat(playerId1 + 1)).toThrow(HTTPError[400]);
+  });
+
+  test('Correct Implementation', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId2).toStrictEqual(expect.any(Number));
+
+    const msg :message = {
+      messageBody: 'This is a message body',
+    };
+    const msg2 :message = {
+      messageBody: 'This is a message body2',
+    };
+    const msg3 :message = {
+      messageBody: 'This is a message body3',
+    };
+
+    playerSendChat(playerId1, msg);
+    playerSendChat(playerId2, msg2);
+    playerSendChat(playerId1, msg3);
+    const List = playerReturnAllChat(playerId1);
+    expect(List.bodyObj).toStrictEqual({
+      messages: [
+        {
+          messageBody: msg.messageBody,
+          playerId: playerId1,
+          playerName: 'Jules',
+          timeSent: expect.any(Number)
+        },
+        {
+          messageBody: msg2.messageBody,
+          playerId: playerId2,
+          playerName: 'Pike',
+          timeSent: expect.any(Number)
+        },
+        {
+          messageBody: msg3.messageBody,
+          playerId: playerId1,
+          playerName: 'Jules',
+          timeSent: expect.any(Number)
+        }
+      ]
+    });
+  });
+});
 // =============================================================================
 // ==================          playerSendChat           ========================
 // =============================================================================
 
-// TODO ASH
+describe('Complete Test for playerSendChat ', () => {
+  const questionBody1: QuestionBodyV2 = {
+    question: 'Who is the Monarch of England?',
+    duration: 4,
+    points: 5,
+    answers: [
+      { answer: 'Prince Charles', correct: true },
+      { answer: 'Princess Diana', correct: false }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+  const questionBody2: QuestionBodyV2 = {
+    question: 'What colour is the earth?',
+    duration: 4,
+    points: 5,
+    answers: [
+      { answer: 'Blue', correct: true },
+      { answer: 'Blue and Green', correct: false },
+      { answer: 'Blue and White', correct: false },
+      { answer: 'Blue, white and green', correct: true }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+
+  beforeEach(() => {
+    clear();
+  });
+  // TODO ASH
+
+  test('player ID does not existV2', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    const msg :message = {
+      messageBody: 'This is a message body',
+    };
+    expect(() => playerSendChat(playerId1 + 1, msg)).toThrow(HTTPError[400]);
+  });
+
+  test('Message Body too short', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    const msg :message = {
+      messageBody: '',
+    };
+    expect(() => playerSendChat(playerId1, msg)).toThrow(HTTPError[400]);
+  });
+
+  test('Message Body too long', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+    const msgBody = 'a'.repeat(150);
+    const msg :message = {
+      messageBody: msgBody,
+    };
+    expect(() => playerSendChat(playerId1, msg)).toThrow(HTTPError[400]);
+  });
+
+  test('Correct Implementation', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+
+    const msg :message = {
+      messageBody: 'This is a message body',
+    };
+    const sent = playerSendChat(playerId1, msg);
+    expect(sent.bodyObj).toStrictEqual({ });
+  });
+});
