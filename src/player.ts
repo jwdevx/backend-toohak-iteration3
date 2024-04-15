@@ -4,14 +4,43 @@ import {
   findSession, hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer,
   iterateQuestionResults,
 } from './helper';
-import { message, player, state, questionResults, Session, Questions } from './dataStore';
+import {
+  message,
+  player,
+  state,
+  questionResults,
+  Session,
+  Questions,
+  getData,
+  DataStore,
+  setData,
+  Action,
+} from "./dataStore";
 import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults } from './returnInterfaces';
 
 /**
  * To DO.....!
  */
 export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
-  const quizSession = findSession(sessionId);
+  const data: DataStore = getData();
+  const quizSession = data.sessions.find(
+    (session) => session.sessionId === sessionId
+  );
+  if (!quizSession) {
+    throw HTTPError(400, "Session Id does not refer to a valid session.");
+  }
+  const existingPlayer = quizSession.players.find(
+    (player) => player.playerName === name
+  );
+  if (existingPlayer) {
+    throw HTTPError(
+      400,
+      "Name of user entered is not unique compared to other users who have already joined."
+    );
+  }
+  if (quizSession.state !== state.LOBBY) {
+    throw HTTPError(400, "Session is not in LOBBY state.");
+  }
   const newPlayer: player = {
     playerId: randomIdGenertor(),
     playerName: name,
@@ -19,6 +48,7 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
     answers: [],
   };
   quizSession.players.push(newPlayer);
+  setData(data);
   return { playerId: newPlayer.playerId };
 }
 export function playerStatus(playerId: number): Record<string, never> { return {}; }
