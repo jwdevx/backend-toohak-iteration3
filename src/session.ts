@@ -271,7 +271,7 @@ function goFinal(session: Session) {
   }
 }
 
-function goNext(session: Session) {
+export function goNext(session: Session) {
   if (
     session.state === state.END ||
     session.state === state.FINAL_RESULTS ||
