@@ -10,8 +10,8 @@ import {
   playerQuestionAnswerSubmit, adminQuizInfoV2, playerQuestionResults, playerFinalResults, playerReturnAllChat, playerSendChat
 } from './apiRequestsIter3';
 
-import { QuestionBodyV2, questionResults, message, answer, Action, state } from './dataStore';
-import { delay, findSession } from './helper';
+import { QuestionBodyV2, questionResults, message, answer, Action } from './dataStore';
+import { delay } from './helper';
 beforeEach(() => { clear(); });
 
 // =============================================================================
