@@ -720,7 +720,6 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
 
 // TODO SADAT
 describe('Complete Test for playerQuestionResults', () => {
-  const invalidAnswerIds = [-99999999];
   const questionBody1: QuestionBodyV2 = {
     question: 'Who is the Monarch of England?',
     duration: 10,
