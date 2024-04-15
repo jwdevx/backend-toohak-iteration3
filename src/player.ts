@@ -1,7 +1,7 @@
 import HTTPError from 'http-errors';
 import {
   findQuizSessionViaPlayerId, findAtQuestionMetadata, randomIdGenertor,
-  findSession, hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer,
+  hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer,
   iterateQuestionResults,
 } from './helper';
 import {
