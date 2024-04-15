@@ -54,8 +54,15 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
   setData(data);
   return { playerId: newPlayer.playerId };
 }
-export function playerStatus(playerId: number): Record<string, never> { return {}; }
-
+export function playerStatus(playerId: number) {
+  const session = findQuizSessionViaPlayerId(playerId);
+  if (!session) throw HTTPError(400, 'Error player ID does not exist!');
+  return {
+    state: session.state,
+    numQuestions: session.metadata.numQuestions,
+    atQuestion: session.atQuestion
+  };
+} 
 /**
  * Get the information about a question that the guest player is on. Question position starts at 1
  * @param {number} playerId - the player we want to view the question he/she is in
