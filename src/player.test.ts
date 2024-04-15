@@ -158,12 +158,12 @@ describe('Test for playerStatus', () => {
     expect(player).toStrictEqual(expect.any(Number));
     const playerStats = playerStatus(player).bodyObj;
     expect(playerStats).toStrictEqual({ 
-      state: 'LOBBY', 
+      state: 'LOBBY',
       numQuestions: expect.any(Number),
-      atQuestion: expect.any(Number) 
-    })
+      atQuestion: expect.any(Number)
+    });
   });
-}); 
+});
 // TODO VENUS
 
 // =============================================================================
