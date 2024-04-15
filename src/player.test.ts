@@ -7,7 +7,8 @@ import {
 import {
   clear, adminAuthRegister, adminQuizCreate, adminQuestionCreateV2, adminQuizSessionStart,
   playerJoin, playerQuestionPositionInfo, adminQuizSessionStateUpdate, adminQuizSessionGetStatus,
-  playerQuestionAnswerSubmit, adminQuizInfoV2, playerQuestionResults, playerFinalResults, playerReturnAllChat, playerSendChat
+  playerQuestionAnswerSubmit, adminQuizInfoV2, playerQuestionResults, playerFinalResults, playerReturnAllChat, playerSendChat,
+  playerStatus,
 } from './apiRequestsIter3';
 
 import { QuestionBodyV2, questionResults, message, answer, Action } from './dataStore';
@@ -128,7 +129,42 @@ describe('Test for playerJoin', () => {
 // =============================================================================
 // ====================        playerStatus           ==========================
 // =============================================================================
-
+describe('Test for playerStatus', () => {
+  const answer1 = 'this is answer1';
+  const answer2 = 'this is answer2';
+  const answerObj1: answer = { answer: answer1, correct: true };
+  const answerObj2: answer = { answer: answer2, correct: false };
+  beforeEach(() => {
+    clear();
+  });
+  test('invalid playerId', () => {
+    expect(() => playerStatus(999999)).toThrow(HTTPError[400]);
+  });
+  test('success 200', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBodyV2 = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    adminQuestionCreateV2(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 5).bodyObj as SessionCreateReturn).sessionId;
+    expect(session).toStrictEqual(expect.any(Number));
+    const player = (playerJoin(session, 'John doe').bodyObj as PlayerJoinReturn).playerId;
+    expect(player).toStrictEqual(expect.any(Number));
+    const playerStats = playerStatus(player).bodyObj;
+    console.log(playerStats)
+    expect(playerStats).toStrictEqual({ 
+      state: 'LOBBY', 
+      numQuestions: expect.any(Number),
+      atQuestion: expect.any(Number) 
+    })
+  });
+}); 
 // TODO VENUS
 
 // =============================================================================
