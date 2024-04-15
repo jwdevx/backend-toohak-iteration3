@@ -628,7 +628,7 @@ describe('Session final result', () => {
       if (a.correct === false) { wrongAnswersQuestion3.push(a.answerId); }
     }
     // starting session
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     const playerId1 = (playerJoin(quizSessionId1, 'julius').bodyObj as PlayerJoinReturn).playerId;
     const playerId2 = (playerJoin(quizSessionId1, 'caesar').bodyObj as PlayerJoinReturn).playerId;
     const playerId3 = (playerJoin(quizSessionId1, 'alexander').bodyObj as PlayerJoinReturn).playerId;
