@@ -6,7 +6,6 @@ import {
 import { message, player, state, questionResults, Session, Questions, chat, getData, setData, DataStore, Action } from './dataStore';
 
 import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults } from './returnInterfaces';
-import { adminQuizSessionStateUpdateHelperV1 } from './session';
 
 /**
  * To DO.....!
@@ -43,12 +42,7 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
     return { playerId: newPlayer.playerId };
   }
   if (quizSession.autoStartNum === quizSession.numPlayers++) {
-    adminQuizSessionStateUpdateHelperV1(
-      quizSession.metadata.owner,
-      quizSession.quizId,
-      quizSession.sessionId,
-      Action.NEXT_QUESTION
-    );
+    goNext(quizSession);
   }
   quizSession.players.push(newPlayer);
   setData(data);
