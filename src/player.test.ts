@@ -77,7 +77,6 @@ describe('Test for playerJoin', () => {
     adminQuestionCreateV2(token1, Quiz1, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 1).bodyObj as SessionCreateReturn).sessionId;
     expect(session).toStrictEqual(expect.any(Number));
-    const status1 = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
     const player = (playerJoin(session, 'John doe').bodyObj as PlayerJoinReturn).playerId;
     expect(player).toStrictEqual(expect.any(Number));
     const player1 = (playerJoin(session, 'John de').bodyObj as PlayerJoinReturn).playerId;
@@ -99,13 +98,12 @@ describe('Test for playerJoin', () => {
     adminQuestionCreateV2(token1, Quiz1, body);
     const session = (adminQuizSessionStart(token1, Quiz1, 0).bodyObj as SessionCreateReturn).sessionId;
     expect(session).toStrictEqual(expect.any(Number));
-    const status1 = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
     const player = (playerJoin(session, 'John doe').bodyObj as PlayerJoinReturn).playerId;
     expect(player).toStrictEqual(expect.any(Number));
     const player1 = (playerJoin(session, 'John de').bodyObj as PlayerJoinReturn).playerId;
     expect(player1).toStrictEqual(expect.any(Number));
     const status = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
-    expect(status.state).not.toStrictEqual('LOBBY');
+    expect(status.state).toStrictEqual('LOBBY');
   });
   test('success 200', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
