@@ -157,7 +157,6 @@ describe('Test for playerStatus', () => {
     const player = (playerJoin(session, 'John doe').bodyObj as PlayerJoinReturn).playerId;
     expect(player).toStrictEqual(expect.any(Number));
     const playerStats = playerStatus(player).bodyObj;
-    console.log(playerStats)
     expect(playerStats).toStrictEqual({ 
       state: 'LOBBY', 
       numQuestions: expect.any(Number),
