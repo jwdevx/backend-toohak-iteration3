@@ -37,7 +37,7 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
     totalScore: 0,
     answers: [],
   };
-  if(quizSession.autoStartNum === 0) {
+  if (quizSession.autoStartNum === 0) {
     quizSession.players.push(newPlayer);
     setData(data);
     return { playerId: newPlayer.playerId };
