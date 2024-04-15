@@ -138,7 +138,6 @@ export function processAnswerSubmission(
   const playerAnswer = player.answers[questionPosition - 1];
 
   // Valid for first time and resubmit
-  if (session.startTime === 0) throw HTTPError(400, 'Cannot calculate player answer time!');
   const answerTime = calculateAnswerTime(session);
   const isCorrect = analyzeAnswer(question, answerIds);
   const atQuestion = session.questionResults[questionPosition - 1];
@@ -153,7 +152,7 @@ export function processAnswerSubmission(
       playerAnswer.score = calculateScore(player, session, question, atQuestion);
       player.totalScore += playerAnswer.score;
     }
-  } else if (playerAnswer.answerIds.length > 0) {
+  } else {
     // Success 200 case 2 - if already answer first time player can resubmit Answer
     playerAnswer.answerIds = [];
     playerAnswer.answerIds = answerIds;
