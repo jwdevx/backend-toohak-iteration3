@@ -14,8 +14,7 @@ import {
   getData,
   DataStore,
   setData,
-  Action,
-} from "./dataStore";
+} from './dataStore';
 import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults } from './returnInterfaces';
 
 /**
@@ -27,7 +26,7 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
     (session) => session.sessionId === sessionId
   );
   if (!quizSession) {
-    throw HTTPError(400, "Session Id does not refer to a valid session.");
+    throw HTTPError(400, 'Session Id does not refer to a valid session.');
   }
   const existingPlayer = quizSession.players.find(
     (player) => player.playerName === name
@@ -35,11 +34,11 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
   if (existingPlayer) {
     throw HTTPError(
       400,
-      "Name of user entered is not unique compared to other users who have already joined."
+      'Name of user entered is not unique compared to other users who have already joined.'
     );
   }
   if (quizSession.state !== state.LOBBY) {
-    throw HTTPError(400, "Session is not in LOBBY state.");
+    throw HTTPError(400, 'Session is not in LOBBY state.');
   }
   const newPlayer: player = {
     playerId: randomIdGenertor(),
