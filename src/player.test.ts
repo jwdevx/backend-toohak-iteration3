@@ -10,14 +10,119 @@ import {
   playerQuestionAnswerSubmit, adminQuizInfoV2, playerQuestionResults, playerFinalResults, playerReturnAllChat, playerSendChat
 } from './apiRequestsIter3';
 
-import { QuestionBodyV2, questionResults, message } from './dataStore';
+import { QuestionBodyV2, questionResults, message, answer, Action } from './dataStore';
 import { delay } from './helper';
 beforeEach(() => { clear(); });
 
 // =============================================================================
 // ====================          playerJoin           ==========================
 // =============================================================================
-
+describe('Test for playerJoin', () => {
+  const answer1 = 'this is answer1';
+  const answer2 = 'this is answer2';
+  const answerObj1: answer = { answer: answer1, correct: true };
+  const answerObj2: answer = { answer: answer2, correct: false };
+  beforeEach(() => {
+    clear();
+  });
+  test('Invalid sessionId', () => {
+    // Error 401 Logout Test Start Here
+    expect(() => playerJoin(999999, 'John Doe')).toThrow(HTTPError[400]);
+  });
+  test('Quiz state not Lobby', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBodyV2 = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    adminQuestionCreateV2(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 1).bodyObj as SessionCreateReturn).sessionId;
+    expect(session).toStrictEqual(expect.any(Number));
+    adminQuizSessionStateUpdate(token1, Quiz1, session, Action.NEXT_QUESTION);
+    expect(() => playerJoin(session, 'John doe')).toThrow(HTTPError[400]);
+  });
+  test('Name already in use', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBodyV2 = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    adminQuestionCreateV2(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(session).toStrictEqual(expect.any(Number));
+    playerJoin(session, 'John doe');
+    expect(() => playerJoin(session, 'John doe')).toThrow(HTTPError[400]);
+  });
+  test('check whether state changed', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBodyV2 = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    adminQuestionCreateV2(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 1).bodyObj as SessionCreateReturn).sessionId;
+    expect(session).toStrictEqual(expect.any(Number));
+    const player = (playerJoin(session, 'John doe').bodyObj as PlayerJoinReturn).playerId;
+    expect(player).toStrictEqual(expect.any(Number));
+    const player1 = (playerJoin(session, 'John de').bodyObj as PlayerJoinReturn).playerId;
+    expect(player1).toStrictEqual(expect.any(Number));
+    const status = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
+    expect(status.state).not.toStrictEqual('LOBBY');
+  });
+  test('check whether state didnt change because of autostartnum 0', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBodyV2 = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    adminQuestionCreateV2(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 0).bodyObj as SessionCreateReturn).sessionId;
+    expect(session).toStrictEqual(expect.any(Number));
+    const player = (playerJoin(session, 'John doe').bodyObj as PlayerJoinReturn).playerId;
+    expect(player).toStrictEqual(expect.any(Number));
+    const player1 = (playerJoin(session, 'John de').bodyObj as PlayerJoinReturn).playerId;
+    expect(player1).toStrictEqual(expect.any(Number));
+    const status = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
+    expect(status.state).toStrictEqual('LOBBY');
+  });
+  test('success 200', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBodyV2 = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    adminQuestionCreateV2(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(session).toStrictEqual(expect.any(Number));
+    const player = (playerJoin(session, 'John doe').bodyObj as PlayerJoinReturn).playerId;
+    expect(player).toStrictEqual(expect.any(Number));
+  });
+});
 // TODO VENUS
 
 // =============================================================================
@@ -698,7 +803,7 @@ describe('Complete Test for playerQuestionResults', () => {
       if (a.correct === false) { wrongAnswersQuestion3.push(a.answerId); }
     }
     // starting session
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     const playerId1 = (playerJoin(quizSessionId1, 'julius').bodyObj as PlayerJoinReturn).playerId;
     const playerId2 = (playerJoin(quizSessionId1, 'caesar').bodyObj as PlayerJoinReturn).playerId;
     const playerId3 = (playerJoin(quizSessionId1, 'alexander').bodyObj as PlayerJoinReturn).playerId;
@@ -997,7 +1102,7 @@ describe('Complete Test for playerFinalResults', () => {
       if (a.correct === false) { wrongAnswersQuestion3.push(a.answerId); }
     }
     // starting session
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     const playerId1 = (playerJoin(quizSessionId1, 'julius').bodyObj as PlayerJoinReturn).playerId;
     const playerId2 = (playerJoin(quizSessionId1, 'caesar').bodyObj as PlayerJoinReturn).playerId;
     const playerId3 = (playerJoin(quizSessionId1, 'alexander').bodyObj as PlayerJoinReturn).playerId;

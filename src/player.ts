@@ -1,24 +1,57 @@
 import HTTPError from 'http-errors';
 import {
   findQuizSessionViaPlayerId, findAtQuestionMetadata, randomIdGenertor,
-  findSession, hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer, iterateQuestionResults, invalidMessageLength
+  hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer, iterateQuestionResults, invalidMessageLength
 } from './helper';
-import { message, player, state, questionResults, Session, Questions, chat } from './dataStore';
+import { message, player, state, questionResults, Session, Questions, chat, getData, setData, DataStore, Action } from './dataStore';
 
 import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults } from './returnInterfaces';
+import { adminQuizSessionStateUpdateHelperV1 } from './session';
 
 /**
  * To DO.....!
  */
 export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
-  const quizSession = findSession(sessionId);
+  const data: DataStore = getData();
+  const quizSession = data.sessions.find(
+    (session) => session.sessionId === sessionId
+  );
+  if (!quizSession) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session.');
+  }
+  const existingPlayer = quizSession.players.find(
+    (player) => player.playerName === name
+  );
+  if (existingPlayer) {
+    throw HTTPError(
+      400,
+      'Name of user entered is not unique compared to other users who have already joined.'
+    );
+  }
+  if (quizSession.state !== state.LOBBY) {
+    throw HTTPError(400, 'Session is not in LOBBY state.');
+  }
   const newPlayer: player = {
     playerId: randomIdGenertor(),
     playerName: name,
     totalScore: 0,
     answers: [],
   };
+  if (quizSession.autoStartNum === 0) {
+    quizSession.players.push(newPlayer);
+    setData(data);
+    return { playerId: newPlayer.playerId };
+  }
+  if (quizSession.autoStartNum === quizSession.numPlayers++) {
+    adminQuizSessionStateUpdateHelperV1(
+      quizSession.metadata.owner,
+      quizSession.quizId,
+      quizSession.sessionId,
+      Action.NEXT_QUESTION
+    );
+  }
   quizSession.players.push(newPlayer);
+  setData(data);
   return { playerId: newPlayer.playerId };
 }
 export function playerStatus(playerId: number): Record<string, never> { return {}; }
