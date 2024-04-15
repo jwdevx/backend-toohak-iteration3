@@ -480,5 +480,6 @@ export function adminQuizSessionStateUpdateHelperV1(
       setData(data);
       break;
   }
+  setData(data);
   return {};
 }

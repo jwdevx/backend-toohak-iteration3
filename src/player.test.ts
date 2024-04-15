@@ -10,8 +10,8 @@ import {
   playerQuestionAnswerSubmit, adminQuizInfoV2, playerQuestionResults, playerFinalResults, playerReturnAllChat, playerSendChat
 } from './apiRequestsIter3';
 
-import { QuestionBodyV2, questionResults, message, answer, Action } from './dataStore';
-import { delay } from './helper';
+import { QuestionBodyV2, questionResults, message, answer, Action, state } from './dataStore';
+import { delay, findSession } from './helper';
 beforeEach(() => { clear(); });
 
 // =============================================================================
@@ -62,6 +62,30 @@ describe('Test for playerJoin', () => {
     expect(session).toStrictEqual(expect.any(Number));
     playerJoin(session, 'John doe');
     expect(() => playerJoin(session, 'John doe')).toThrow(HTTPError[400]);
+  });
+  test('check whether state changed', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBodyV2 = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    adminQuestionCreateV2(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 1).bodyObj as SessionCreateReturn).sessionId;
+    expect(session).toStrictEqual(expect.any(Number));
+    const status1 = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
+    console.log(status1.state);
+    const player = (playerJoin(session, 'John doe').bodyObj as PlayerJoinReturn).playerId;
+    expect(player).toStrictEqual(expect.any(Number));
+    const player1 = (playerJoin(session, 'John de').bodyObj as PlayerJoinReturn).playerId;
+    expect(player1).toStrictEqual(expect.any(Number));
+    const status = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
+    console.log(status.state);
+    expect(status.state).not.toStrictEqual('LOBBY');
   });
   test('success 200', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
