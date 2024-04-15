@@ -439,7 +439,7 @@ export function adminQuizSessionStateUpdateHelperV1(
   if (isNaN(quizId) || !quiz) {
     throw HTTPError(
       403,
-      "Quiz ID does not refer to a quiz that this user owns."
+      'Quiz ID does not refer to a quiz that this user owns.'
     );
   }
   const data: DataStore = getData();
@@ -447,16 +447,16 @@ export function adminQuizSessionStateUpdateHelperV1(
     (session) => session.sessionId === sessionId
   );
   if (!session) {
-    throw HTTPError(400, "The session doesnt exist.");
+    throw HTTPError(400, 'The session doesnt exist.');
   }
   if (session.quizId !== quizId) {
     throw HTTPError(
       400,
-      "Session Id does not refer to a valid session within this quiz."
+      'Session Id does not refer to a valid session within this quiz.'
     );
   }
   if (!Object.keys(Action).includes(action)) {
-    throw HTTPError(400, "Action provided is not a valid Action enum");
+    throw HTTPError(400, 'Action provided is not a valid Action enum');
   }
   switch (action) {
     case Action.SKIP_COUNTDOWN:
