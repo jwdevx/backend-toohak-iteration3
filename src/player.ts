@@ -62,7 +62,7 @@ export function playerStatus(playerId: number) {
     numQuestions: session.metadata.numQuestions,
     atQuestion: session.atQuestion
   };
-} 
+}
 /**
  * Get the information about a question that the guest player is on. Question position starts at 1
  * @param {number} playerId - the player we want to view the question he/she is in
