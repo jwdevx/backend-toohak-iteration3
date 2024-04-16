@@ -426,5 +426,24 @@ export function adminQuizSessionGetResults(token: string, quizId: number, sessio
  * Comments todo
  */
 export function adminQuizSessionGetResultsCSV(token: string, quizId: number, sessionId: number): Record<string, never> {
-  return {};
+  const data = getData();
+ 
+  const Token = parseInt(token);
+  const result = data.tokens.find(token => token.sessionId === Token);
+  if (!result) {
+    throw HTTPError(401, 'The session cannot be found');
+  }
+ 
+  const quizIndex = data.quizzes.find(quiz => quiz.quizId === quizId); 
+  if (quizIndex.owner !== result.userId) {
+    throw HTTPError(403, 'You do not have the authorization for the quiz');
+  }
+  const sessIndex = data.sessions.find(session => session.sessionId === sessionId && session.quizId === quizId);
+  if (!sessIndex) {
+    throw HTTPError(400, 'The session ID is invalid');
+  }
+  if (sessIndex.state !== state.FINAL_RESULTS) {
+    throw HTTPError(400, 'The session state is not final results');
+  }
+  return { url: Url }
 }
