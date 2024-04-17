@@ -80,8 +80,6 @@ describe('Test for playerJoin', () => {
     expect(session).toStrictEqual(expect.any(Number));
     const player = (playerJoin(session, 'John doe').bodyObj as PlayerJoinReturn).playerId;
     expect(player).toStrictEqual(expect.any(Number));
-    const player1 = (playerJoin(session, 'John de').bodyObj as PlayerJoinReturn).playerId;
-    expect(player1).toStrictEqual(expect.any(Number));
     const status = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
     expect(status.state).not.toStrictEqual('LOBBY');
   });
@@ -163,6 +161,29 @@ describe('Test for playerStatus', () => {
       atQuestion: expect.any(Number)
     });
   });
+  test('blank name', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    const answers = [answerObj1, answerObj2];
+    const body : QuestionBodyV2 = {
+      question: 'this is a test',
+      duration: 10,
+      points: 5,
+      answers: answers,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    adminQuestionCreateV2(token1, Quiz1, body);
+    const session = (adminQuizSessionStart(token1, Quiz1, 5).bodyObj as SessionCreateReturn).sessionId;
+    expect(session).toStrictEqual(expect.any(Number));
+    const player = (playerJoin(session, '').bodyObj as PlayerJoinReturn).playerId;
+    expect(player).toStrictEqual(expect.any(Number));
+    const playerStats = playerStatus(player).bodyObj;
+    expect(playerStats).toStrictEqual({
+      state: 'LOBBY',
+      numQuestions: expect.any(Number),
+      atQuestion: expect.any(Number)
+    });
+  });
 });
 // TODO VENUS
 
@@ -206,7 +227,7 @@ describe('Complete Test for playerQuestionPositionInfo', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -225,7 +246,7 @@ describe('Complete Test for playerQuestionPositionInfo', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -245,7 +266,7 @@ describe('Complete Test for playerQuestionPositionInfo', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -267,7 +288,7 @@ describe('Complete Test for playerQuestionPositionInfo', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -287,7 +308,7 @@ describe('Complete Test for playerQuestionPositionInfo', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -318,7 +339,7 @@ describe('Complete Test for playerQuestionPositionInfo', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
 
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
@@ -415,7 +436,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
     // console.log(correctAnswersQuestion2);
 
     // Start a quiz session
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -438,7 +459,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -479,7 +500,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -521,7 +542,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -575,7 +596,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -615,7 +636,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -662,7 +683,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -708,7 +729,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -931,7 +952,7 @@ describe('Complete Test for playerQuestionResults', () => {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
     // Start a quiz session
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
@@ -960,7 +981,7 @@ describe('Complete Test for playerQuestionResults', () => {
     for (const a of answerObjectQuestion1) {
       if (a.correct === true) { correctAnswersQuestion1.push(a.answerId); }
     }
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
@@ -1000,7 +1021,7 @@ describe('Complete Test for playerQuestionResults', () => {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -1231,7 +1252,7 @@ describe('Complete Test for playerFinalResults', () => {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
     // Start a quiz session
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
@@ -1262,7 +1283,7 @@ describe('Complete Test for playerFinalResults', () => {
     for (const a of answerObjectQuestion1) {
       if (a.correct === true) { correctAnswersQuestion1.push(a.answerId); }
     }
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     const playerId2 = (playerJoin(quizSessionId1, 'Pike').bodyObj as PlayerJoinReturn).playerId;
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
@@ -1317,7 +1338,7 @@ describe('Complete Test for  playerReturnAllChat   ', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -1336,7 +1357,7 @@ describe('Complete Test for  playerReturnAllChat   ', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -1422,7 +1443,7 @@ describe('Complete Test for playerSendChat ', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -1442,7 +1463,7 @@ describe('Complete Test for playerSendChat ', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -1462,7 +1483,7 @@ describe('Complete Test for playerSendChat ', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
@@ -1483,7 +1504,7 @@ describe('Complete Test for playerSendChat ', () => {
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
 
-    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 2).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
     expect(playerId1).toStrictEqual(expect.any(Number));
