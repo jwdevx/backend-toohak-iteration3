@@ -43,11 +43,10 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
     return { playerId: newPlayer.playerId };
   }
   quizSession.numPlayers++;
+  quizSession.players.push(newPlayer);
   if (quizSession.autoStartNum === quizSession.numPlayers) {
     goNext(quizSession);
   }
-  quizSession.players.push(newPlayer);
-  quizSession.numPlayers++;
   setData(data);
   return { playerId: newPlayer.playerId };
 }
