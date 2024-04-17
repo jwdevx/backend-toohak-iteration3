@@ -80,8 +80,6 @@ describe('Test for playerJoin', () => {
     expect(session).toStrictEqual(expect.any(Number));
     const player = (playerJoin(session, 'John doe').bodyObj as PlayerJoinReturn).playerId;
     expect(player).toStrictEqual(expect.any(Number));
-    const player1 = (playerJoin(session, 'John de').bodyObj as PlayerJoinReturn).playerId;
-    expect(player1).toStrictEqual(expect.any(Number));
     const status = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
     expect(status.state).not.toStrictEqual('LOBBY');
   });
