@@ -191,11 +191,8 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
 });
 
 // For result in session.ts
-app.use(express.static('src'));
-app.get('/output.csv', (req, res) => {
-  res.header('Content-Type', 'text/csv');
-  res.attachment('output.csv');
-  res.status(200).send();
+app.get('/static/:filename', (req, res) => {
+  res.sendFile(req.params.filename, { root: './static' });
 });
 // =============================================================================
 // ==============    Authentication and User Management V1   ===================

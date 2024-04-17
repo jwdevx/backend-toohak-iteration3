@@ -18,6 +18,7 @@ export interface RequestHelperReturnType {
     SessionQuizViewReturn |
     SessionCreateReturn |
     SessionStatusReturn |
+    CSVUrlReturn |
 
     PlayerJoinReturn |
     playerQuestionPositionInfoReturn|
@@ -128,6 +129,10 @@ export interface SessionStatusReturn {
   atQuestion: number,
   players: string[],
   metadata: metaData
+}
+
+export interface CSVUrlReturn {
+  url: string;
 }
 // ============================= player.ts =====================================
 
