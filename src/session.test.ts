@@ -13,7 +13,8 @@ import {
   adminQuizCreateV2,
   playerJoin,
   playerQuestionAnswerSubmit,
-  adminQuizInfoV2
+  adminQuizInfoV2,
+  adminQuizSessionGetResultsCSV
 //   adminQuestionCreate,
 //   adminQuizRemove,
 } from './apiRequestsIter3';
@@ -36,7 +37,8 @@ import {
   SessionStatusReturn,
   quizInfoV2Return,
   finalResults,
-  PlayerJoinReturn
+  PlayerJoinReturn,
+  CSVUrlReturn
 } from './returnInterfaces';
 import { delay } from './helper';
 // import { QuestionBodyV2, answer } from './dataStore';
@@ -712,3 +714,184 @@ describe('Session final result', () => {
 // =============================================================================
 
 // TODO VENUS
+describe('Session final result csv', () => {
+  const questionBody1: QuestionBodyV2 = {
+    question: 'Who is the Monarch of England?',
+    duration: 10,
+    points: 6,
+    answers: [
+      { answer: 'Prince Charles', correct: true },
+      { answer: 'Princess Diana', correct: false }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+  const questionBody2: QuestionBodyV2 = {
+    question: 'What colour is the earth?',
+    duration: 5,
+    points: 2,
+    answers: [
+      { answer: 'Blue', correct: true },
+      { answer: 'Blue and Green', correct: false },
+      { answer: 'Blue and White', correct: false },
+      { answer: 'Blue, white and green', correct: true }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+  const questionBody3: QuestionBodyV2 = {
+    question: 'What colour is the moon?',
+    duration: 1,
+    points: 5,
+    answers: [
+      { answer: 'white', correct: true },
+      { answer: 'Blue and Green', correct: false },
+      { answer: 'Blue and White', correct: false },
+      { answer: 'black and white', correct: true }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+  beforeEach(() => {
+    clear();
+  });
+
+  // 1.Error 401
+  test('Check invalid token', () => {
+    const token = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const quizId1 = (adminQuizCreate(token, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
+    adminQuestionCreateV2(token, quizId1, questionBody1);
+    const SessionId = (adminQuizSessionStart(token, quizId1, 5).bodyObj as SessionCreateReturn).sessionId;
+    expect(() => adminQuizSessionGetResultsCSV('', quizId1, SessionId)).toThrow(HTTPError[401]);
+    expect(() => adminQuizSessionGetResultsCSV('hello', quizId1, SessionId)).toThrow(HTTPError[401]);
+  });
+  // 2.Error 403
+  test('quiz owner doesnt matchV2', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const token2 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const quizId1 = (adminQuizCreate(token1, 'quiz1', 'first quiz').bodyObj as QuizCreateReturn).quizId;
+    adminQuestionCreateV2(token1, quizId1, questionBody1);
+    const sessionId = (adminQuizSessionStart(token1, quizId1, 5).bodyObj as SessionCreateReturn).sessionId;
+    expect(() => adminQuizSessionGetResultsCSV(token2, quizId1, sessionId)).toThrow(HTTPError[403]);
+  });
+  // error 400
+  test('invalid session', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    // TODO adminQuestionCreateV2
+    adminQuestionCreateV2(token1, Quiz1, questionBody1);
+    const sessionId = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(() => adminQuizSessionGetResultsCSV(token1, Quiz1, sessionId + 1000)).toThrow(HTTPError[400]);
+  });
+  test('session state not in FINAL_RESULTS', () => {
+    const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
+    const Quiz1 = (adminQuizCreateV2(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
+    // TODO adminQuestionCreateV2
+    adminQuestionCreateV2(token1, Quiz1, questionBody1);
+    const sessionId = (adminQuizSessionStart(token1, Quiz1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(() => adminQuizSessionGetResultsCSV(token1, Quiz1, sessionId)).toThrow(HTTPError[400]);
+  });
+
+  // 3.Success 200
+  test('correct functionality', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    // Extracting answer Question 1
+    adminQuestionCreateV2(token1, quizId1, questionBody1);
+    const answerObjectQuestion1 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[0].answers;
+    // making an array with all answers' id
+    const allAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      allAnswersQuestion1.push(a.answerId);
+    }
+    // making an array with all correct answers' id
+    const correctAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      if (a.correct === true) { correctAnswersQuestion1.push(a.answerId); }
+    }
+    // making an array with all wrong answers' id
+    const wrongAnswersQuestion1: Array<number> = [];
+    for (const a of answerObjectQuestion1) {
+      if (a.correct === false) { wrongAnswersQuestion1.push(a.answerId); }
+    }
+    // creating Question 2
+    adminQuestionCreateV2(token1, quizId1, questionBody2);
+    // Extracting answer Question 2
+    const answerObjectQuestion2 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[1].answers;
+    const allAnswersQuestion2: Array<number> = []; for (const a of answerObjectQuestion2) { allAnswersQuestion2.push(a.answerId); }
+    const correctAnswersQuestion2: Array<number> = [];
+    for (const a of answerObjectQuestion2) {
+      if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
+    }
+    const wrongAnswersQuestion2: Array<number> = [];
+    for (const a of answerObjectQuestion2) {
+      if (a.correct === false) { wrongAnswersQuestion2.push(a.answerId); }
+    }
+    // creating Question 3
+    adminQuestionCreateV2(token1, quizId1, questionBody3);
+    // Extracting answer Question 2
+    const answerObjectQuestion3 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[2].answers;
+    const allAnswersQuestion3: Array<number> = []; for (const a of answerObjectQuestion3) { allAnswersQuestion3.push(a.answerId); }
+    const correctAnswersQuestion3: Array<number> = [];
+    for (const a of answerObjectQuestion3) {
+      if (a.correct === true) { correctAnswersQuestion3.push(a.answerId); }
+    }
+    const wrongAnswersQuestion3: Array<number> = [];
+    for (const a of answerObjectQuestion3) {
+      if (a.correct === false) { wrongAnswersQuestion3.push(a.answerId); }
+    }
+    // starting session
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
+    const playerId1 = (playerJoin(quizSessionId1, 'julius').bodyObj as PlayerJoinReturn).playerId;
+    const playerId2 = (playerJoin(quizSessionId1, 'caesar').bodyObj as PlayerJoinReturn).playerId;
+    const playerId3 = (playerJoin(quizSessionId1, 'alexander').bodyObj as PlayerJoinReturn).playerId;
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
+    // julius is submits correct answers for question 1 twice and takes total 2 seconds
+    // julius' score should for q1 should be 6 since he is first at getting it right. 6/1 = 6
+    delay(2000);
+    playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
+    playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1);
+    // caesar is submitting wrong answers for question 1 and takes total 3 seconds
+    // caesar's score for q1 is 0.
+    delay(1000);
+    playerQuestionAnswerSubmit(playerId2, 1, wrongAnswersQuestion1);
+    // alexander is submitting correct answers for question 1 and takes total 4 seconds
+    // alexanders's score for q1 should be 6/2 = 3 since he is second
+    delay(1000);
+    playerQuestionAnswerSubmit(playerId3, 1, correctAnswersQuestion1);
+    // now let's end the question and process answer
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
+    // expected average time = (2 + 3 + 4) / 3 = 3.
+    // expected percent correct = 2/3 * 100 which rounds to 67
+    // let's move to second question now
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
+    // julius is submitting wrong answers for question 2 and takes total 2 seconds
+    // his score is 0.
+    delay(2000);
+    playerQuestionAnswerSubmit(playerId1, 2, wrongAnswersQuestion2);
+    // caesar is submitting correct answers for question 2 and takes total 3 seconds
+    // his score should be 2/1 = 2.
+    playerQuestionAnswerSubmit(playerId2, 2, correctAnswersQuestion2);
+    // alexander is submitting correct answers for question 2 but takes total 6 secs which exceeds the duration of 5 secs.
+    // his answer should not be registered and should be marked as incorrect, scoring him 0.
+    playerQuestionAnswerSubmit(playerId3, 2, wrongAnswersQuestion2);
+    // we should have moved to QUESTION_CLOSE automatically by now
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
+    // expected average time = (2 + 3) / 2 = 2.5 which rounds to 3
+    // expected percent correct = (1 / 3 * 100) which rounds to 33
+    // let's move to third question now
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
+    // julius, caesar and alexander couldnt submit within question duration of 1 sec
+    // they all get zero
+    delay(1000);
+    expect(() => playerQuestionAnswerSubmit(playerId1, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionAnswerSubmit(playerId2, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
+    expect(() => playerQuestionAnswerSubmit(playerId3, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
+    // goes to answer show with everyone getting 0
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
+    // now let's see the final results
+    // julius' total score: 6 + 0 + 0 = 6
+    // caesar's total score: 0 + 2 + 0 = 2
+    // alexander's total score: 3 + 0 + 0 = 3
+    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_FINAL_RESULTS');
+    const CSV = (adminQuizSessionGetResultsCSV(token1, quizId1, quizSessionId1).bodyObj as CSVUrlReturn);
+    expect(CSV.url.endsWith('.csv')).toBe(true);
+  });
+});
