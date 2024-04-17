@@ -42,8 +42,8 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
     quizSession.numPlayers++;
     return { playerId: newPlayer.playerId };
   }
-  let compar = quizSession.numPlayers;
-  if (quizSession.autoStartNum === compar++) {
+  quizSession.numPlayers++;
+  if (quizSession.autoStartNum === quizSession.numPlayers) {
     goNext(quizSession);
   }
   quizSession.players.push(newPlayer);
