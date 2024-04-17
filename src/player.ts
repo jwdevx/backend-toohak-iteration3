@@ -39,12 +39,14 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
   if (quizSession.autoStartNum === 0) {
     quizSession.players.push(newPlayer);
     setData(data);
+    quizSession.numPlayers++;
     return { playerId: newPlayer.playerId };
   }
   if (quizSession.autoStartNum === quizSession.numPlayers++) {
     goNext(quizSession);
   }
   quizSession.players.push(newPlayer);
+  quizSession.numPlayers++;
   setData(data);
   return { playerId: newPlayer.playerId };
 }
