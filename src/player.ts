@@ -5,7 +5,7 @@ import {
 } from './helper';
 import { message, player, state, questionResults, Session, Questions, chat, getData, setData, DataStore } from './dataStore';
 
-import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults } from './returnInterfaces';
+import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults, playerReturnAllChatReturn } from './returnInterfaces';
 import { goNext } from './session';
 /**
  * To DO.....!
