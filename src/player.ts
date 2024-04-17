@@ -31,20 +31,22 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
     throw HTTPError(400, 'Session is not in LOBBY state.');
   }
   if (name.length === 0) {
-    // Generate random letters
     const letters = 'abcdefghijklmnopqrstuvwxyz';
-    let randomLetters = '';
+    const numbers = '0123456789';
+    let randomName = '';
+
+    // Generate random letters without repetition
+    const shuffledLetters = letters.split('').sort(() => Math.random() - 0.5);
     for (let i = 0; i < 5; i++) {
-      randomLetters += letters.charAt(Math.floor(Math.random() * letters.length));
+      randomName += shuffledLetters[i];
     }
 
-    // Generate random numbers
-    const numbers = '0123456789';
-    let randomNumbers = '';
+    // Generate random numbers without repetition
+    const shuffledNumbers = numbers.split('').sort(() => Math.random() - 0.5);
     for (let i = 0; i < 3; i++) {
-      randomNumbers += numbers.charAt(Math.floor(Math.random() * numbers.length));
+      randomName += shuffledNumbers[i];
     }
-    name = randomLetters + randomNumbers;
+    name = randomName;
   }
   const newPlayer: player = {
     playerId: randomIdGenertor(),
