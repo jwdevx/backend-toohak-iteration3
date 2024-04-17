@@ -1,8 +1,16 @@
 import HTTPError from 'http-errors';
 import { findSession, findSessionId, getNow, matchQuizIdAndAuthor, randomIdGenertor, iterateQuestionResults } from './helper';
 import { Action, DataStore, Quizzes, Session, Times, getData, getTimeList, metaData, playerAnswers, questionResults, setData, setTimeList, state } from './dataStore';
-import { SessionQuizViewReturn, SessionCreateReturn, SessionStatusReturn, finalResults, user } from './returnInterfaces';
-
+import { SessionQuizViewReturn, SessionCreateReturn, SessionStatusReturn, finalResults, user, CSVUrlReturn } from './returnInterfaces';
+import fs from 'fs'
+import convertArrayToCSV from 'convert-array-to-csv'
+import config from './config.json';
+import path from 'path';
+interface eachAnswers {
+  name: string;
+  score: number;
+  rank: number;
+}
 /**
  * View active and inactive quiz sessions
  * Retrieves active and inactive session ids (sorted in ascending order) for a quiz
@@ -415,7 +423,7 @@ export function adminQuizSessionGetResults(token: string, quizId: number, sessio
   const usersRankedByScore : user[] = [];
   for (const player of session.players) {
     usersRankedByScore.push({ ...{ name: player.playerName, score: player.totalScore } });
-  }
+  }7
   return {
     usersRankedByScore: usersRankedByScore.sort((a, b) => b.score - a.score),
     questionResults: session.questionResults
@@ -425,25 +433,108 @@ export function adminQuizSessionGetResults(token: string, quizId: number, sessio
 /**
  * Comments todo
  */
-export function adminQuizSessionGetResultsCSV(token: string, quizId: number, sessionId: number): Record<string, never> {
+export function adminQuizSessionGetResultsCSV(token: string, quizId: number, sessionId: number): CSVUrlReturn {
   const data = getData();
- 
   const Token = parseInt(token);
   const result = data.tokens.find(token => token.sessionId === Token);
   if (!result) {
     throw HTTPError(401, 'The session cannot be found');
   }
- 
   const quizIndex = data.quizzes.find(quiz => quiz.quizId === quizId); 
   if (quizIndex.owner !== result.userId) {
     throw HTTPError(403, 'You do not have the authorization for the quiz');
   }
-  const sessIndex = data.sessions.find(session => session.sessionId === sessionId && session.quizId === quizId);
-  if (!sessIndex) {
+  const session = data.sessions.find(session => session.sessionId === sessionId && session.quizId === quizId);
+  if (!session) {
     throw HTTPError(400, 'The session ID is invalid');
   }
-  if (sessIndex.state !== state.FINAL_RESULTS) {
+  if (session.state !== state.FINAL_RESULTS) {
     throw HTTPError(400, 'The session state is not final results');
   }
-  return { url: Url }
+  const header = ['Player'];
+  const resultArray : string[][] = [];
+  for (let i = 0; i < session.metadata.numQuestions; i++) {
+    const num = i.toString();
+    let question = 'question';
+    let score = 'score';
+    let rank = 'rank';
+    question = question.concat(num);
+    score = question.concat(score);
+    rank = question.concat(rank);
+    header.push(score);
+    header.push(rank);
+  }
+  const players = session.numPlayers;
+  for (const player of session.players) {
+    const playerArr: string[] = [];
+    playerArr.push(player.playerName);
+    resultArray.push(playerArr);
+  }
+  resultArray.sort((a, b) => {
+    // Convert both strings to lowercase to ensure case-insensitive comparison
+    const stringA = a[0][0];
+    const stringB = b[0][0];
+
+    if (stringA < stringB) {
+        return -1; // If the first string comes before the second one
+    } else if (stringA > stringB) {
+        return 1; // If the first string comes after the second one
+    } else {
+        return 0; // If the strings are equal
+    }
+  });
+  const numAnswers = session.players[0].answers.length
+  for (let i = 0; i < numAnswers; i++) {
+    const answerArray: eachAnswers[] = [];
+    let rank = 1;
+    for (let j = 0; j < session.numPlayers; j++) {
+      let newAnswer : eachAnswers = {
+        name: session.players[j].playerName,
+        score: session.players[j].answers[i].score,
+        rank: 0,
+      }
+      if (session.players[j].answers[i].answerTime === 0) {
+        newAnswer.rank = -1;
+      }
+      answerArray.push(newAnswer);
+    }
+    answerArray.sort((a, b) => b.score - a.score);
+    for (let j = 0; j < session.numPlayers; j++) {
+      if (answerArray[j].rank === -1) {
+        answerArray[j].rank = 0;
+      } else {
+        answerArray[j].rank = rank;
+      }
+      if (answerArray[j].score > 0) {
+        rank++;
+      }
+    }
+    for (let j = 0; j < session.numPlayers; j++) {
+      const playerresult = resultArray.find(result => result[0] === answerArray[j].name);
+      playerresult.push(answerArray[j].score.toString())
+      playerresult.push(answerArray[j].rank.toString())
+    }
+  }
+  resultArray.splice(0, 0, header);  
+  const fileName = 'result.csv';
+  const directoryPath = path.join(__dirname, '../static')
+  if (!fs.existsSync(directoryPath)) {
+    fs.mkdirSync(directoryPath, { recursive: true });
+  }
+  fs.writeFile(path.join(directoryPath, fileName), convertArrayToCSV(resultArray), (err) => {
+    if (err) {
+        console.error('An error occurred:', err);
+    }
+  });
+  const PORT: number = parseInt(process.env.PORT || config.port);
+  const HOST: string = process.env.IP || 'localhost';
+  let Url = 'http://';
+  const port = PORT.toString();
+  Url = Url.concat(HOST);
+  Url = Url.concat(':');
+  Url = Url.concat(port);
+  Url = Url.concat('/static/result.csv');
+  return {
+    url: Url,
+  };
 }
