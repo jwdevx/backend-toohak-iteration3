@@ -1,5 +1,5 @@
 import { metaData, questionResults, state } from './dataStore';
-import { Questions, QuestionV1 } from './dataStore';
+import { Questions, QuestionV1,chat } from './dataStore';
 
 export interface RequestHelperReturnType {
     bodyObj?: UserCreateReturn |
@@ -23,7 +23,8 @@ export interface RequestHelperReturnType {
     playerQuestionPositionInfoReturn|
     questionResults |
     finalResults |
-
+    playerReturnAllChatReturn |
+  
     EmptyObject |
     ErrorObject;
     error?: string;
@@ -158,4 +159,8 @@ export interface playerQuestionPositionInfoReturnAnswer {
 export interface finalResults {
   usersRankedByScore: user[],
   questionResults: questionResults[]
+}
+
+export interface playerReturnAllChatReturn {
+  messages:chat[]
 }

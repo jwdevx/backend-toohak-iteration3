@@ -231,7 +231,7 @@ export function playerFinalResults(playerId: number): finalResults {
   };
 }
 
-export function playerReturnAllChat(playerId: number): {messages:chat[]} {
+export function playerReturnAllChat(playerId: number): playerReturnAllChatReturn {
   const session = findQuizSessionViaPlayerId(playerId);
   if (!session) throw HTTPError(400, 'Error player ID does not exist!');
 
