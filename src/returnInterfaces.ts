@@ -19,7 +19,7 @@ export interface RequestHelperReturnType {
     SessionCreateReturn |
     SessionStatusReturn |
     CSVUrlReturn |
-    
+
     PlayerJoinReturn |
     playerQuestionPositionInfoReturn|
     questionResults |

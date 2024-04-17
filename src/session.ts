@@ -2,8 +2,8 @@ import HTTPError from 'http-errors';
 import { findSession, findSessionId, getNow, matchQuizIdAndAuthor, randomIdGenertor, iterateQuestionResults } from './helper';
 import { Action, DataStore, Quizzes, Session, Times, getData, getTimeList, metaData, playerAnswers, questionResults, setData, setTimeList, state } from './dataStore';
 import { SessionQuizViewReturn, SessionCreateReturn, SessionStatusReturn, finalResults, user, CSVUrlReturn } from './returnInterfaces';
-import fs from 'fs'
-import convertArrayToCSV from 'convert-array-to-csv'
+import fs from 'fs';
+import { convertArrayToCSV } from 'convert-array-to-csv';
 import config from './config.json';
 import path from 'path';
 interface eachAnswers {
@@ -423,7 +423,7 @@ export function adminQuizSessionGetResults(token: string, quizId: number, sessio
   const usersRankedByScore : user[] = [];
   for (const player of session.players) {
     usersRankedByScore.push({ ...{ name: player.playerName, score: player.totalScore } });
-  }7
+  }
   return {
     usersRankedByScore: usersRankedByScore.sort((a, b) => b.score - a.score),
     questionResults: session.questionResults
@@ -440,7 +440,7 @@ export function adminQuizSessionGetResultsCSV(token: string, quizId: number, ses
   if (!result) {
     throw HTTPError(401, 'The session cannot be found');
   }
-  const quizIndex = data.quizzes.find(quiz => quiz.quizId === quizId); 
+  const quizIndex = data.quizzes.find(quiz => quiz.quizId === quizId);
   if (quizIndex.owner !== result.userId) {
     throw HTTPError(403, 'You do not have the authorization for the quiz');
   }
@@ -476,30 +476,30 @@ export function adminQuizSessionGetResultsCSV(token: string, quizId: number, ses
     const stringB = b[0][0];
 
     if (stringA < stringB) {
-        return -1; // If the first string comes before the second one
+      return -1; // If the first string comes before the second one
     } else if (stringA > stringB) {
-        return 1; // If the first string comes after the second one
+      return 1; // If the first string comes after the second one
     } else {
-        return 0; // If the strings are equal
+      return 0; // If the strings are equal
     }
   });
-  const numAnswers = session.players[0].answers.length
+  const numAnswers = session.players[0].answers.length;
   for (let i = 0; i < numAnswers; i++) {
     const answerArray: eachAnswers[] = [];
     let rank = 1;
-    for (let j = 0; j < session.numPlayers; j++) {
-      let newAnswer : eachAnswers = {
+    for (let j = 0; j < players; j++) {
+      const newAnswer : eachAnswers = {
         name: session.players[j].playerName,
         score: session.players[j].answers[i].score,
         rank: 0,
-      }
+      };
       if (session.players[j].answers[i].answerTime === 0) {
         newAnswer.rank = -1;
       }
       answerArray.push(newAnswer);
     }
     answerArray.sort((a, b) => b.score - a.score);
-    for (let j = 0; j < session.numPlayers; j++) {
+    for (let j = 0; j < players; j++) {
       if (answerArray[j].rank === -1) {
         answerArray[j].rank = 0;
       } else {
@@ -509,21 +509,21 @@ export function adminQuizSessionGetResultsCSV(token: string, quizId: number, ses
         rank++;
       }
     }
-    for (let j = 0; j < session.numPlayers; j++) {
+    for (let j = 0; j < players; j++) {
       const playerresult = resultArray.find(result => result[0] === answerArray[j].name);
-      playerresult.push(answerArray[j].score.toString())
-      playerresult.push(answerArray[j].rank.toString())
+      playerresult.push(answerArray[j].score.toString());
+      playerresult.push(answerArray[j].rank.toString());
     }
   }
-  resultArray.splice(0, 0, header);  
+  resultArray.splice(0, 0, header);
   const fileName = 'result.csv';
-  const directoryPath = path.join(__dirname, '../static')
+  const directoryPath = path.join(__dirname, '../static');
   if (!fs.existsSync(directoryPath)) {
     fs.mkdirSync(directoryPath, { recursive: true });
   }
   fs.writeFile(path.join(directoryPath, fileName), convertArrayToCSV(resultArray), (err) => {
     if (err) {
-        console.error('An error occurred:', err);
+      console.error('An error occurred:', err);
     }
   });
   const PORT: number = parseInt(process.env.PORT || config.port);

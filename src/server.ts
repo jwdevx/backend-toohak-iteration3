@@ -192,7 +192,7 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
 
 // For result in session.ts
 app.get('/static/:filename', (req, res) => {
-     res.sendFile(req.params.filename, { root: './static' }); 
+  res.sendFile(req.params.filename, { root: './static' });
 });
 // =============================================================================
 // ==============    Authentication and User Management V1   ===================

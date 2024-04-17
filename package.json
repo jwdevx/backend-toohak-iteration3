@@ -23,6 +23,7 @@
         "validator": "^13.7.0"
     },
     "devDependencies": {
+        "@types/convert-array-to-csv": "^2.0.2",
         "@types/cors": "^2.8.12",
         "@types/express": "^4.17.13",
         "@types/http-errors": "^2.0.1",

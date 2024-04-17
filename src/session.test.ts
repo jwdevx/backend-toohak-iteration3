@@ -791,7 +791,7 @@ describe('Session final result csv', () => {
     const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
     const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
     // Extracting answer Question 1
-    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    adminQuestionCreateV2(token1, quizId1, questionBody1);
     const answerObjectQuestion1 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[0].answers;
     // making an array with all answers' id
     const allAnswersQuestion1: Array<number> = [];
@@ -809,7 +809,7 @@ describe('Session final result csv', () => {
       if (a.correct === false) { wrongAnswersQuestion1.push(a.answerId); }
     }
     // creating Question 2
-    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    adminQuestionCreateV2(token1, quizId1, questionBody2);
     // Extracting answer Question 2
     const answerObjectQuestion2 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[1].answers;
     const allAnswersQuestion2: Array<number> = []; for (const a of answerObjectQuestion2) { allAnswersQuestion2.push(a.answerId); }
@@ -822,7 +822,7 @@ describe('Session final result csv', () => {
       if (a.correct === false) { wrongAnswersQuestion2.push(a.answerId); }
     }
     // creating Question 3
-    const questionId3 = (adminQuestionCreateV2(token1, quizId1, questionBody3).bodyObj as QuestionCreateReturn).questionId;
+    adminQuestionCreateV2(token1, quizId1, questionBody3);
     // Extracting answer Question 2
     const answerObjectQuestion3 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[2].answers;
     const allAnswersQuestion3: Array<number> = []; for (const a of answerObjectQuestion3) { allAnswersQuestion3.push(a.answerId); }
