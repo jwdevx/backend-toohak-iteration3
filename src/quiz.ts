@@ -522,7 +522,8 @@ export function adminQuizTrashEmpty(token: string, quizIds: string): Record<stri
   const data: DataStore = getData();
   QuizIdsArray.forEach(quizId => {
     const index = data.quizzes.findIndex(q => q.quizId === quizId);
-    if (index !== -1) { data.quizzes.splice(index, 1); }
+    //   if (index !== -1) { data.quizzes.splice(index, 1); }
+    data.quizzes.splice(index, 1);
   });
   setData(data);
   return {};
