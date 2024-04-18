@@ -270,7 +270,7 @@ describe('get status', () => {
     };
     adminQuestionCreateV2(token1, Quiz1, body);
     adminQuizSessionStart(token1, Quiz1, 4);
-    expect(() => adminQuizSessionGetStatus(token1, Quiz1, 99999)).toThrow(HTTPError[403]);
+    expect(() => adminQuizSessionGetStatus(token1, Quiz1, 99999)).toThrow(HTTPError[400]);
   });
   test('token not provided', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
