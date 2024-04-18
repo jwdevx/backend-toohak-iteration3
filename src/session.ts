@@ -276,6 +276,7 @@ function goFinal(session: Session) {
     session.state === state.QUESTION_CLOSE
   ) {
     session.state = state.FINAL_RESULTS;
+    session.atQuestion = 0;
   }
 }
 
@@ -355,7 +356,7 @@ export function adminQuizSessionGetStatus(token: string, quizId: number, session
   // 2.Error 403
   const session = findSession(sessionId);
   if (isNaN(quizId) || isNaN(sessionId) || !session) {
-    throw HTTPError(403, 'Session does not exist.');
+    throw HTTPError(400, 'Session does not exist.');
   }
   if (session.owner !== validToken.userId) {
     throw HTTPError(403, 'Valid token is provided, but user is not an owner of this quiz');
