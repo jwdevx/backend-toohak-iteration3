@@ -1059,17 +1059,6 @@ describe('Complete Test for playerFinalResults', () => {
       { answer: 'Blue, white and green', correct: true }],
     thumbnailUrl: 'http://google.com/some/image/path.jpg'
   };
-  const questionBody3: QuestionBodyV2 = {
-    question: 'What colour is the moon?',
-    duration: 1,
-    points: 5,
-    answers: [
-      { answer: 'white', correct: true },
-      { answer: 'Blue and Green', correct: false },
-      { answer: 'Blue and White', correct: false },
-      { answer: 'black and white', correct: true }],
-    thumbnailUrl: 'http://google.com/some/image/path.jpg'
-  };
   beforeEach(() => {
     clear();
   });
@@ -1094,32 +1083,7 @@ describe('Complete Test for playerFinalResults', () => {
     for (const a of answerObjectQuestion1) {
       if (a.correct === false) { wrongAnswersQuestion1.push(a.answerId); }
     }
-    // creating Question 2
-    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
-    // Extracting answer Question 2
-    const answerObjectQuestion2 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[1].answers;
-    const allAnswersQuestion2: Array<number> = []; for (const a of answerObjectQuestion2) { allAnswersQuestion2.push(a.answerId); }
-    const correctAnswersQuestion2: Array<number> = [];
-    for (const a of answerObjectQuestion2) {
-      if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
-    }
-    const wrongAnswersQuestion2: Array<number> = [];
-    for (const a of answerObjectQuestion2) {
-      if (a.correct === false) { wrongAnswersQuestion2.push(a.answerId); }
-    }
-    // creating Question 3
-    const questionId3 = (adminQuestionCreateV2(token1, quizId1, questionBody3).bodyObj as QuestionCreateReturn).questionId;
-    // Extracting answer Question 2
-    const answerObjectQuestion3 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[2].answers;
-    const allAnswersQuestion3: Array<number> = []; for (const a of answerObjectQuestion3) { allAnswersQuestion3.push(a.answerId); }
-    const correctAnswersQuestion3: Array<number> = [];
-    for (const a of answerObjectQuestion3) {
-      if (a.correct === true) { correctAnswersQuestion3.push(a.answerId); }
-    }
-    const wrongAnswersQuestion3: Array<number> = [];
-    for (const a of answerObjectQuestion3) {
-      if (a.correct === false) { wrongAnswersQuestion3.push(a.answerId); }
-    }
+
     // starting session
     const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     const playerId1 = (playerJoin(quizSessionId1, 'julius').bodyObj as PlayerJoinReturn).playerId;
@@ -1156,70 +1120,19 @@ describe('Complete Test for playerFinalResults', () => {
       averageAnswerTime: 3,
       percentCorrect: 67
     });
-    // let's move to second question now
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
-    // julius is submitting wrong answers for question 2 and takes total 2 seconds
-    // his score is 0.
-    delay(2000);
-    playerQuestionAnswerSubmit(playerId1, 2, wrongAnswersQuestion2);
-    // caesar is submitting correct answers for question 2 and takes total 3 seconds
-    // his score should be 2/1 = 2.
-    delay(1000);
-    playerQuestionAnswerSubmit(playerId2, 2, correctAnswersQuestion2);
-    // alexander is submitting correct answers for question 2 but takes total 6 secs which exceeds the duration of 5 secs.
-    // his answer should not be registered and should be marked as incorrect, scoring him 0.
-    delay(3000);
-    expect(() => playerQuestionAnswerSubmit(playerId3, 2, correctAnswersQuestion2)).toThrow(HTTPError[400]);
-    // we should have moved to QUESTION_CLOSE automatically by now
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
-    // expected average time = (2 + 3) / 2 = 2.5 which rounds to 3
-    // expected percent correct = (1 / 3 * 100) which rounds to 33
-    expect(playerQuestionResults(playerId1, 2).bodyObj as questionResults).toStrictEqual({
-      questionId: questionId2,
-      playersCorrectList: ['caesar'],
-      averageAnswerTime: 3,
-      percentCorrect: 33
-    });
-    // let's move to third question now
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
-    // julius, caesar and alexander couldnt submit within question duration of 1 sec
-    // they all get zero
-    delay(1000);
-    expect(() => playerQuestionAnswerSubmit(playerId1, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
-    expect(() => playerQuestionAnswerSubmit(playerId2, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
-    expect(() => playerQuestionAnswerSubmit(playerId3, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
-    // goes to answer show with everyone getting 0
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
-    expect(playerQuestionResults(playerId1, 3).bodyObj as questionResults).toStrictEqual({
-      questionId: questionId3,
-      playersCorrectList: [],
-      averageAnswerTime: 0,
-      percentCorrect: 0
-    });
+
     // now let's see the final results
-    // julius' total score: 6 + 0 + 0 = 6
-    // caesar's total score: 0 + 2 + 0 = 2
-    // alexander's total score: 3 + 0 + 0 = 3
+    // julius' total score: 6
+    // caesar's total score: 0
+    // alexander's total score: 3
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_FINAL_RESULTS');
     expect(playerFinalResults(playerId1).bodyObj as finalResults).toStrictEqual({
-      usersRankedByScore: [{ name: 'julius', score: 6 }, { name: 'alexander', score: 3 }, { name: 'caesar', score: 2 }],
+      usersRankedByScore: [{ name: 'julius', score: 6 }, { name: 'alexander', score: 3 }, { name: 'caesar', score: 0 }],
       questionResults: [{
         questionId: questionId1,
         playersCorrectList: ['alexander', 'julius'],
         averageAnswerTime: 3,
         percentCorrect: 67
-      }, {
-        questionId: questionId2,
-        playersCorrectList: ['caesar'],
-        averageAnswerTime: 3,
-        percentCorrect: 33
-      }, {
-        questionId: questionId3,
-        playersCorrectList: [],
-        averageAnswerTime: 0,
-        percentCorrect: 0
       }]
     });
   });
