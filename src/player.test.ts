@@ -104,7 +104,7 @@ describe('Test for playerJoin', () => {
     const status = adminQuizSessionGetStatus(token1, Quiz1, session).bodyObj as SessionStatusReturn;
     expect(status.state).toStrictEqual('LOBBY');
   });
-    test('blank name', () => {
+  test('blank name', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
     const Quiz1 = (adminQuizCreate(token1, 'tests', 'autotesting').bodyObj as QuizCreateReturn).quizId;
     const answers = [answerObj1, answerObj2];
