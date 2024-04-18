@@ -15,8 +15,7 @@ import {
   playerQuestionAnswerSubmit,
   adminQuizInfoV2,
   adminQuizSessionGetResultsCSV
-//   adminQuestionCreate,
-//   adminQuizRemove,
+
 } from './apiRequestsIter3';
 import {
 // adminQuizThumbnailUpdate,
@@ -112,15 +111,24 @@ describe('View Sessions: /v1/admin/quiz/:quizid/sessions', () => {
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     expect(quizSessionId2).toStrictEqual(expect.any(Number));
 
+    const quizSessionId3 = (adminQuizSessionStart(sessionId1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
+    const quizSessionId4 = (adminQuizSessionStart(sessionId1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    expect(quizSessionId2).toStrictEqual(expect.any(Number));
+    adminQuizSessionStateUpdate(sessionId1, quizId1, quizSessionId3, 'END');
+    adminQuizSessionStateUpdate(sessionId1, quizId1, quizSessionId4, 'END');
+
     // Sort It just for expected output in view sessions
     const unsortedActiveSessions = [quizSessionId1, quizSessionId2];
     const sortedActiveSessions = unsortedActiveSessions.sort((a, b) => a - b);
 
-    // TODO MORE TEST  once END state action is implemented we can test more <----------------------------------------------------- cheng
+    const unsortedInactiveSessions = [quizSessionId3, quizSessionId4];
+    const sortedInactiveSessions = unsortedInactiveSessions.sort((a, b) => a - b);
+
     const viewQuizSession1 = adminQuizViewSessions(sessionId1, quizId1).bodyObj as SessionQuizViewReturn;
     expect(viewQuizSession1).toStrictEqual({
       activeSessions: sortedActiveSessions,
-      inactiveSessions: [],
+      inactiveSessions: sortedInactiveSessions,
     });
   });
 });

@@ -298,3 +298,11 @@ export const playerReturnAllChat = (playerId: number) => {
 export const playerSendChat = (playerid: number, message: message) => {
   return requestHelper('POST', `/v1/player/${playerid}/chat`, { message });
 };
+
+// =============================================================================
+// ================             Fake unrealistic  route          ===============
+// =============================================================================
+
+export const fakeRoute = (playerid: number, message: message) => {
+  return requestHelper('POST', `/v3/player/${playerid}/chat`, { message });
+};

@@ -8,9 +8,9 @@ import {
   clear, adminAuthRegister, adminQuizCreate, adminQuestionCreateV2, adminQuizSessionStart,
   playerJoin, playerQuestionPositionInfo, adminQuizSessionStateUpdate, adminQuizSessionGetStatus,
   playerQuestionAnswerSubmit, adminQuizInfoV2, playerQuestionResults, playerFinalResults, playerReturnAllChat, playerSendChat,
-  playerStatus,
+  playerStatus, fakeRoute,
 } from './apiRequestsIter3';
-
+const ERROR = { error: expect.any(String) };
 import { QuestionBodyV2, questionResults, message, answer, Action } from './dataStore';
 import { delay } from './session.test';
 beforeEach(() => { clear(); });
@@ -1508,5 +1508,59 @@ describe('Complete Test for playerSendChat ', () => {
     };
     const sent = playerSendChat(playerId1, msg);
     expect(sent.bodyObj).toStrictEqual({ });
+  });
+});
+
+// =============================================================================
+// ================             Fake unrealistic  route          ===============
+// =============================================================================
+
+describe('Fake route test for playerSendChat ', () => {
+  const questionBody1: QuestionBodyV2 = {
+    question: 'Who is the Monarch of England?',
+    duration: 4,
+    points: 5,
+    answers: [
+      { answer: 'Prince Charles', correct: true },
+      { answer: 'Princess Diana', correct: false }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+  const questionBody2: QuestionBodyV2 = {
+    question: 'What colour is the earth?',
+    duration: 4,
+    points: 5,
+    answers: [
+      { answer: 'Blue', correct: true },
+      { answer: 'Blue and Green', correct: false },
+      { answer: 'Blue and White', correct: false },
+      { answer: 'Blue, white and green', correct: true }],
+    thumbnailUrl: 'http://google.com/some/image/path.jpg'
+  };
+
+  beforeEach(() => {
+    clear();
+  });
+  // TODO ASH
+
+  test('Correct Implementation', () => {
+    const token1 = (adminAuthRegister('hayden.smith@unsw.edu.au', '1234abcd', 'Hayden', 'Smith').bodyObj as UserCreateReturn).token;
+    expect(token1).toStrictEqual(expect.any(String));
+    const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
+    expect(quizId1).toStrictEqual(expect.any(Number));
+    const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId1).toStrictEqual(expect.any(Number));
+    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
+    expect(questionId2).toStrictEqual(expect.any(Number));
+
+    const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+    const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+    expect(playerId1).toStrictEqual(expect.any(Number));
+
+    const msg :message = {
+      messageBody: 'This is a message body',
+    };
+    const sent = fakeRoute(playerId1, msg);
+    expect(sent.bodyObj).toStrictEqual(ERROR);
   });
 });
