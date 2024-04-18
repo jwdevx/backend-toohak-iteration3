@@ -309,7 +309,6 @@ export function findSession(sessionId: number) : Session | undefined {
   return data.sessions.find(session => session.sessionId === sessionId);
 }
 
-
 // =============================================================================
 // ============================   PLAYER.TS  ===================================
 // =============================================================================
