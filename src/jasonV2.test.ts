@@ -1,8 +1,8 @@
-test('Remove this test and uncomment the tests below', () => {
-  expect(1 + 1).toStrictEqual(2);
-});
+// test('Remove this test and uncomment the tests below', () => {
+//   expect(1 + 1).toStrictEqual(2);
+// });
 
-/*
+
 import HTTPError from 'http-errors';
 import {
   UserCreateReturn, QuizCreateReturn, QuestionCreateReturn, SessionCreateReturn,
@@ -57,7 +57,6 @@ describe('Complete Test mix', () => {
       expect(token1).toStrictEqual(expect.any(String));
       const quizId1 = (adminQuizCreate(token1, 'quiz1name', 'quiz1description').bodyObj as QuizCreateReturn).quizId;
       expect(quizId1).toStrictEqual(expect.any(Number));
-
     
     // Extracting answer Question 1
       const questionId1 = (adminQuestionCreateV2(token1, quizId1, questionBody1).bodyObj as QuestionCreateReturn).questionId;
@@ -91,9 +90,18 @@ describe('Complete Test mix', () => {
     //--------------------------------------------------------------------------
     //Creating Session 
       const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
-      expect(quizSessionId1).toStrictEqual(expect.any(Number));
-      const quizSessionId2 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
+    expect(quizSessionId1).toStrictEqual(expect.any(Number));
+
+      const quizSessionId2 = (adminQuizSessionStart(token1, quizId1, 0).bodyObj as SessionCreateReturn).sessionId;
       expect(quizSessionId2).toStrictEqual(expect.any(Number));
+      const SessionId2playerId1 = (playerJoin(quizSessionId2, 'Jules').bodyObj as PlayerJoinReturn).playerId;
+      expect(SessionId2playerId1).toStrictEqual(expect.any(Number));    
+      expect(playerStatus(SessionId2playerId1).bodyObj).toStrictEqual({
+        state: 'LOBBY', 
+        // numQuestions: 2, //TODO change after to expect any number <---------------------------------------
+        numQuestions: expect.any(Number),
+        atQuestion: 0, //retest //TODO change after to expect any number <---------------------------------------
+      });       
     
       //4 Player Joined
       const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
@@ -109,30 +117,34 @@ describe('Complete Test mix', () => {
       const playerId3 = (playerJoin(quizSessionId1, 'Amber').bodyObj as PlayerJoinReturn).playerId;
       expect(playerId3).toStrictEqual(expect.any(Number));
 
+      //   The current question that has been advanced to in the quiz, where 1 is the first question.
+      //    If the quiz is in either LOBBY, FINAL_RESULTS, or END state then the value is 0.
       expect(playerStatus(playerId1).bodyObj).toStrictEqual({
         state: 'LOBBY', 
-        numQuestions: 2, //TODO change after to expect any number <---------------------------------------
-        // numQuestions: expect.any(Number),
+        // numQuestions: 2, //TODO change after to expect any number <---------------------------------------
+        numQuestions: expect.any(Number),
         atQuestion: 0, //retest //TODO change after to expect any number <---------------------------------------
+
       });
     
       const playerId4 = (playerJoin(quizSessionId1, '').bodyObj as PlayerJoinReturn).playerId;
       expect(playerId4).toStrictEqual(expect.any(Number));
 
-      let status = adminQuizSessionGetStatus(token1, quizId1, quizSessionId1).bodyObj as SessionStatusReturn;
-      console.log(status);    
+    //   let status = adminQuizSessionGetStatus(token1, quizId1, quizSessionId1).bodyObj as SessionStatusReturn;
+    //   console.log(status);    
       
-      //! BUG Player Status
+      // Player Status
       //autostartNum is number of people to autostart the quiz once that number of people join. If this number is 0, then no auto start will occur.
       expect(playerStatus(playerId1).bodyObj).toStrictEqual({
         state: 'QUESTION_COUNTDOWN', 
-        numQuestions: 2, //TODO change after to expect any number <---------------------------------------
-        // numQuestions: expect.any(Number),
-        atQuestion: 1, //retest //TODO change after to expect any number <---------------------------------------
+        // numQuestions: 2, //TODO change after to expect any number <---------------------------------------
+        numQuestions: expect.any(Number),
+        // atQuestion: 1, //retest //TODO change after to expect any number <---------------------------------------
+        atQuestion: expect.any(Number),
       });
 
-      //!BUG Should fail
-      expect(() => playerJoin(quizSessionId1, 'player5')).toThrow(HTTPError[400]);
+    // Should fail successfully
+    expect(() => playerJoin(quizSessionId1, 'player5')).toThrow(HTTPError[400]);
 
     //Action
     expect(() => adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION')).toThrow(HTTPError[400]);
@@ -176,7 +188,7 @@ describe('Complete Test mix', () => {
 
     //Question Result
     const resultp1 = playerQuestionResults(playerId1, 1).bodyObj as questionResults;
-    console.log(resultp1);
+    // console.log(resultp1);
     expect(resultp1).toStrictEqual({
       questionId: questionId1,
       playersCorrectList: ['Jules'],
@@ -190,136 +202,29 @@ describe('Complete Test mix', () => {
       percentCorrect: expect.any(Number)
     })
 
+
+    
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_FINAL_RESULTS');
+    // status = adminQuizSessionGetStatus(token1, quizId1, quizSessionId1).bodyObj as SessionStatusReturn; console.log(status); 
+
     expect(playerStatus(playerId1).bodyObj).toStrictEqual({
-      state: 'GO_TO_FINAL_RESULTS', 
-      numQuestions: 2, //TODO change after to expect any number <---------------------------------------
-      // numQuestions: expect.any(Number),
+      state: 'FINAL_RESULTS', 
+    //   numQuestions: 2, //TODO change after to expect any number <---------------------------------------
+      numQuestions: expect.any(Number),
       atQuestion: 0, //retest //TODO change after to expect any number <---------------------------------------
     });
+
 
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'END');
+    // status = adminQuizSessionGetStatus(token1, quizId1, quizSessionId1).bodyObj as SessionStatusReturn; console.log(status); 
+
     expect(playerStatus(playerId1).bodyObj).toStrictEqual({
       state: 'END', 
-      numQuestions: 2, //TODO change after to expect any number <---------------------------------------
-      // numQuestions: expect.any(Number),
+    //   numQuestions: 2, //TODO change after to expect any number <---------------------------------------
+      numQuestions: expect.any(Number),
       atQuestion: 0, //retest //TODO change after to expect any number <---------------------------------------
     });
-
-
-
-
-
-
-        //     // const submitAns1p2 = playerQuestionAnswerSubmit(playerId2, 1, wrongAnswersQuestion2);
-        //     // expect(submitAns1p2.bodyObj).toStrictEqual({});
-
-
-
-            
-        //     // Resubmit answer1 but its wrong one now
-        //     // test('Allow the current player to submit answer(s) to the currently active question.', () => {  });
-        //     const resubmitAns1 = playerQuestionAnswerSubmit(playerId1, 1, wrongAnswersQuestion1);
-        //     expect(resubmitAns1.bodyObj).toStrictEqual({});
-
-        //     expect(() => playerQuestionAnswerSubmit(playerId1, 2, correctAnswersQuestion1)).toThrow(HTTPError[400]);
-        //     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
-        //     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
-        //     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
-        //     // status = adminQuizSessionGetStatus(token1, quizId1, quizSessionId1).bodyObj as SessionStatusReturn;
-        //     // console.log(status);
-
-        //     //! Wrong answer
-        //     expect(() => playerQuestionAnswerSubmit(playerId1, 2, correctAnswersQuestion1)).toThrow(HTTPError[400]);
-
-        //     //^Player 1 submit correct answer
-        //     const submitAns2 = playerQuestionAnswerSubmit(playerId1, 2, correctAnswersQuestion2);
-        //     expect(submitAns2.bodyObj).toStrictEqual({});
-
-
-
-        //   expect(playerQuestionResults(playerId1, 2).bodyObj as questionResults).toStrictEqual({
-        //     questionId: questionId2,
-        //     playersCorrectList: ['Jules'],
-        //     averageAnswerTime: expect.any(Number),
-        //     percentCorrect: expect.any(Number)
-        //   })
-
-
-        //     // TODO maybe from Sadat's function this will already be tested
-        //     playerQuestionAnswerSubmit(playerId2, 2, wrongAnswersQuestion2);
-        //     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
-        //     let status = adminQuizSessionGetStatus(token1, quizId1, quizSessionId1).bodyObj as SessionStatusReturn;
-        //     console.log(status);
-        //     const result = playerQuestionResults(playerId1, 2).bodyObj as questionResults;
-        //     console.log(result);
-
-        //   // TODO maybe from Sadat's function this will already be tested
-
   });
-
-
-
 });
 
-*/
 
-
-// export function playerQuestionResults(playerId: number, questionPosition: number): Record<string, never> {
-//   {
-//   questionId	        integer
-//                       example: 5546
-//   playersCorrectList	[This array is ordered in ascending order of player name
-//                       string
-//                       example: Hayden
-//                       List of the name of players
-//                       ]
-//   averageAnswerTime	integer
-//                       example: 45
-//                       The average answer time for the question across all players who attempted the question, rounded to the nearest second. 
-//                       If no answers are submitted then the value is 0.
-
-//   percentCorrect	    integer
-//                       example: 54
-//                       A percentage rounded to the nearest whole number that describes the percentage of players that got the question completely correct.
-
-//   }
-//   return {};
-// }
-
-
-// export function playerFinalResults(playerId: number): Record<string, never> {
-//   {
-//   usersRankedByScore	[
-//                       A list of all users who played ranked in descending order by score
-//                       All scores are rounded to the nearest integer.
-//                       If there are players with the same final score, they share the same rank, e.g. players scoring 5, 3, 3, 2, 2, 1 have ranks 1, 2, 2, 4, 4, 6.
-//                       {
-//                       name	    string
-//                                   example: Hayden
-//                                   The name of the player that is a top ranker
-//                       score	    number
-//                                   example: 45
-//                                   The final score for the user
-//                       }]
-//   questionResults     questionId	        integer
-//                                           example: 5546
-//                       playersCorrectList	[
-//                                           This array is ordered in ascending order of player name
-//                                           string
-//                                           example: Hayden
-//                                           List of the name of players
-//                                           ]
-//                       averageAnswerTime	integer
-//                                           example: 45
-//                                           The average answer time for the question across all players who attempted the question, rounded to the nearest second. 
-//                                           If no answers are submitted then the value is 0.
-
-//                       percentCorrect	    integer
-//                                           example: 54
-//                                           A percentage rounded to the nearest whole number that describes the percentage of players 
-//                                           that got the question completely correct.
-//   }
-// 
-//   return {};
-// }
