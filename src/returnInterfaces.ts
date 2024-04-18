@@ -1,5 +1,5 @@
 import { metaData, questionResults, state } from './dataStore';
-import { Questions, QuestionV1,chat } from './dataStore';
+import { Questions, QuestionV1, chat } from './dataStore';
 
 export interface RequestHelperReturnType {
     bodyObj?: UserCreateReturn |
@@ -25,7 +25,7 @@ export interface RequestHelperReturnType {
     questionResults |
     finalResults |
     playerReturnAllChatReturn |
-  
+
     EmptyObject |
     ErrorObject;
     error?: string;
