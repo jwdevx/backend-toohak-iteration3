@@ -36,7 +36,7 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
     }
     name = randomName;
     if (quizSession.players.find((player) => player.playerName === randomName)) {
-      while(quizSession.players.find((player) => player.playerName === randomName)) {
+      while (quizSession.players.find((player) => player.playerName === randomName)) {
         const letters = 'abcdefghijklmnopqrstuvwxyz';
         const numbers = '0123456789';
 
