@@ -1059,17 +1059,6 @@ describe('Complete Test for playerFinalResults', () => {
       { answer: 'Blue, white and green', correct: true }],
     thumbnailUrl: 'http://google.com/some/image/path.jpg'
   };
-  const questionBody3: QuestionBodyV2 = {
-    question: 'What colour is the moon?',
-    duration: 1,
-    points: 5,
-    answers: [
-      { answer: 'white', correct: true },
-      { answer: 'Blue and Green', correct: false },
-      { answer: 'Blue and White', correct: false },
-      { answer: 'black and white', correct: true }],
-    thumbnailUrl: 'http://google.com/some/image/path.jpg'
-  };
   beforeEach(() => {
     clear();
   });
@@ -1094,32 +1083,7 @@ describe('Complete Test for playerFinalResults', () => {
     for (const a of answerObjectQuestion1) {
       if (a.correct === false) { wrongAnswersQuestion1.push(a.answerId); }
     }
-    // creating Question 2
-    const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
-    // Extracting answer Question 2
-    const answerObjectQuestion2 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[1].answers;
-    const allAnswersQuestion2: Array<number> = []; for (const a of answerObjectQuestion2) { allAnswersQuestion2.push(a.answerId); }
-    const correctAnswersQuestion2: Array<number> = [];
-    for (const a of answerObjectQuestion2) {
-      if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
-    }
-    const wrongAnswersQuestion2: Array<number> = [];
-    for (const a of answerObjectQuestion2) {
-      if (a.correct === false) { wrongAnswersQuestion2.push(a.answerId); }
-    }
-    // creating Question 3
-    const questionId3 = (adminQuestionCreateV2(token1, quizId1, questionBody3).bodyObj as QuestionCreateReturn).questionId;
-    // Extracting answer Question 2
-    const answerObjectQuestion3 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[2].answers;
-    const allAnswersQuestion3: Array<number> = []; for (const a of answerObjectQuestion3) { allAnswersQuestion3.push(a.answerId); }
-    const correctAnswersQuestion3: Array<number> = [];
-    for (const a of answerObjectQuestion3) {
-      if (a.correct === true) { correctAnswersQuestion3.push(a.answerId); }
-    }
-    const wrongAnswersQuestion3: Array<number> = [];
-    for (const a of answerObjectQuestion3) {
-      if (a.correct === false) { wrongAnswersQuestion3.push(a.answerId); }
-    }
+
     // starting session
     const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     const playerId1 = (playerJoin(quizSessionId1, 'julius').bodyObj as PlayerJoinReturn).playerId;
