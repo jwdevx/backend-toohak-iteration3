@@ -148,14 +148,14 @@ export function processAnswerSubmission(
 
   // Valid for first time and resubmit
   const answerTime = calculateAnswerTime(session);
-  const isCorrect = analyzeAnswer(question, answerIds);
+  const isCorrect:boolean = analyzeAnswer(question, answerIds);
   const atQuestion = session.questionResults[questionPosition - 1];
 
   // Success 200 case 1 - if no answer yet, player can answer first time
   if (playerAnswer.answerIds.length === 0) {
     playerAnswer.answerIds = answerIds;
     playerAnswer.answerTime = answerTime;
-    if (isCorrect) {
+    if (isCorrect === true) {
       playerAnswer.correct = true;
       atQuestion.playersCorrectList.push(player.playerName);
       playerAnswer.score = calculateScore(player, session, question, atQuestion);
@@ -167,7 +167,7 @@ export function processAnswerSubmission(
     playerAnswer.answerIds = answerIds;
     playerAnswer.answerTime = answerTime;
 
-    if (isCorrect) {
+    if (isCorrect  === true) {
       updateAnswerQuestionResults(player, question, atQuestion, isCorrect);
       playerAnswer.correct = true;
       const temp = playerAnswer.score;
@@ -186,7 +186,6 @@ export function processAnswerSubmission(
 /**
  * Calculate Score, P / (num of ppl with correct answer before)
  */
-// TODO jest tESt before forum Players who answer the question at the exact same time results in undefined behaviour.
 function calculateScore(player: player, session: Session, question: Questions, atQuestion: questionResults): number {
   const questionPoints = question.points;
   const playerNameIndex = atQuestion.playersCorrectList.indexOf(player.playerName);
@@ -200,7 +199,7 @@ function updateAnswerQuestionResults(
   player: player, question: Questions, atQuestion: questionResults, isCorrect: boolean): void {
   const playerNameIndex = atQuestion.playersCorrectList.indexOf(player.playerName);
   atQuestion.playersCorrectList.splice(playerNameIndex, 1);
-  if (isCorrect) {
+  if (isCorrect === true) {
     atQuestion.playersCorrectList.push(player.playerName);
   }
 }
