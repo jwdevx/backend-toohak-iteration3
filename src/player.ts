@@ -18,18 +18,6 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
   if (!quizSession) {
     throw HTTPError(400, 'Session Id does not refer to a valid session.');
   }
-  const existingPlayer = quizSession.players.find(
-    (player) => player.playerName === name
-  );
-  if (existingPlayer) {
-    throw HTTPError(
-      400,
-      'Name of user entered is not unique compared to other users who have already joined.'
-    );
-  }
-  if (quizSession.state !== state.LOBBY) {
-    throw HTTPError(400, 'Session is not in LOBBY state.');
-  }
   if (name.length === 0) {
     const letters = 'abcdefghijklmnopqrstuvwxyz';
     const numbers = '0123456789';
@@ -47,6 +35,37 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
       randomName += shuffledNumbers[i];
     }
     name = randomName;
+    if (quizSession.players.find((player) => player.playerName === randomName)) {
+      while(quizSession.players.find((player) => player.playerName === randomName)) {
+        const letters = 'abcdefghijklmnopqrstuvwxyz';
+        const numbers = '0123456789';
+
+        // Generate random letters without repetition
+        const shuffledLetters = letters.split('').sort(() => Math.random() - 0.5);
+        for (let i = 0; i < 5; i++) {
+          randomName += shuffledLetters[i];
+        }
+
+        // Generate random numbers without repetition
+        const shuffledNumbers = numbers.split('').sort(() => Math.random() - 0.5);
+        for (let i = 0; i < 3; i++) {
+          randomName += shuffledNumbers[i];
+        }
+        name = randomName;
+      }
+    }
+  }
+  const existingPlayer = quizSession.players.find(
+    (player) => player.playerName === name
+  );
+  if (existingPlayer) {
+    throw HTTPError(
+      400,
+      'Name of user entered is not unique compared to other users who have already joined.'
+    );
+  }
+  if (quizSession.state !== state.LOBBY) {
+    throw HTTPError(400, 'Session is not in LOBBY state.');
   }
   const newPlayer: player = {
     playerId: randomIdGenertor(),
