@@ -1,7 +1,7 @@
 import HTTPError from 'http-errors';
 import {
   findQuizSessionViaPlayerId, findAtQuestionMetadata, randomIdGenertor,
-  hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer, iterateQuestionResults, invalidMessageLength
+  hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer, iterateQuestionResults, invalidMessageLength, nameGenerator
 } from './helper';
 import { message, player, state, questionResults, Session, Questions, chat, getData, setData, DataStore } from './dataStore';
 
@@ -19,40 +19,9 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
     throw HTTPError(400, 'Session Id does not refer to a valid session.');
   }
   if (name.length === 0) {
-    const letters = 'abcdefghijklmnopqrstuvwxyz';
-    const numbers = '0123456789';
-    let randomName = '';
-
-    // Generate random letters without repetition
-    const shuffledLetters = letters.split('').sort(() => Math.random() - 0.5);
-    for (let i = 0; i < 5; i++) {
-      randomName += shuffledLetters[i];
-    }
-
-    // Generate random numbers without repetition
-    const shuffledNumbers = numbers.split('').sort(() => Math.random() - 0.5);
-    for (let i = 0; i < 3; i++) {
-      randomName += shuffledNumbers[i];
-    }
-    name = randomName;
-    if (quizSession.players.find((player) => player.playerName === randomName)) {
-      while (quizSession.players.find((player) => player.playerName === randomName)) {
-        const letters = 'abcdefghijklmnopqrstuvwxyz';
-        const numbers = '0123456789';
-
-        // Generate random letters without repetition
-        const shuffledLetters = letters.split('').sort(() => Math.random() - 0.5);
-        for (let i = 0; i < 5; i++) {
-          randomName += shuffledLetters[i];
-        }
-
-        // Generate random numbers without repetition
-        const shuffledNumbers = numbers.split('').sort(() => Math.random() - 0.5);
-        for (let i = 0; i < 3; i++) {
-          randomName += shuffledNumbers[i];
-        }
-        name = randomName;
-      }
+    name = nameGenerator();
+    while (quizSession.players.find((player) => player.playerName === name)) {
+      name = nameGenerator();
     }
   }
   const existingPlayer = quizSession.players.find(

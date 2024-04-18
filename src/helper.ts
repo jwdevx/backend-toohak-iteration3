@@ -309,13 +309,6 @@ export function findSession(sessionId: number) : Session | undefined {
   return data.sessions.find(session => session.sessionId === sessionId);
 }
 
-export function delay(ms: number) {
-  const startTime = new Date().getTime();
-  while (new Date().getTime() - startTime < ms) {
-    // this is a useless sentence to let eslint shut up
-  }
-}
-
 // =============================================================================
 // ============================   PLAYER.TS  ===================================
 // =============================================================================
@@ -421,4 +414,23 @@ export function iterateQuestionResults(session: Session, questionPosition: numbe
   if (PlayersAnsweredOnTime) {
     atQuestion.averageAnswerTime = Math.round(totalAnswerTime / PlayersAnsweredOnTime);
   }
+}
+
+export function nameGenerator() : string {
+  const letters = 'abcdefghijklmnopqrstuvwxyz';
+  const numbers = '0123456789';
+  let randomName = '';
+
+  // Generate random letters without repetition
+  const shuffledLetters = letters.split('').sort(() => Math.random() - 0.5);
+  for (let i = 0; i < 5; i++) {
+    randomName += shuffledLetters[i];
+  }
+
+  // Generate random numbers without repetition
+  const shuffledNumbers = numbers.split('').sort(() => Math.random() - 0.5);
+  for (let i = 0; i < 3; i++) {
+    randomName += shuffledNumbers[i];
+  }
+  return randomName;
 }
