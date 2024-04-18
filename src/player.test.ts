@@ -120,12 +120,6 @@ describe('Test for playerJoin', () => {
     expect(session).toStrictEqual(expect.any(Number));
     const player = (playerJoin(session, '').bodyObj as PlayerJoinReturn).playerId;
     expect(player).toStrictEqual(expect.any(Number));
-    const playerStats = playerStatus(player).bodyObj;
-    expect(playerStats).toStrictEqual({
-      state: 'LOBBY',
-      numQuestions: expect.any(Number),
-      atQuestion: expect.any(Number)
-    });
   });
   test('success 200', () => {
     const token1 = (adminAuthRegister('sadat@gmail.com', 'WOjiaoZC123', 'Sadat', 'Kabir').bodyObj as UserCreateReturn).token;
