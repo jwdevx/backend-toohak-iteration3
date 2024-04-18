@@ -535,7 +535,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
     for (const a of answerObjectQuestion2) {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
-
+    const onlyOneCorrectAnswer: Array<number> = []; onlyOneCorrectAnswer.push(correctAnswersQuestion2[0]);
     const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
@@ -560,6 +560,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
     expect(() => playerQuestionAnswerSubmit(playerId1, 2, correctAnswersQuestion1)).toThrow(HTTPError[400]);
     expect(() => playerQuestionAnswerSubmit(playerId1, 2, correctAnswersQuestion2)).not.toThrow(HTTPError[400]);
     expect(() => playerQuestionAnswerSubmit(playerId2, 2, correctAnswersQuestion2)).not.toThrow(HTTPError[400]);
+    expect(() => playerQuestionAnswerSubmit(playerId2, 2, onlyOneCorrectAnswer)).not.toThrow(HTTPError[400]);
   });
 
   // Error 400 if answer IDs are not valid for this particular question
