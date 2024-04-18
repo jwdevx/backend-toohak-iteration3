@@ -168,37 +168,51 @@ const database = createClient({
   token: KV_REST_API_TOKEN,
 });
 
-// ----------------------------------------------------------------------------//
+// ---------------------   Data Management with KV  --------------------------//
 
-// Data Management with KV
-app.get('/data', async (req: Request, res: Response) => {
-  const data = await database.hgetall('data:names');
-  res.status(200).json(data);
-});
 
-app.put('/data', async (req: Request, res: Response) => {
-  const { data } = req.body;
-  await database.hset('data:names', { data });
-  return res.status(200).json({});
-});
+// app.get('/data', async (req: Request, res: Response) => {
+//   const data = await database.hgetall('data:names');
+//   res.status(200).json(data);
+// });
 
-  
-// =============================================================================
-// ============================ LOAD & SAVE DATA ===============================
-// =============================================================================
+// app.put('/data', async (req: Request, res: Response) => {
+//   const { data } = req.body;
+//   await database.hset('data:names', { data });
+//   return res.status(200).json({});
+// });
 
-const load = () => {
+
+
+const load = async () => {
   if (fs.existsSync('./database.json')) {
-    const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
+    const data = await database.hgetall('data:names');
     setData(JSON.parse(file));
   }
 };
 load();
 
-function saveData() {
+const saveData = async () => {
   const data = getData();
-  fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
+  await database.hset('data:names', { data });
 }
+
+// =============================================================================
+// ============================ LOAD & SAVE DATA ===============================
+// =============================================================================
+
+// const load = () => {
+//   if (fs.existsSync('./database.json')) {
+//     const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
+//     setData(JSON.parse(file));
+//   }
+// };
+// load();
+
+// function saveData() {
+//   const data = getData();
+//   fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
+// }
 
 // =============================================================================
 // ========================== WORK IS DONE BELOW THIS LINE =====================
@@ -813,6 +827,20 @@ app.use(errorHandler());
 
 // start server
 const server = app.listen(PORT, HOST, () => {
+
+  // Load existing persistent data before server starts
+  // const load = () => {
+  //   if (fs.existsSync('./database.json')) {
+  //     const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
+  //     setData(JSON.parse(file));
+  //   }
+  // };
+  // load();
+  // function saveData() {
+  //   const data = getData();
+  //   fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
+  // }  
+
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
 });
@@ -821,3 +849,4 @@ const server = app.listen(PORT, HOST, () => {
 process.on('SIGINT', () => {
   server.close(() => console.log('Shutting down server gracefully.'));
 });
+
