@@ -346,7 +346,7 @@ export function goNext(session: Session) {
 export function adminQuizSessionGetStatus(token: string, quizId: number, sessionId: number): SessionStatusReturn {
   // 1.Error 401
   const userSessionId = parseInt(decodeURIComponent(token));
-  if (!token || !String(token).trim() || isNaN(sessionId)) {
+  if (!token || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
   const validToken = findSessionId(userSessionId);
