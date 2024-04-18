@@ -187,7 +187,8 @@ const database = createClient({
 const load = async () => {
   if (fs.existsSync('./database.json')) {
     const data = await database.hgetall('data:names');
-    setData(JSON.parse(file));
+    // setData(JSON.parse(file));
+    res.status(200).json(data);
   }
 };
 load();
@@ -195,6 +196,7 @@ load();
 const saveData = async () => {
   const data = getData();
   await database.hset('data:names', { data });
+  return res.status(200).json({});
 }
 
 // =============================================================================
