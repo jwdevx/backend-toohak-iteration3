@@ -464,7 +464,6 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
     expect(() => playerQuestionAnswerSubmit(playerId1, -1, invalidAnswerIds)).toThrow(HTTPError[400]);
     expect(() => playerQuestionAnswerSubmit(playerId1, 0, invalidAnswerIds)).toThrow(HTTPError[400]);
     expect(() => playerQuestionAnswerSubmit(playerId1, 10, invalidAnswerIds)).toThrow(HTTPError[400]);
-    
   });
 
   // Error 400 if session is not in QUESTION_OPEN state
@@ -494,7 +493,6 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
     for (const a of answerObjectQuestion2) {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
-    
 
     const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
@@ -537,7 +535,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
     for (const a of answerObjectQuestion2) {
       if (a.correct === true) { correctAnswersQuestion2.push(a.answerId); }
     }
-    const only_one_correct: Array<number> = []; only_one_correct.push(correctAnswersQuestion2[0])
+    const onlyOneCorrectAnswer: Array<number> = []; onlyOneCorrectAnswer.push(correctAnswersQuestion2[0]);
     const quizSessionId1 = (adminQuizSessionStart(token1, quizId1, 4).bodyObj as SessionCreateReturn).sessionId;
     expect(quizSessionId1).toStrictEqual(expect.any(Number));
     const playerId1 = (playerJoin(quizSessionId1, 'Jules').bodyObj as PlayerJoinReturn).playerId;
@@ -551,7 +549,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
     // console.log(status);
     expect(() => playerQuestionAnswerSubmit(playerId1, 1, correctAnswersQuestion1)).not.toThrow(HTTPError[400]);
     expect(() => playerQuestionAnswerSubmit(playerId1, 2, correctAnswersQuestion1)).toThrow(HTTPError[400]);
-      
+
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
@@ -562,7 +560,7 @@ describe('Complete Test for playerQuestionAnswerSubmit', () => {
     expect(() => playerQuestionAnswerSubmit(playerId1, 2, correctAnswersQuestion1)).toThrow(HTTPError[400]);
     expect(() => playerQuestionAnswerSubmit(playerId1, 2, correctAnswersQuestion2)).not.toThrow(HTTPError[400]);
     expect(() => playerQuestionAnswerSubmit(playerId2, 2, correctAnswersQuestion2)).not.toThrow(HTTPError[400]);
-    expect(() => playerQuestionAnswerSubmit(playerId2, 2, only_one_correct)).not.toThrow(HTTPError[400]);    
+    expect(() => playerQuestionAnswerSubmit(playerId2, 2, onlyOneCorrectAnswer)).not.toThrow(HTTPError[400]);
   });
 
   // Error 400 if answer IDs are not valid for this particular question

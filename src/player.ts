@@ -167,7 +167,7 @@ export function processAnswerSubmission(
     playerAnswer.answerIds = answerIds;
     playerAnswer.answerTime = answerTime;
 
-    if (isCorrect  === true) {
+    if (isCorrect === true) {
       updateAnswerQuestionResults(player, question, atQuestion, isCorrect);
       playerAnswer.correct = true;
       const temp = playerAnswer.score;

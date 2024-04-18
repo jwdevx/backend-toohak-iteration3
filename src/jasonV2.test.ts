@@ -46,7 +46,7 @@ describe('Complete Test mix', () => {
       { answer: 'Blue, white and green', correct: true }],
     thumbnailUrl: 'http://google.com/some/image/path.jpg'
   };
-  //Insane duration
+  // Insane duration
   const questionBody3: QuestionBodyV2 = {
     question: 'What colour is the earth?',
     duration: 4000000,
@@ -88,7 +88,6 @@ describe('Complete Test mix', () => {
     // Extracting answer Question 2
     expect(() => adminQuestionCreateV2(token1, quizId1, questionBody3)).toThrow(HTTPError[400]);
 
-    
     const questionId2 = (adminQuestionCreateV2(token1, quizId1, questionBody2).bodyObj as QuestionCreateReturn).questionId;
     expect(questionId2).toStrictEqual(expect.any(Number));
     const answerObjectQuestion2 = (adminQuizInfoV2(token1, quizId1).bodyObj as quizInfoV2Return).questions[1].answers;
@@ -114,7 +113,7 @@ describe('Complete Test mix', () => {
       state: 'LOBBY',
       // numQuestions: 2, //TODO-
       numQuestions: expect.any(Number),
-      atQuestion: 0, // retest //TODO 
+      atQuestion: 0, // retest //TODO
     });
 
     // 4 Player Joined
@@ -135,9 +134,9 @@ describe('Complete Test mix', () => {
     //    If the quiz is in either LOBBY, FINAL_RESULTS, or END state then the value is 0.
     expect(playerStatus(playerId1).bodyObj).toStrictEqual({
       state: 'LOBBY',
-      // numQuestions: 2, //TODO 
+      // numQuestions: 2, //TODO
       numQuestions: expect.any(Number),
-      atQuestion: 0, // retest //TODO 
+      atQuestion: 0, // retest //TODO
 
     });
 
@@ -151,9 +150,9 @@ describe('Complete Test mix', () => {
     // autostartNum is number of people to autostart the quiz once that number of people join. If this number is 0, then no auto start will occur.
     expect(playerStatus(playerId1).bodyObj).toStrictEqual({
       state: 'QUESTION_COUNTDOWN',
-      // numQuestions: 2, //TODO 
+      // numQuestions: 2, //TODO
       numQuestions: expect.any(Number),
-      // atQuestion: 1, //retest //TODO 
+      // atQuestion: 1, //retest //TODO
       atQuestion: expect.any(Number),
     });
 
@@ -223,7 +222,7 @@ describe('Complete Test mix', () => {
       state: 'FINAL_RESULTS',
       //   numQuestions: 2, //TODO
       numQuestions: expect.any(Number),
-      atQuestion: 0, // retest //TODO 
+      atQuestion: 0, // retest //TODO
     });
 
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'END');
@@ -231,9 +230,9 @@ describe('Complete Test mix', () => {
 
     expect(playerStatus(playerId1).bodyObj).toStrictEqual({
       state: 'END',
-      //   numQuestions: 2, //TODO 
+      //   numQuestions: 2, //TODO
       numQuestions: expect.any(Number),
-      atQuestion: 0, // retest //TODO 
+      atQuestion: 0, // retest //TODO
     });
   });
 });
