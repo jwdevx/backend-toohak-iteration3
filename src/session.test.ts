@@ -130,7 +130,6 @@ describe('View Sessions: /v1/admin/quiz/:quizid/sessions', () => {
       activeSessions: sortedActiveSessions,
       inactiveSessions: sortedInactiveSessions,
     });
-
   });
 });
 
