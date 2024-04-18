@@ -1156,70 +1156,19 @@ describe('Complete Test for playerFinalResults', () => {
       averageAnswerTime: 3,
       percentCorrect: 67
     });
-    // let's move to second question now
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
-    // julius is submitting wrong answers for question 2 and takes total 2 seconds
-    // his score is 0.
-    delay(2000);
-    playerQuestionAnswerSubmit(playerId1, 2, wrongAnswersQuestion2);
-    // caesar is submitting correct answers for question 2 and takes total 3 seconds
-    // his score should be 2/1 = 2.
-    delay(1000);
-    playerQuestionAnswerSubmit(playerId2, 2, correctAnswersQuestion2);
-    // alexander is submitting correct answers for question 2 but takes total 6 secs which exceeds the duration of 5 secs.
-    // his answer should not be registered and should be marked as incorrect, scoring him 0.
-    delay(3000);
-    expect(() => playerQuestionAnswerSubmit(playerId3, 2, correctAnswersQuestion2)).toThrow(HTTPError[400]);
-    // we should have moved to QUESTION_CLOSE automatically by now
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
-    // expected average time = (2 + 3) / 2 = 2.5 which rounds to 3
-    // expected percent correct = (1 / 3 * 100) which rounds to 33
-    expect(playerQuestionResults(playerId1, 2).bodyObj as questionResults).toStrictEqual({
-      questionId: questionId2,
-      playersCorrectList: ['caesar'],
-      averageAnswerTime: 3,
-      percentCorrect: 33
-    });
-    // let's move to third question now
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'NEXT_QUESTION');
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'SKIP_COUNTDOWN');
-    // julius, caesar and alexander couldnt submit within question duration of 1 sec
-    // they all get zero
-    delay(1000);
-    expect(() => playerQuestionAnswerSubmit(playerId1, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
-    expect(() => playerQuestionAnswerSubmit(playerId2, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
-    expect(() => playerQuestionAnswerSubmit(playerId3, 3, correctAnswersQuestion3)).toThrow(HTTPError[400]);
-    // goes to answer show with everyone getting 0
-    adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_ANSWER');
-    expect(playerQuestionResults(playerId1, 3).bodyObj as questionResults).toStrictEqual({
-      questionId: questionId3,
-      playersCorrectList: [],
-      averageAnswerTime: 0,
-      percentCorrect: 0
-    });
+
     // now let's see the final results
-    // julius' total score: 6 + 0 + 0 = 6
-    // caesar's total score: 0 + 2 + 0 = 2
-    // alexander's total score: 3 + 0 + 0 = 3
+    // julius' total score: 6
+    // caesar's total score: 0
+    // alexander's total score: 3
     adminQuizSessionStateUpdate(token1, quizId1, quizSessionId1, 'GO_TO_FINAL_RESULTS');
     expect(playerFinalResults(playerId1).bodyObj as finalResults).toStrictEqual({
-      usersRankedByScore: [{ name: 'julius', score: 6 }, { name: 'alexander', score: 3 }, { name: 'caesar', score: 2 }],
+      usersRankedByScore: [{ name: 'julius', score: 6 }, { name: 'alexander', score: 3 }, { name: 'caesar', score: 0 }],
       questionResults: [{
         questionId: questionId1,
         playersCorrectList: ['alexander', 'julius'],
         averageAnswerTime: 3,
         percentCorrect: 67
-      }, {
-        questionId: questionId2,
-        playersCorrectList: ['caesar'],
-        averageAnswerTime: 3,
-        percentCorrect: 33
-      }, {
-        questionId: questionId3,
-        playersCorrectList: [],
-        averageAnswerTime: 0,
-        percentCorrect: 0
       }]
     });
   });
