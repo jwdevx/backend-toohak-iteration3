@@ -40,19 +40,18 @@ import {
   PlayerJoinReturn,
   CSVUrlReturn
 } from './returnInterfaces';
-import { delay } from './helper';
 // import { QuestionBodyV2, answer } from './dataStore';
 
+export function delay(ms: number) {
+  const startTime = new Date().getTime();
+  while (new Date().getTime() - startTime < ms) {
+    // this is a useless sentence to let eslint shut up
+  }
+}
 // const ERROR = { error: expect.any(String) };
 beforeEach(() => {
   clear();
 });
-
-// =============================================================================
-// ====================    adminQuizThumbnailUpdate   ==========================
-// =============================================================================
-
-// TODO ASH
 
 // =============================================================================
 // ======================    adminQuizViewSessions   ===========================

@@ -12,7 +12,7 @@ import {
 } from './apiRequestsIter3';
 
 import { QuestionBodyV2, questionResults, message, answer, Action } from './dataStore';
-import { delay } from './helper';
+import { delay } from './session.test';
 beforeEach(() => { clear(); });
 
 // =============================================================================
