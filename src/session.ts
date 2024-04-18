@@ -276,6 +276,7 @@ function goFinal(session: Session) {
     session.state === state.QUESTION_CLOSE
   ) {
     session.state = state.FINAL_RESULTS;
+    session.atQuestion = 0;
   }
 }
 
@@ -345,7 +346,7 @@ export function goNext(session: Session) {
 export function adminQuizSessionGetStatus(token: string, quizId: number, sessionId: number): SessionStatusReturn {
   // 1.Error 401
   const userSessionId = parseInt(decodeURIComponent(token));
-  if (!token || !String(token).trim() || isNaN(sessionId)) {
+  if (!token || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
   const validToken = findSessionId(userSessionId);
@@ -355,7 +356,7 @@ export function adminQuizSessionGetStatus(token: string, quizId: number, session
   // 2.Error 403
   const session = findSession(sessionId);
   if (isNaN(quizId) || isNaN(sessionId) || !session) {
-    throw HTTPError(403, 'Session does not exist.');
+    throw HTTPError(400, 'Session does not exist.');
   }
   if (session.owner !== validToken.userId) {
     throw HTTPError(403, 'Valid token is provided, but user is not an owner of this quiz');
