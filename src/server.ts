@@ -151,7 +151,38 @@ Question-Specific Routes (v1)
   GET /v1/player/{playerid}/chat - New
   POST /v1/player/{playerid}/chat - New
 */
+// ----------------------------------------------------------------------------//
 
+// Vercel Constants and Configuration Setup
+import { createClient } from '@vercel/kv';
+
+// Replace this with your API_URL
+// E.g. https://large-poodle-44208.kv.vercel-storage.com
+const KV_REST_API_URL = 'https://giving-earwig-49684.upstash.io';
+// Replace this with your API_TOKEN
+// E.g. AaywASQgOWE4MTVkN2UtODZh...
+const KV_REST_API_TOKEN = 'AcIUASQgOTdhZmZmMjMtNTEzMi00ZWFhLWIxNTMtOTQwMjRkYjVlMzQ2NDQzZmU5OGFmOTdjNDgyN2I2ZGJkMmYwMDQzYTIyYTI=';
+
+const database = createClient({
+  url: KV_REST_API_URL,
+  token: KV_REST_API_TOKEN,
+});
+
+// ----------------------------------------------------------------------------//
+
+// Data Management with KV
+app.get('/data', async (req: Request, res: Response) => {
+  const data = await database.hgetall('data:names');
+  res.status(200).json(data);
+});
+
+app.put('/data', async (req: Request, res: Response) => {
+  const { data } = req.body;
+  await database.hset('data:names', { data });
+  return res.status(200).json({});
+});
+
+  
 // =============================================================================
 // ============================ LOAD & SAVE DATA ===============================
 // =============================================================================
