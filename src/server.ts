@@ -831,20 +831,30 @@ app.use(errorHandler());
 const server = app.listen(PORT, HOST, () => {
 
   // Load existing persistent data before server starts
-  // const load = () => {
-  //   if (fs.existsSync('./database.json')) {
-  //     const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
-  //     setData(JSON.parse(file));
-  //   }
-  // };
-  // load();
-  // function saveData() {
-  //   const data = getData();
-  //   fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
-  // }
+      // const load = () => {
+      //   if (fs.existsSync('./database.json')) {
+      //     const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
+      //     setData(JSON.parse(file));
+      //   }
+      // };
+      // load();
+      // function saveData() {
+      //   const data = getData();
+      //   fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
+      // }
 
+  if (fs.existsSync('./database.json')) {
+    setData(JSON.parse(String(fs.readFileSync('./database.json'))));
+  } else {
+    fs.writeFileSync('./database.json', JSON.stringify({
+      users: [],
+      quizzes: [],
+      tokens: [],
+      sessions: [],
+    }));
+  }
   
-  
+
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
 });
