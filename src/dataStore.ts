@@ -248,13 +248,48 @@ Example usage
     setData(store)
 */
 
-// Use get() to access the data
-function getData() {
-  return data;
-}
+// // Use get() to access the data
+// function getData() {
+//   return data;
+// }
 
-// Use set(newData) to pass in the entire data object, with modifications made
-function setData(newData: DataStore) {
-  data = newData;
-}
-export { getData, setData };
+// // Use set(newData) to pass in the entire data object, with modifications made
+// function setData(newData: DataStore) {
+//   data = newData;
+// }
+// export { getData, setData };
+
+// ----------------------------------------------------------------------------// 
+
+import request, { HttpVerb } from 'sync-request';  
+const requestHelper = (method: HttpVerb, path: string, payload: object) => {
+  let json = {};
+  let qs = {};
+  if (['POST', 'DELETE'].includes(method)) {
+    qs = payload;
+  } else {
+    json = payload;
+  }
+
+  const res = request(method, 'https://1531-24T1-H17B-CRUNCHIE.vercel.app' + path, { qs, json, timeout: 20000 });
+  return JSON.parse(res.body.toString());
+};
+
+export const getData = (): DataStore => {
+  try {
+    const res = requestHelper('GET', '/data', {});
+    return res.data;
+  } catch (e) {
+    return {
+      users: [],
+      quizzes: [],
+      tokens: [],
+      sessions: [],
+    };
+  }
+};
+
+
+export const setData = (newData: Data) => {
+  requestHelper('PUT', '/data', { data: newData });
+};
