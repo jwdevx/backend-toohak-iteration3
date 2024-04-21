@@ -607,7 +607,6 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
 //= ============================  new function ==================================
 // Create quiz question //!  has a different input type.
 
-/*
 app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const token = req.header('token');
   const quizId = parseInt(req.params.quizid);
@@ -616,30 +615,29 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   // saveData();
   res.json(response);
 });
-*/
 
 
-app.post('/v2/admin/quiz/:quizid/question', async (req: Request, res: Response) => {
-  const token = req.header('token');
-  const quizId = parseInt(req.params.quizid);
-  const { questionBody } = req.body;
 
-  try {
-    const creationResult = adminQuestionCreateV2(token, quizId, questionBody);
-    const data = await getData(); 
-    await setData(data); 
-    res.status(201).json({ questionId: creationResult.questionId });
-  } catch (error) {
-    if (error instanceof HTTPError) {
-      res.status(error.statusCode).json({ error: error.message });
-    } else {
-      console.error('Failed to create question:', error);
-      res.status(500).json({ error: "Internal server error occurred while creating the question." });
-    }
-  }
-});
+// app.post('/v2/admin/quiz/:quizid/question', async (req: Request, res: Response) => {
+//   const token = req.header('token');
+//   const quizId = parseInt(req.params.quizid);
+//   const { questionBody } = req.body;
 
+//   try {
+//     const creationResult = adminQuestionCreateV2(token, quizId, questionBody);
+//     const data = await getData(); 
+//     await setData(data); 
 
+//     res.status(201).json({ questionId: creationResult.questionId });
+//   } catch (error) {
+//     if (error instanceof HTTPError) {
+//       res.status(error.statusCode).json({ error: error.message });
+//     } else {
+//       console.error('Failed to create question:', error);
+//       res.status(500).json({ error: "Internal server error occurred while creating the question." });
+//     }
+//   }
+// });
 
 
 
