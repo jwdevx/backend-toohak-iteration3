@@ -613,14 +613,10 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const { questionBody } = req.body;
   const response = adminQuestionCreateV2(token, quizId, questionBody);
   // saveData();
-  const data = await getData(); 
-  await setData(data); 
+  // const data = await getData(); 
+  // await setData(data); 
   res.json(response);
 });
-
-
-
-
 
 // Update quiz question //! has different body input.
 app.put('/v2/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
