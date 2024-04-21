@@ -612,7 +612,7 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { questionBody } = req.body;
   const response = adminQuestionCreateV2(token, quizId, questionBody);
-  // saveData();
+  setData(data); 
   res.json(response);
 });
 
