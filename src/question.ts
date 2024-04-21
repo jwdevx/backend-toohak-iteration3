@@ -6,6 +6,7 @@ import {
   checkQuestionDurationSum, checkAnswerNum, checkAnswerDuplicate,
   checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl, isEndState
 } from './helper';
+import { setData, getData } from './dataStore';
 import HTTPError from 'http-errors';
 import { QuestionCreateReturn, QuestionDuplicateReturn } from './returnInterfaces';
 /**
@@ -95,6 +96,7 @@ export function adminQuestionCreateV2(
   token: string,
   quizId: number,
   questionBody: QuestionBodyV2) : QuestionCreateReturn {
+  const data: DataStore = getData();
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
@@ -105,7 +107,8 @@ export function adminQuestionCreateV2(
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
   // 2.Error 403
-  const quiz = findQuizId(quizId);
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
+  // const quiz = findQuizId(quizId);
   if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     throw HTTPError(403, 'Quiz ID does not refer to a valid quiz.');
   }
@@ -165,6 +168,7 @@ export function adminQuestionCreateV2(
   quiz.timeLastEdited = getNow();
   quiz.numQuestions += 1;
   quiz.questions.push(quesiton);
+  setData(data);
   return { questionId: quesiton.questionId };
 }
 
