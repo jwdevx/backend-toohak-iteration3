@@ -134,7 +134,7 @@ export interface Session {
   questionResults: questionResults[],
   messages: chat[],
 }
-
+//----------------------------------------------------------------------------//
 export interface timeOuts {
   sessionId: number,
   timeOut: ReturnType<typeof setTimeout>,
@@ -148,13 +148,43 @@ let times: Times = {
   time: [],
 };
 
-export function getTimeList() {
-  return times;
-}
+// export function getTimeList() {
+//   return times;
+// }
+// export function setTimeList(newTime: Times) {
+//   times = newTime;
+// }
 
-export function setTimeList(newTime: Times) {
-  times = newTime;
-}
+//----------------------------------------------------------------------------//
+// export function setTimeList(newTime: Times) {
+//   times = newTime;
+// }
+
+// export function setTimeList(newTime: Times): void {
+//   if (newTime && newTime.time) {
+//       times = newTime;
+//   } else {
+//       console.error('Invalid input for times:', newTime);
+//   }
+// }
+
+export const getTimeList = (): Times => {
+  try {
+    const res = requestHelper('GET', '/data', {});
+    return res.times;
+  } catch (e) {
+    return {
+      time: []
+    };
+  }
+};
+export const setTimeList = (newTime: Times) => {
+  requestHelper('PUT', '/data', { times: newTime});
+};
+
+//----------------------------------------------------------------------------//
+
+
 
 // Specific only for return type
 export interface usersRankedByScore {
@@ -223,7 +253,7 @@ export interface DataStore {
   tokens: Tokens[];
   sessions: Session[];
 }
-const data: DataStore = {
+let data: DataStore = {
   users: [],
   quizzes: [],
   tokens: [],
@@ -251,18 +281,40 @@ export const getData = (): DataStore => {
     const res = requestHelper('GET', '/data', {});
     return res.data;
   } catch (e) {
-    return {
-      users: [],
-      quizzes: [],
-      tokens: [],
-      sessions: [],
-    };
+    return data;
   }
 };
+
+// export const getData = (): DataStore => {
+//   try {
+//     const res = requestHelper('GET', '/data', {});
+//     return res.data;
+//   } catch (e) {
+//     return {
+//       users: [],
+//       quizzes: [],
+//       tokens: [],
+//       sessions: [],
+//       times: [],
+//     };
+//   }
+// };
+
 
 export const setData = (newData: DataStore) => {
   requestHelper('PUT', '/data', { data: newData });
 };
+
+// export const getData = (): DataStore => {
+//   try {
+//     const res = requestHelper('GET', '/data', {});
+//     data = res.data;
+//     return data;
+//   } catch (e) {
+//     console.error('Failed to fetch data:', e);
+//     return data; 
+//   }
+// };
 
 // export const setData = (newData: DataStore) => {
 //   try {
