@@ -10,7 +10,10 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 
-import { getData, setData } from './dataStore';
+import {
+  // getData,
+  setData
+} from './dataStore';
 import { clear } from './other';
 
 import {
@@ -151,23 +154,67 @@ Question-Specific Routes (v1)
   GET /v1/player/{playerid}/chat - New
   POST /v1/player/{playerid}/chat - New
 */
+// ----------------------------------------------------------------------------//
+
+// Vercel Constants and Configuration Setup
+import { createClient } from '@vercel/kv';
+
+// Replace this with your API_URL
+// E.g. https://large-poodle-44208.kv.vercel-storage.com
+const KV_REST_API_URL = 'https://giving-earwig-49684.upstash.io';
+// Replace this with your API_TOKEN
+// E.g. AaywASQgOWE4MTVkN2UtODZh...
+const KV_REST_API_TOKEN = 'AcIUASQgOTdhZmZmMjMtNTEzMi00ZWFhLWIxNTMtOTQwMjRkYjVlMzQ2NDQzZmU5OGFmOTdjNDgyN2I2ZGJkMmYwMDQzYTIyYTI=';
+
+const database = createClient({
+  url: KV_REST_API_URL,
+  token: KV_REST_API_TOKEN,
+});
+
+// ---------------------   Data Management with KV  --------------------------//
+
+app.get('/data', async (req: Request, res: Response) => {
+  const data = await database.hgetall('data:names');
+  res.status(200).json(data);
+});
+
+app.put('/data', async (req: Request, res: Response) => {
+  const { data } = req.body;
+  await database.hset('data:names', { data });
+  return res.status(200).json({});
+});
+
+// const load = async () => {
+//   if (fs.existsSync('./database.json')) {
+//     const data = await database.hgetall('data:names');
+//     // setData(JSON.parse(file));
+//     res.status(200).json(data);
+//   }
+// };
+// load();
+
+// const saveData = async () => {
+//   const data = getData();
+//   await database.hset('data:names', { data });
+//   return res.status(200).json({});
+// }
 
 // =============================================================================
 // ============================ LOAD & SAVE DATA ===============================
 // =============================================================================
 
-const load = () => {
-  if (fs.existsSync('./database.json')) {
-    const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
-    setData(JSON.parse(file));
-  }
-};
-load();
+// const load = () => {
+//   if (fs.existsSync('./database.json')) {
+//     const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
+//     setData(JSON.parse(file));
+//   }
+// };
+// load();
 
-function saveData() {
-  const data = getData();
-  fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
-}
+// function saveData() {
+//   const data = getData();
+//   fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
+// }
 
 // =============================================================================
 // ========================== WORK IS DONE BELOW THIS LINE =====================
@@ -186,7 +233,7 @@ app.get('/echo', (req: Request, res: Response) => {
 // clear: Reset the state of the application back to the start.
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -204,7 +251,7 @@ app.get('/static/:filename', (req, res) => {
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = adminAuthRegister(email, password, nameFirst, nameLast);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -213,7 +260,7 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
   const response = adminAuthLogin(email, password);
-  saveData();
+  // saveData();
   res.json(response);
 });
 //! ---------------------   WARNING DO NOT MODIFY  -----------------------------
@@ -221,7 +268,7 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const { token } = req.body;
   const response = adminAuthLogout(token);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -230,7 +277,7 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
 // adminUserDetails: Get the details of an admin user.
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const response = adminUserDetails(req.query.token as string);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -239,7 +286,7 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
   const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -248,7 +295,7 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const { token, oldPassword, newPassword } = req.body;
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
-  saveData();
+  // saveData();
   res.json(response);
 });
 // =============================================================================
@@ -259,7 +306,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 app.post('/v2/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.header('token');
   const response = adminAuthLogout(token);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -267,7 +314,7 @@ app.post('/v2/admin/auth/logout', (req: Request, res: Response) => {
 app.get('/v2/admin/user/details', (req: Request, res: Response) => {
   const token = req.header('token');
   const response = adminUserDetails(token);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -276,7 +323,7 @@ app.put('/v2/admin/user/details', (req: Request, res: Response) => {
   const token = req.header('token');
   const { email, nameFirst, nameLast } = req.body;
   const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -285,7 +332,7 @@ app.put('/v2/admin/user/password', (req: Request, res: Response) => {
   const token = req.header('token');
   const { oldPassword, newPassword } = req.body;
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -298,7 +345,7 @@ app.put('/v2/admin/user/password', (req: Request, res: Response) => {
 app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
   const { token, name, description } = req.body;
   const response = adminQuizCreate(token, name, description);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -307,7 +354,7 @@ app.post('/v1/admin/quiz/', (req: Request, res: Response) => {
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const { token } = req.query;
   const response = adminQuizList(String(token));
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -316,7 +363,7 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
 app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
   const { token } = req.query;
   const response = adminQuizTrashView(String(token));
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -326,7 +373,7 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const quizIds = req.query.quizIds as string;
   const response = adminQuizTrashEmpty(token, quizIds);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -339,7 +386,7 @@ app.post('/v2/admin/quiz', (req: Request, res: Response) => {
   const token = req.header('token');
   const { name, description } = req.body;
   const response = adminQuizCreate(token, name, description);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -347,7 +394,7 @@ app.post('/v2/admin/quiz', (req: Request, res: Response) => {
 app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
   const token = req.header('token');
   const response = adminQuizList(token);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -355,7 +402,7 @@ app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
 app.get('/v2/admin/quiz/trash', (req: Request, res: Response) => {
   const token = req.header('token');
   const response = adminQuizTrashView(token);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -364,7 +411,7 @@ app.delete('/v2/admin/quiz/trash/empty', (req: Request, res: Response) => {
   const token = req.header('token');
   const quizIds = req.query.quizIds as string;
   const response = adminQuizTrashEmpty(token, quizIds);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -378,7 +425,7 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid, 10);
   const token = req.query.token as string;
   const response = adminQuizInfo(token, quizId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -388,7 +435,7 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const { token } = req.query;
   const quizId = parseInt(req.params.quizid);
   const response = adminQuizRemove(String(token), quizId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -398,7 +445,7 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { token, name } = req.body;
   const response = adminQuizNameUpdate(quizId, token, name);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -408,7 +455,7 @@ app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { token, description } = req.body;
   const response = adminQuizDescriptionUpdate(quizId, token, description);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -419,7 +466,7 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   const { token } = req.body;
   const quizId = parseInt(req.params.quizid);
   const response = adminQuizTrashRestore(String(token), quizId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -429,7 +476,7 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { token, userEmail } = req.body;
   const response = adminQuizTransfer(quizId, token, userEmail);
-  saveData();
+  // saveData();
   res.json(response);
 });
 // =============================================================================
@@ -441,7 +488,7 @@ app.get('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.header('token');
   const quizId = parseInt(req.params.quizid, 10);
   const response = adminQuizInfoV2(token, quizId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -451,7 +498,7 @@ app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.header('token');
   const quizId = parseInt(req.params.quizid);
   const response = adminQuizRemoveV2(token, quizId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -462,7 +509,7 @@ app.put('/v2/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { name } = req.body;
   const response = adminQuizNameUpdate(quizId, token, name);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -472,7 +519,7 @@ app.put('/v2/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { description } = req.body;
   const response = adminQuizDescriptionUpdate(quizId, token, description);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -481,7 +528,7 @@ app.post('/v2/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   const token = req.header('token');
   const quizId = parseInt(req.params.quizid);
   const response = adminQuizTrashRestore(token, quizId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -491,7 +538,7 @@ app.post('/v2/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { userEmail } = req.body;
   const response = adminQuizTransferV2(quizId, token, userEmail);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -506,7 +553,7 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const { token, questionBody } = req.body;
   const quizId = parseInt(req.params.quizid);
   const response = adminQuestionCreate(token, quizId, questionBody);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -517,7 +564,7 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Respo
   const quizId = parseInt(req.params.quizid);
   const questionId = parseInt(req.params.questionid);
   const response = adminQuestionUpdate(token, quizId, questionId, questionBody);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -528,7 +575,7 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
   const questionId = parseInt(req.params.questionid);
   const token = req.query.token as string;
   const response = adminQuestionRemove(quizId, questionId, token);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -539,7 +586,7 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
   const questionId = parseInt(req.params.questionid);
   const { token, newPosition } = req.body;
   const response = adminQuestionMove(quizId, questionId, token, newPosition);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -550,7 +597,7 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
   const quizId = parseInt(req.params.quizid);
   const questionId = parseInt(req.params.questionid);
   const response = adminQuestionDuplicate(token, quizId, questionId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 // =============================================================================
@@ -559,12 +606,15 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
 
 //= ============================  new function ==================================
 // Create quiz question //!  has a different input type.
+
 app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const token = req.header('token');
   const quizId = parseInt(req.params.quizid);
   const { questionBody } = req.body;
   const response = adminQuestionCreateV2(token, quizId, questionBody);
-  saveData();
+  // saveData();
+  // const data = await getData();
+  // await setData(data);
   res.json(response);
 });
 
@@ -575,7 +625,7 @@ app.put('/v2/admin/quiz/:quizid/question/:questionid', (req: Request, res: Respo
   const questionId = parseInt(req.params.questionid);
   const { questionBody } = req.body;
   const response = adminQuestionUpdateV2(token, quizId, questionId, questionBody);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -586,7 +636,7 @@ app.delete('/v2/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
   const quizId = parseInt(req.params.quizid);
   const questionId = parseInt(req.params.questionid);
   const response = adminQuestionRemoveV2(quizId, questionId, token);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -597,7 +647,7 @@ app.put('/v2/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
   const questionId = parseInt(req.params.questionid);
   const { newPosition } = req.body;
   const response = adminQuestionMove(quizId, questionId, token, newPosition);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -607,7 +657,7 @@ app.post('/v2/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
   const quizId = parseInt(req.params.quizid);
   const questionId = parseInt(req.params.questionid);
   const response = adminQuestionDuplicate(token, quizId, questionId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -621,7 +671,7 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { imgUrl } = req.body;
   const response = adminQuizThumbnailUpdate(token, quizId, imgUrl);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -630,7 +680,7 @@ app.get('/v1/admin/quiz/:quizid/sessions', (req: Request, res: Response) => {
   const token = req.header('token');
   const quizId = parseInt(req.params.quizid);
   const response = adminQuizViewSessions(token, quizId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -640,7 +690,7 @@ app.post('/v1/admin/quiz/:quizid/session/start', (req: Request, res: Response) =
   const quizId = parseInt(req.params.quizid);
   const { autoStartNum } = req.body;
   const response = adminQuizSessionStart(token, quizId, autoStartNum);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -651,7 +701,7 @@ app.put('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
   const sessionId = parseInt(req.params.sessionid);
   const { action } = req.body;
   const response = adminQuizSessionStateUpdate(token, quizId, sessionId, action);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -661,7 +711,7 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
   const quizId = parseInt(req.params.quizid);
   const sessionId = parseInt(req.params.sessionid);
   const response = adminQuizSessionGetStatus(token, quizId, sessionId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -671,7 +721,7 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res:
   const quizId = parseInt(req.params.quizid);
   const sessionId = parseInt(req.params.sessionid);
   const response = adminQuizSessionGetResults(token, quizId, sessionId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -681,7 +731,7 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, 
   const quizId = parseInt(req.params.quizid);
   const sessionId = parseInt(req.params.sessionid);
   const response = adminQuizSessionGetResultsCSV(token, quizId, sessionId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -693,7 +743,7 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, 
 app.post('/v1/player/join', (req: Request, res: Response) => {
   const { sessionId, name } = req.body;
   const response = playerJoin(sessionId, name);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -701,7 +751,7 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
 app.get('/v1/player/:playerid', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerid);
   const response = playerStatus(playerId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -710,7 +760,7 @@ app.get('/v1/player/:playerid/question/:questionposition', (req: Request, res: R
   const playerId = parseInt(req.params.playerid);
   const questionPosition = parseInt(req.params.questionposition);
   const response = playerQuestionPositionInfo(playerId, questionPosition);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -720,7 +770,7 @@ app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request,
   const questionPosition = parseInt(req.params.questionposition);
   const { answerIds } = req.body;
   const response = playerQuestionAnswerSubmit(playerId, questionPosition, answerIds);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -729,7 +779,7 @@ app.get('/v1/player/:playerid/question/:questionposition/results', (req: Request
   const playerId = parseInt(req.params.playerid);
   const questionPosition = parseInt(req.params.questionposition);
   const response = playerQuestionResults(playerId, questionPosition);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -737,7 +787,7 @@ app.get('/v1/player/:playerid/question/:questionposition/results', (req: Request
 app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerid);
   const response = playerFinalResults(playerId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -745,7 +795,7 @@ app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
 app.get('/v1/player/:playerid/chat', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerid);
   const response = playerReturnAllChat(playerId);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -754,7 +804,7 @@ app.post('/v1/player/:playerid/chat', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerid);
   const { message } = req.body;
   const response = playerSendChat(playerId, message);
-  saveData();
+  // saveData();
   res.json(response);
 });
 
@@ -782,6 +832,30 @@ app.use(errorHandler());
 
 // start server
 const server = app.listen(PORT, HOST, () => {
+  // Load existing persistent data before server starts
+  // const load = () => {
+  //   if (fs.existsSync('./database.json')) {
+  //     const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
+  //     setData(JSON.parse(file));
+  //   }
+  // };
+  // load();
+  // function saveData() {
+  //   const data = getData();
+  //   fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
+  // }
+
+  if (fs.existsSync('./database.json')) {
+    setData(JSON.parse(String(fs.readFileSync('./database.json'))));
+  } else {
+    fs.writeFileSync('./database.json', JSON.stringify({
+      users: [],
+      quizzes: [],
+      tokens: [],
+      sessions: [],
+    }));
+  }
+
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
 });
