@@ -148,13 +148,26 @@ let times: Times = {
   time: [],
 };
 
-export function getTimeList() {
-  return times;
-}
+// export function getTimeList() {
+//   return times;
+// }
 
-export function setTimeList(newTime: Times) {
-  times = newTime;
-}
+export const getTimeList = (): Times => {
+  try {
+    const res = requestHelper('GET', '/data', {});
+    return res.times;
+  } catch (e) {
+    return {
+      time: []
+    };
+  }
+};
+export const setTimeList = (newTime: Times) => {
+  requestHelper('PUT', '/data', { times: newTime});
+};
+// export function setTimeList(newTime: Times) {
+//   times = newTime;
+// }
 
 // Specific only for return type
 export interface usersRankedByScore {
@@ -230,6 +243,7 @@ const data: DataStore = {
   sessions: [],
 };
 
+import { time } from 'console';
 // ----------------------------------------------------------------------------//
 
 import request, { HttpVerb } from 'sync-request';
