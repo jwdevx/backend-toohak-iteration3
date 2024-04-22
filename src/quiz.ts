@@ -188,7 +188,7 @@ export function adminQuizNameUpdate(
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
   // 2.Error 403
-  const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId && quiz.owner === validToken.userId);
   if (isNaN(quizId) || !quiz || quiz.intrash === true) {
     throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
   }
