@@ -11,6 +11,7 @@ interface eachAnswers {
   score: number;
   rank: number;
 }
+
 /**
  * View active and inactive quiz sessions
  * Retrieves active and inactive session ids (sorted in ascending order) for a quiz
@@ -23,11 +24,11 @@ interface eachAnswers {
  */
 export function adminQuizViewSessions(token: string, quizId: number): SessionQuizViewReturn {
   // 1.Error 401
-  const userSessionId = parseInt(decodeURIComponent(token));
+  const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
-  const validToken = findSessionId(userSessionId);
+  const validToken = findSessionId(sessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
@@ -52,22 +53,22 @@ export function adminQuizViewSessions(token: string, quizId: number): SessionQui
  * Comments todo
  */
 export function adminQuizSessionStart(token: string, quizId: number, autoStartNum: number): SessionCreateReturn {
+  const data: DataStore = getData();
   // 1.Error 401
-  const userSessionId = parseInt(decodeURIComponent(token));
+  const sessionId = parseInt(decodeURIComponent(token));
   if (!token || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
-  const validToken = findSessionId(userSessionId);
+  const validToken = data.tokens.find(token => token.sessionId === sessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
   // 2.Error 403
-  const quiz = matchQuizIdAndAuthor(validToken.userId, quizId);
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId && quiz.owner === validToken.userId);
   if (isNaN(quizId) || !quiz) throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
 
   // 3.Error 400
   if (autoStartNum > 50) throw HTTPError(400, 'Autostart cannot be higher than 50');
-  const data: DataStore = getData();
   let count = 0;
   for (const session of data.sessions) {
     if (session.metadata.quizId === quizId && session.state !== state.END) {
@@ -110,6 +111,7 @@ export function adminQuizSessionStart(token: string, quizId: number, autoStartNu
     messages: [],
   };
   data.sessions.push(newsession);
+  setData(data);
   return { sessionId: quizSessionId };
 }
 
@@ -164,6 +166,7 @@ export function adminQuizSessionStateUpdate(token: string, quizId: number, sessi
       setData(data);
       break;
   }
+  setData(data);
   return {};
 }
 
@@ -396,7 +399,7 @@ export function adminQuizSessionGetStatus(token: string, quizId: number, session
 export function adminQuizSessionGetResults(token: string, quizId: number, sessionId: number): finalResults {
   // 1.Error 401
   const userSessionId = parseInt(decodeURIComponent(token));
-  if (!token || !String(token).trim() || isNaN(userSessionId)) {
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
   const validToken = findSessionId(userSessionId);
