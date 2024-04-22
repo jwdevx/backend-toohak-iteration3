@@ -4,50 +4,41 @@ import {
   hasInvalidOrDuplicateAnswerId, calculateAnswerTime, analyzeAnswer, iterateQuestionResults, invalidMessageLength, nameGenerator
 } from './helper';
 import { message, player, state, questionResults, Session, Questions, chat, getData, setData, DataStore } from './dataStore';
-
 import { PlayerJoinReturn, playerQuestionPositionInfoReturn, EmptyObject, user, finalResults, playerReturnAllChatReturn } from './returnInterfaces';
 import { goNext } from './session';
+
 /**
  * To DO.....!
  */
 export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
   const data: DataStore = getData();
-  const quizSession = data.sessions.find(
-    (session) => session.sessionId === sessionId
-  );
-  if (!quizSession) {
-    throw HTTPError(400, 'Session Id does not refer to a valid session.');
-  }
+  const quizSession = data.sessions.find((session) => session.sessionId === sessionId);
+  if (!quizSession) throw HTTPError(400, 'Session Id does not refer to a valid session.');
+
   if (name.length === 0) {
     name = nameGenerator();
     while (quizSession.players.find((player) => player.playerName === name)) {
       name = nameGenerator();
     }
   }
-  const existingPlayer = quizSession.players.find(
-    (player) => player.playerName === name
-  );
-  if (existingPlayer) {
-    throw HTTPError(
-      400,
-      'Name of user entered is not unique compared to other users who have already joined.'
-    );
-  }
-  if (quizSession.state !== state.LOBBY) {
-    throw HTTPError(400, 'Session is not in LOBBY state.');
-  }
+  const existingPlayer = quizSession.players.find((player) => player.playerName === name);
+  if (existingPlayer) throw HTTPError(400, 'Name of user entered is not unique compared to other users who have already joined.');
+  if (quizSession.state !== state.LOBBY) throw HTTPError(400, 'Session is not in LOBBY state.');
+
   const newPlayer: player = {
     playerId: randomIdGenertor(),
     playerName: name,
     totalScore: 0,
     answers: [],
   };
+
   if (quizSession.autoStartNum === 0) {
     quizSession.players.push(newPlayer);
     setData(data);
     quizSession.numPlayers++;
     return { playerId: newPlayer.playerId };
   }
+
   quizSession.numPlayers++;
   quizSession.players.push(newPlayer);
   if (quizSession.autoStartNum === quizSession.numPlayers) {
@@ -56,6 +47,10 @@ export function playerJoin(sessionId: number, name: string): PlayerJoinReturn {
   setData(data);
   return { playerId: newPlayer.playerId };
 }
+
+/**
+ * To do comment
+ */
 export function playerStatus(playerId: number) {
   const session = findQuizSessionViaPlayerId(playerId);
   if (!session) throw HTTPError(400, 'Error player ID does not exist!');
@@ -65,6 +60,7 @@ export function playerStatus(playerId: number) {
     atQuestion: session.atQuestion
   };
 }
+
 /**
  * Get the information about a question that the guest player is on. Question position starts at 1
  * @param {number} playerId - the player we want to view the question he/she is in
@@ -95,7 +91,6 @@ export function playerQuestionPositionInfo(playerId: number, questionPosition: n
       colour: a.colour
     })),
   };
-  // const jsonString = JSON.stringify(questionPositionInfo, null, 2);
   return questionPositionInfo;
 }
 
@@ -111,12 +106,13 @@ export function playerQuestionPositionInfo(playerId: number, questionPosition: n
  */
 export function playerQuestionAnswerSubmit(
   playerId: number, questionPosition: number, answerIds: number[]): EmptyObject {
+  const data: DataStore = getData();
   // Find Session
-  const session = findQuizSessionViaPlayerId(playerId);
+  const session = data.sessions.find(session => session.players.some(p => p.playerId === playerId));
   if (!session) throw HTTPError(400, 'Error player ID does not exist!');
 
   // Find Current Question to compare in metadata
-  const question = findAtQuestionMetadata(session, questionPosition);
+  const question = session.metadata.questions[questionPosition - 1];
   if (!question) throw HTTPError(400, 'Error question position is not valid for this session!');
 
   // An answer can be re-submitted once first selection is made, as long as game is in the right state
@@ -129,7 +125,10 @@ export function playerQuestionAnswerSubmit(
   const invalidOrDuplicateAnswerId = hasInvalidOrDuplicateAnswerId(answerIds, question.answers);
   if (invalidOrDuplicateAnswerId) throw HTTPError(400, 'Error one or more answer IDs are not valid or duplicated!');
   if (answerIds.length < 1) throw HTTPError(400, 'Error less than 1 answer ID was submitted!');
-  return processAnswerSubmission(playerId, session, question, answerIds, questionPosition);
+
+  processAnswerSubmission(playerId, session, question, answerIds, questionPosition);
+  setData(data);
+  return {};
 }
 
 // ------------  Helper Function for playerQuestionAnswerSubmit  --------------//
@@ -141,7 +140,7 @@ export function playerQuestionAnswerSubmit(
  */
 export function processAnswerSubmission(
   playerId: number, session: Session, question: Questions,
-  answerIds: number[], questionPosition: number): Record<string, never> {
+  answerIds: number[], questionPosition: number): void {
   // Find player
   const player = session.players.find(p => p.playerId === playerId);
   const playerAnswer = player.answers[questionPosition - 1];
@@ -181,7 +180,6 @@ export function processAnswerSubmission(
       player.totalScore -= temp;
     }
   }
-  return {};
 }
 /**
  * Calculate Score, P / (num of ppl with correct answer before)
@@ -205,6 +203,9 @@ function updateAnswerQuestionResults(
 }
 // ----------------------------------------------------------------------------//
 
+/**
+ * To do comment
+ */
 export function playerQuestionResults(playerId: number, questionPosition: number): questionResults {
   const session = findQuizSessionViaPlayerId(playerId);
   // Error 400:
@@ -218,6 +219,9 @@ export function playerQuestionResults(playerId: number, questionPosition: number
   return session.questionResults[questionPosition - 1];
 }
 
+/**
+ * To do comment
+ */
 export function playerFinalResults(playerId: number): finalResults {
   const session = findQuizSessionViaPlayerId(playerId);
   // Error 400:
@@ -238,18 +242,27 @@ export function playerFinalResults(playerId: number): finalResults {
   };
 }
 
+/**
+ * To do comment
+ */
 export function playerReturnAllChat(playerId: number): playerReturnAllChatReturn {
   const session = findQuizSessionViaPlayerId(playerId);
   if (!session) throw HTTPError(400, 'Error player ID does not exist!');
-
   const messages = session.messages.sort((a, b) => a.timeSent - b.timeSent);
   return { messages };
 }
 
+/**
+ * To do comment
+ */
 export function playerSendChat(playerId: number, message: message): Record<string, never> {
-  const session = findQuizSessionViaPlayerId(playerId);
+  const data: DataStore = getData();
+  const session = data.sessions.find(session => session.players.some(p => p.playerId === playerId));
   if (!session) throw HTTPError(400, 'Error player ID does not exist!');
-  if (invalidMessageLength(message.messageBody)) throw HTTPError(400, 'If message body is less than 1 character or more than 100 characters');
+
+  if (invalidMessageLength(message.messageBody)) {
+    throw HTTPError(400, 'If message body is less than 1 character or more than 100 characters');
+  }
   const player = session.players.find(p => p.playerId === playerId);
   const time = Math.floor(new Date().getTime() / 1000);
   const newChat:chat = {
@@ -259,5 +272,6 @@ export function playerSendChat(playerId: number, message: message): Record<strin
     timeSent: time,
   };
   session.messages.push(newChat);
+  setData(data);
   return {};
 }
