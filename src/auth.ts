@@ -147,7 +147,7 @@ export function adminUserDetailsUpdate(
   if (!token || !String(token).trim() || isNaN(sessionId)) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
-  const validToken = findSessionId(sessionId);
+  const validToken = data.tokens.find(token => token.sessionId === sessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
@@ -157,7 +157,7 @@ export function adminUserDetailsUpdate(
     !String(email).trim() || !String(nameFirst).trim() || !String(nameLast).trim()) {
     throw HTTPError(400, 'One or more missing parameters');
   }
-  const user = findUserId(validToken.userId);
+  const user = data.users.find(user => user.userId === validToken.userId);
   if (data.users.some(otherUser => otherUser.email === email && otherUser.userId !== user.userId)) {
     throw HTTPError(400, 'Email is currently used by another user, choose another email!');
   }
@@ -189,14 +189,14 @@ export function adminUserPasswordUpdate(
     throw HTTPError(401, 'Token is empty or invalid');
   }
   const data: DataStore = getData();
-  const validToken = findSessionId(sessionId);
+  const validToken = data.tokens.find(token => token.sessionId === sessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is empty or invalid');
   }
   if (!oldPassword || !newPassword || !String(oldPassword).trim() || !String(newPassword).trim()) {
     throw HTTPError(400, 'One or more missing parameters');
   }
-  const user = findUserId(validToken.userId);
+  const user = data.users.find(user => user.userId === validToken.userId);
 
   // Hash the old password and compare with stored hash
   const oldPasswordHash = crypto.createHash('sha256').update(oldPassword).digest('hex');
@@ -241,11 +241,13 @@ export function adminAuthLogout(token: string) : EmptyObject {
   // 1.Error 401
   const data: DataStore = getData();
   const sessionId = parseInt(decodeURIComponent(token));
-  if (!token || !String(token).trim() || isNaN(sessionId)) throw HTTPError(401, 'Token is empty or not provided');
-
+  if (!token || !String(token).trim() || isNaN(sessionId)) {
+    throw HTTPError(401, 'Token is empty or not provided');
+  }
   const validToken = data.tokens.findIndex(tokens => tokens.sessionId === sessionId);
-  if (validToken === -1) throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
-
+  if (validToken === -1) {
+    throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
+  }
   // Success 200
   data.tokens.splice(validToken, 1);
   setData(data);
