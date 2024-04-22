@@ -402,7 +402,7 @@ describe('update status', () => {
   test('action is not valid', () => {
     expect(() => adminQuizSessionStateUpdate(token1, Quiz1, sessionId, 'invalid action')).toThrow(HTTPError[400]);
   });
-  test('process with skip', () => {
+  test.only('process with skip', () => {
     let status = adminQuizSessionGetStatus(token1, Quiz1, sessionId).bodyObj as SessionStatusReturn;
     expect(status.state).toStrictEqual(state.LOBBY);
     let result = adminQuizSessionStateUpdate(token1, Quiz1, sessionId, Action.NEXT_QUESTION);

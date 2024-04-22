@@ -2,7 +2,7 @@ import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
 import { IncomingHttpHeaders } from 'http';
 import HTTPError from 'http-errors';
-const SERVER_URL = `${url}:${port}`;
+const SERVER_URL = `https://1531-24T1-H17B-CRUNCHIE.vercel.app`;
 const TIMEOUT_MS = 10000;
 import { QuestionBody, QuestionBodyV2 } from './dataStore';
 import { message } from './dataStore';
