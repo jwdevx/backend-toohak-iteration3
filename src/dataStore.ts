@@ -135,54 +135,6 @@ export interface Session {
   messages: chat[],
 }
 
-//----------------------------------------------------------------------------//
-export interface timeOuts {
-  sessionId: number,
-  timeOut: ReturnType<typeof setTimeout>,
-}
-
-export interface Times {
-  times: timeOuts[],
-}
-
-let times: Times = {
-  time: [],
-};
-
-export function getTimeList() {
-  return times;
-}
-// export function setTimeList(newTime: Times) {
-//   times = newTime;
-// }
-
-//----------------------------------------------------------------------------//
-
-export function setTimeList(newTime: Times): void {
-  if (newTime && newTime.time) {
-      times = newTime;
-  } else {
-      console.error('Invalid input for times:', newTime);
-  }
-}
-
-// export const getTimeList = (): Times => {
-//   try {
-//     const res = requestHelper('GET', '/data', {});
-//     return res.times;
-//   } catch (e) {
-//     return {
-//       time: []
-//     };
-//   }
-// };
-// export const setTimeList = (newTime: Times) => {
-//   requestHelper('PUT', '/data', { times: newTime});
-// };
-
-//----------------------------------------------------------------------------//
-
-
 
 // Specific only for return type
 export interface usersRankedByScore {
@@ -353,3 +305,81 @@ Example usage
 //   data = newData;
 // }
 // export { getData, setData };
+
+
+//----------------------------------------------------------------------------//
+export interface timeOuts {
+  sessionId: number,
+  timeOut: ReturnType<typeof setTimeout>,
+}
+
+export interface Times {
+  times: timeOuts[],
+}
+
+let times: Times = {
+  time: [],
+};
+
+// export function getTimeList() {
+//   return times;
+// }
+// export function setTimeList(newTime: Times) {
+//   times = newTime;
+// }
+
+// 
+//----------------------------------------------------------------------------//
+// export function setTimeList(newTime: Times): void {
+//   if (newTime && newTime.time) {
+//       times = newTime;
+//   } else {
+//       console.error('Invalid input for times:', newTime);
+//   }
+// }
+
+
+
+
+
+// export const getTimeList = (): Times => {
+//   try {
+//     const res = requestHelper('GET', '/data', {});
+//     return res.times;
+//   } catch (e) {
+//     return {
+//       time: []
+//     };
+//   }
+// };
+// export const setTimeList = (newTime: Times) => {
+//   requestHelper('PUT', '/data', { times: newTime});
+// };
+
+
+
+// Fetches the 'times' list, updates local state if successful, or uses local state as a fallback.
+export const getTimeList = async (): Promise<Times> => {
+try {
+    const res = await requestHelper('GET', '/data', {});
+    times = res.times; // Update local state with server response
+    return times;
+} catch (e) {
+    console.error('Failed to fetch times from the server, using local state:', e);
+    return times; // Use local state as fallback
+}
+};
+
+// Updates the 'times' list on the server and locally.
+export const setTimeList = async (newTime: Times): Promise<void> => {
+try {
+    await requestHelper('PUT', '/data', { times: newTime });
+    times = newTime; // Update local state after successful server update
+} catch (e) {
+    console.error('Failed to update times on the server:', e);
+}
+};
+  
+
+
+//----------------------------------------------------------------------------//
