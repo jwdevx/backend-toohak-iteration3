@@ -140,31 +140,31 @@ export interface timeOuts {
   timeOut: ReturnType<typeof setTimeout>,
 }
 
-export interface Times {
-  time: timeOuts[],
-}
+// export interface Times {
+//   times: timeOuts[],
+// }
 
-let times: Times = {
-  time: [],
-};
+// let times: Times = {
+//   time: [],
+// };
 
 // export function getTimeList() {
 //   return times;
 // }
 
-export const getTimeList = (): Times => {
-  try {
-    const res = requestHelper('GET', '/data', {});
-    return res.times;
-  } catch (e) {
-    return {
-      time: []
-    };
-  }
-};
-export const setTimeList = (newTime: Times) => {
-  requestHelper('PUT', '/data', { times: newTime});
-};
+// export const getTimeList = (): Times => {
+//   try {
+//     const res = requestHelper('GET', '/data', {});
+//     return res.times;
+//   } catch (e) {
+//     return {
+//       time: []
+//     };
+//   }
+// };
+// export const setTimeList = (newTime: Times) => {
+//   requestHelper('PUT', '/data', { times: newTime});
+// };
 // export function setTimeList(newTime: Times) {
 //   times = newTime;
 // }
@@ -235,15 +235,16 @@ export interface DataStore {
   quizzes: Quizzes[];
   tokens: Tokens[];
   sessions: Session[];
+  times: timeOuts[];
 }
 const data: DataStore = {
   users: [],
   quizzes: [],
   tokens: [],
   sessions: [],
+  times: [],
 };
 
-import { time } from 'console';
 // ----------------------------------------------------------------------------//
 
 import request, { HttpVerb } from 'sync-request';
@@ -270,6 +271,7 @@ export const getData = (): DataStore => {
       quizzes: [],
       tokens: [],
       sessions: [],
+      times: [],
     };
   }
 };
