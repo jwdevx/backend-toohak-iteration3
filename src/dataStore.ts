@@ -339,22 +339,26 @@ let times: Times = {
 // }
 //----------------------------------------------------------------------------//
 
-export const getTimeList = (): Times => {
-  try {
-    const res = requestHelper('GET', '/data', {});
-    return res.times;
-  } catch (e) {
-    return {
-      time: []
-    };
-  }
-};
-export const setTimeList = (newTime: Times) => {
-  requestHelper('PUT', '/data', { times: newTime});
-};
+//!This doesnt work
+// {
+// "error": "Cannot read properties of undefined (reading 'time')"
+// }
+// export const getTimeList = (): Times => {
+//   try {
+//     const res = requestHelper('GET', '/data', {});
+//     return res.times;
+//   } catch (e) {
+//     return {
+//       time: []
+//     };
+//   }
+// };
+// export const setTimeList = (newTime: Times) => {
+//   requestHelper('PUT', '/data', { times: newTime});
+// };
 
 
-/*
+
 // Fetches the 'times' list, updates local state if successful, or uses local state as a fallback.
 export const getTimeList = async (): Promise<Times> => {
 try {
@@ -376,7 +380,7 @@ try {
     console.error('Failed to update times on the server:', e);
 }
 };
- */  
+
 
 
 //----------------------------------------------------------------------------//
