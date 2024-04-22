@@ -149,36 +149,36 @@ let times: Times = {
   time: [],
 };
 
-// export function getTimeList() {
-//   return times;
-// }
+export function getTimeList() {
+  return times;
+}
 // export function setTimeList(newTime: Times) {
 //   times = newTime;
 // }
 
 //----------------------------------------------------------------------------//
 
-// export function setTimeList(newTime: Times): void {
-//   if (newTime && newTime.time) {
-//       times = newTime;
-//   } else {
-//       console.error('Invalid input for times:', newTime);
-//   }
-// }
-
-export const getTimeList = (): Times => {
-  try {
-    const res = requestHelper('GET', '/data', {});
-    return res.times;
-  } catch (e) {
-    return {
-      time: []
-    };
+export function setTimeList(newTime: Times): void {
+  if (newTime && newTime.time) {
+      times = newTime;
+  } else {
+      console.error('Invalid input for times:', newTime);
   }
-};
-export const setTimeList = (newTime: Times) => {
-  requestHelper('PUT', '/data', { times: newTime});
-};
+}
+
+// export const getTimeList = (): Times => {
+//   try {
+//     const res = requestHelper('GET', '/data', {});
+//     return res.times;
+//   } catch (e) {
+//     return {
+//       time: []
+//     };
+//   }
+// };
+// export const setTimeList = (newTime: Times) => {
+//   requestHelper('PUT', '/data', { times: newTime});
+// };
 
 //----------------------------------------------------------------------------//
 
