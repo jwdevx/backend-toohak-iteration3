@@ -134,6 +134,7 @@ export interface Session {
   questionResults: questionResults[],
   messages: chat[],
 }
+
 //----------------------------------------------------------------------------//
 export interface timeOuts {
   sessionId: number,
@@ -141,7 +142,7 @@ export interface timeOuts {
 }
 
 export interface Times {
-  time: timeOuts[],
+  times: timeOuts[],
 }
 
 let times: Times = {
@@ -156,9 +157,6 @@ let times: Times = {
 // }
 
 //----------------------------------------------------------------------------//
-// export function setTimeList(newTime: Times) {
-//   times = newTime;
-// }
 
 // export function setTimeList(newTime: Times): void {
 //   if (newTime && newTime.time) {
@@ -252,12 +250,14 @@ export interface DataStore {
   quizzes: Quizzes[];
   tokens: Tokens[];
   sessions: Session[];
+  times: timeOuts[];
 }
 let data: DataStore = {
   users: [],
   quizzes: [],
   tokens: [],
   sessions: [],
+  times: [],
 };
 
 // ----------------------------------------------------------------------------//
