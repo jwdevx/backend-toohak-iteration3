@@ -166,7 +166,6 @@ export function adminQuizSessionStateUpdate(token: string, quizId: number, sessi
       setData(data);
       break;
   }
-  setData(data);
   return {};
 }
 
