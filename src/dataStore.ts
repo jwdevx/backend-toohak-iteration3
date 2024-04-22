@@ -321,22 +321,22 @@ let times: Times = {
   time: [],
 };
 
-// export function getTimeList() {
-//   return times;
-// }
+export function getTimeList() {
+  return times;
+}
 // export function setTimeList(newTime: Times) {
 //   times = newTime;
 // }
 
 // 
 //----------------------------------------------------------------------------//
-// export function setTimeList(newTime: Times): void {
-//   if (newTime && newTime.time) {
-//       times = newTime;
-//   } else {
-//       console.error('Invalid input for times:', newTime);
-//   }
-// }
+export function setTimeList(newTime: Times): void {
+  if (newTime && newTime.time) {
+      times = newTime;
+  } else {
+      console.error('Invalid input for times:', newTime);
+  }
+}
 //----------------------------------------------------------------------------//
 
 //!This doesnt work
@@ -358,7 +358,8 @@ let times: Times = {
 // };
 
 
-
+//----------------------------------------------------------------------------//
+/* 
 // Fetches the 'times' list, updates local state if successful, or uses local state as a fallback.
 export const getTimeList = async (): Promise<Times> => {
 try {
@@ -380,7 +381,7 @@ try {
     console.error('Failed to update times on the server:', e);
 }
 };
-
+*/
 
 
 //----------------------------------------------------------------------------//
