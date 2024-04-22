@@ -1,14 +1,16 @@
 const Colour = ['red', 'blue', 'green', 'yellow', 'purple', 'brown', 'orange'];
 import { Questions, Answer, QuestionBody, QuestionBodyV2 } from './dataStore';
 import {
-  findSessionId, checkQuestionLength, findQuizId, matchQuizIdAndAuthor,
+  findSessionId, checkQuestionLength, matchQuizIdAndAuthor,
   checkQuestionDuration, checkQuestionPoints, checkAnswerLength,
   checkQuestionDurationSum, checkAnswerNum, checkAnswerDuplicate,
-  checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl, isEndState
+  checkAnswerCorrect, randomIdGenertor, getNow, isValidUrl, isEndState,
+//   findQuizId,
 } from './helper';
-import { setData, getData } from './dataStore';
+import { setData, getData, DataStore } from './dataStore';
 import HTTPError from 'http-errors';
 import { QuestionCreateReturn, QuestionDuplicateReturn } from './returnInterfaces';
+
 /**
  * creates a quiz question.
  * @param {string} token - a valid sessionId
@@ -19,7 +21,8 @@ import { QuestionCreateReturn, QuestionDuplicateReturn } from './returnInterface
 export function adminQuestionCreate(
   token: string,
   quizId: number,
-  questionBody: QuestionBody) : QuestionCreateReturn {
+  questionBody: QuestionBody): QuestionCreateReturn {
+  const data: DataStore = getData();
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
@@ -30,7 +33,7 @@ export function adminQuestionCreate(
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
   // 2.Error 403
-  const quiz = findQuizId(quizId);
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
   if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     throw HTTPError(403, 'Quiz ID does not refer to a valid quiz.');
   }
@@ -86,6 +89,7 @@ export function adminQuestionCreate(
   quiz.timeLastEdited = getNow();
   quiz.numQuestions += 1;
   quiz.questions.push(quesiton);
+  setData(data);
   return { questionId: quesiton.questionId };
 }
 
@@ -184,18 +188,19 @@ export function adminQuestionUpdate(
   token: string,
   quizId: number,
   questionId:number,
-  questionBody: QuestionBody) : Record<string, never> {
+  questionBody: QuestionBody): Record<string, never> {
+  const data: DataStore = getData();
   // 1.Error 401 - check Token
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
-  const validToken = findSessionId(sessionId);
+  const validToken = data.tokens.find(token => token.sessionId === sessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
   // 2.Error 403 - check Quiz
-  const quiz = findQuizId(quizId);
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
   if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     throw HTTPError(403, 'Quiz ID does not refer to a valid quiz.');
   }
@@ -256,6 +261,7 @@ export function adminQuestionUpdate(
   // Update Quiz
   quiz.duration = possibleNewDuration;
   quiz.timeLastEdited = getNow();
+  setData(data);
   return {};
 }
 
@@ -266,18 +272,19 @@ export function adminQuestionUpdateV2(
   token: string,
   quizId: number,
   questionId:number,
-  questionBody: QuestionBodyV2) : Record<string, never> {
+  questionBody: QuestionBodyV2): Record<string, never> {
+  const data: DataStore = getData();
   // 1.Error 401 - check Token
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
-  const validToken = findSessionId(sessionId);
+  const validToken = data.tokens.find(token => token.sessionId === sessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
   // 2.Error 403 - check Quiz
-  const quiz = findQuizId(quizId);
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
   if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     throw HTTPError(403, 'Quiz ID does not refer to a valid quiz.');
   }
@@ -343,6 +350,7 @@ export function adminQuestionUpdateV2(
   // Update Quiz
   quiz.duration = possibleNewDuration;
   quiz.timeLastEdited = getNow();
+  setData(data);
   return {};
 }
 
@@ -357,22 +365,22 @@ export function adminQuestionRemove(
   quizId: number,
   questionId: number,
   token: string): Record<string, never> {
+  const data: DataStore = getData();
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
-  const validToken = findSessionId(sessionId);
+  const validToken = data.tokens.find(token => token.sessionId === sessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
   // 2.Error 403
-  const authUserId = validToken.userId;
-  const quiz = findQuizId(quizId);
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
   if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     throw HTTPError(403, 'Quiz ID does not refer to a valid quiz.');
   }
-  if (!matchQuizIdAndAuthor(authUserId, quizId)) {
+  if (!matchQuizIdAndAuthor(validToken.userId, quizId)) {
     throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
   }
   // 3.Error 400
@@ -385,28 +393,30 @@ export function adminQuestionRemove(
   quiz.questions.splice(questionIndex, 1);
   quiz.duration -= duration;
   quiz.numQuestions -= 1;
+  setData(data);
   return {};
 }
+
 export function adminQuestionRemoveV2(
   quizId: number,
   questionId: number,
   token: string): Record<string, never> {
+  const data: DataStore = getData();
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
-  const validToken = findSessionId(sessionId);
+  const validToken = data.tokens.find(token => token.sessionId === sessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
   // 2.Error 403
-  const authUserId = validToken.userId;
-  const quiz = findQuizId(quizId);
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
   if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     throw HTTPError(403, 'Quiz ID does not refer to a valid quiz.');
   }
-  if (!matchQuizIdAndAuthor(authUserId, quizId)) {
+  if (!matchQuizIdAndAuthor(validToken.userId, quizId)) {
     throw HTTPError(403, 'Quiz ID does not refer to a quiz that this user owns.');
   }
   // 3.Error 400
@@ -422,6 +432,7 @@ export function adminQuestionRemoveV2(
   quiz.questions.splice(questionIndex, 1);
   quiz.duration -= duration;
   quiz.numQuestions -= 1;
+  setData(data);
   return {};
 }
 /**
@@ -437,17 +448,18 @@ export function adminQuestionMove(
   questionId: number,
   token: string,
   newPosition: number): Record<string, never> {
+  const data: DataStore = getData();
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
-  const validToken = findSessionId(sessionId);
+  const validToken = data.tokens.find(token => token.sessionId === sessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
   // 2.Error 403
-  const quiz = findQuizId(quizId);
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
   if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     throw HTTPError(403, 'Quiz ID does not refer to a valid quiz.');
   }
@@ -466,6 +478,7 @@ export function adminQuestionMove(
   const [movedQuestion] = quiz.questions.splice(questionIndex, 1);
   quiz.questions.splice(newPosition, 0, movedQuestion);
   quiz.timeLastEdited = getNow();
+  setData(data);
   return {};
 }
 
@@ -479,18 +492,19 @@ export function adminQuestionMove(
 export function adminQuestionDuplicate(
   token: string,
   quizId: number,
-  questionId: number) : QuestionDuplicateReturn {
+  questionId: number): QuestionDuplicateReturn {
+  const data: DataStore = getData();
   // 1.Error 401
   const sessionId = parseInt(decodeURIComponent(token));
   if (!token || isNaN(sessionId) || !String(token).trim()) {
     throw HTTPError(401, 'Token is empty or not provided');
   }
-  const validToken = findSessionId(sessionId);
+  const validToken = data.tokens.find(token => token.sessionId === sessionId);
   if (!validToken) {
     throw HTTPError(401, 'Token is invalid (does not refer to valid logged in user session)');
   }
   // 2.Error 403
-  const quiz = findQuizId(quizId);
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
   if (!quiz || isNaN(quizId) || quiz.intrash === true) {
     throw HTTPError(403, 'Quiz ID does not refer to a valid quiz.');
   }
@@ -530,5 +544,6 @@ export function adminQuestionDuplicate(
   // Insert immeditately after source question
   const sourceIndex = quiz.questions.findIndex(q => q.questionId === questionId);
   quiz.questions.splice(sourceIndex + 1, 0, quesiton);
+  setData(data);
   return { newQuestionId: quesiton.questionId };
 }
