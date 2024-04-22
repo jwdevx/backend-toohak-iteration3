@@ -10,7 +10,10 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 
-import { getData, setData } from './dataStore';
+import {
+  // getData,
+  setData
+} from './dataStore';
 import { clear } from './other';
 
 import {
@@ -170,7 +173,6 @@ const database = createClient({
 
 // ---------------------   Data Management with KV  --------------------------//
 
-
 app.get('/data', async (req: Request, res: Response) => {
   const data = await database.hgetall('data:names');
   res.status(200).json(data);
@@ -181,8 +183,6 @@ app.put('/data', async (req: Request, res: Response) => {
   await database.hset('data:names', { data });
   return res.status(200).json({});
 });
-
-
 
 // const load = async () => {
 //   if (fs.existsSync('./database.json')) {
@@ -613,8 +613,8 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const { questionBody } = req.body;
   const response = adminQuestionCreateV2(token, quizId, questionBody);
   // saveData();
-  // const data = await getData(); 
-  // await setData(data); 
+  // const data = await getData();
+  // await setData(data);
   res.json(response);
 });
 
@@ -832,19 +832,18 @@ app.use(errorHandler());
 
 // start server
 const server = app.listen(PORT, HOST, () => {
-
   // Load existing persistent data before server starts
-      // const load = () => {
-      //   if (fs.existsSync('./database.json')) {
-      //     const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
-      //     setData(JSON.parse(file));
-      //   }
-      // };
-      // load();
-      // function saveData() {
-      //   const data = getData();
-      //   fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
-      // }
+  // const load = () => {
+  //   if (fs.existsSync('./database.json')) {
+  //     const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
+  //     setData(JSON.parse(file));
+  //   }
+  // };
+  // load();
+  // function saveData() {
+  //   const data = getData();
+  //   fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
+  // }
 
   if (fs.existsSync('./database.json')) {
     setData(JSON.parse(String(fs.readFileSync('./database.json'))));
@@ -856,7 +855,6 @@ const server = app.listen(PORT, HOST, () => {
       sessions: [],
     }));
   }
-  
 
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
@@ -866,4 +864,3 @@ const server = app.listen(PORT, HOST, () => {
 process.on('SIGINT', () => {
   server.close(() => console.log('Shutting down server gracefully.'));
 });
-

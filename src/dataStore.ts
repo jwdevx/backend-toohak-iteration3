@@ -223,12 +223,55 @@ export interface DataStore {
   tokens: Tokens[];
   sessions: Session[];
 }
-let data: DataStore = {
+const data: DataStore = {
   users: [],
   quizzes: [],
   tokens: [],
   sessions: [],
 };
+
+// ----------------------------------------------------------------------------//
+
+import request, { HttpVerb } from 'sync-request';
+const requestHelper = (method: HttpVerb, path: string, payload: object) => {
+  let json = {};
+  let qs = {};
+  if (['POST', 'DELETE'].includes(method)) {
+    qs = payload;
+  } else {
+    json = payload;
+  }
+
+  const res = request(method, 'https://1531-24T1-H17B-CRUNCHIE.vercel.app' + path, { qs, json, timeout: 20000 });
+  return JSON.parse(res.body.toString());
+};
+
+export const getData = (): DataStore => {
+  try {
+    const res = requestHelper('GET', '/data', {});
+    return res.data;
+  } catch (e) {
+    return {
+      users: [],
+      quizzes: [],
+      tokens: [],
+      sessions: [],
+    };
+  }
+};
+
+export const setData = (newData: DataStore) => {
+  requestHelper('PUT', '/data', { data: newData });
+};
+
+// export const setData = (newData: DataStore) => {
+//   try {
+//     requestHelper('PUT', '/data', { data: newData });
+//     data = newData; // Update local data state after successful update on the server, no need?
+//   } catch (e) {
+//     console.error('Failed to update data on the server:', e);
+//   }
+// };
 
 // =============================================================================
 // ======  YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1 ======
@@ -258,38 +301,3 @@ Example usage
 //   data = newData;
 // }
 // export { getData, setData };
-
-// ----------------------------------------------------------------------------// 
-
-import request, { HttpVerb } from 'sync-request';  
-const requestHelper = (method: HttpVerb, path: string, payload: object) => {
-  let json = {};
-  let qs = {};
-  if (['POST', 'DELETE'].includes(method)) {
-    qs = payload;
-  } else {
-    json = payload;
-  }
-
-  const res = request(method, 'https://1531-24T1-H17B-CRUNCHIE.vercel.app' + path, { qs, json, timeout: 20000 });
-  return JSON.parse(res.body.toString());
-};
-
-export const getData = (): DataStore => {
-  try {
-    const res = requestHelper('GET', '/data', {});
-    return res.data;
-  } catch (e) {
-    return {
-      users: [],
-      quizzes: [],
-      tokens: [],
-      sessions: [],
-    };
-  }
-};
-
-
-export const setData = (newData: Data) => {
-  requestHelper('PUT', '/data', { data: newData });
-};
